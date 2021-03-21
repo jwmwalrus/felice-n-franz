@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jwmwalrus/felice-franz/base"
 )
 
 // Route Configures all the API routes
@@ -38,4 +39,32 @@ func Route(r *gin.Engine) *gin.Engine {
 	}
 
 	return r
+}
+
+func index(c *gin.Context) {
+	c.HTML(
+		http.StatusOK,
+		"views/index.html",
+		gin.H{
+			"title": base.AppName,
+		},
+	)
+}
+
+func about(c *gin.Context) {
+	c.HTML(
+		http.StatusOK,
+		"views/about.html",
+		gin.H{},
+	)
+}
+
+func contact(c *gin.Context) {
+	c.HTML(
+		http.StatusOK,
+		"views/contact.html",
+		gin.H{
+			"title": "Contact",
+		},
+	)
 }

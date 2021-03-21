@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jwmwalrus/felice+franz/api/v1"
-	"github.com/jwmwalrus/felice+franz/api/v1/middleware"
-	"github.com/jwmwalrus/felice+franz/base"
+	"github.com/jwmwalrus/felice-franz/api/v1"
+	"github.com/jwmwalrus/felice-franz/api/v1/middleware"
+	"github.com/jwmwalrus/felice-franz/base"
 )
 
 func main() {
