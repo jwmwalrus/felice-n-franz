@@ -1,4 +1,6 @@
 // assets/js/index.js
+var apiUrl = window.location.origin + "/api/v1";
+var activeEnvironment = "";
 var groups = [];
 var topics = [];
 var addConsumerCard = (t) => {
@@ -93,24 +95,32 @@ var populateAvailable = () => {
   const topicsList = document.getElementById("available-topics");
   topics.forEach((t) => addTopicToList(t, topicsList, selectTopic));
 };
-window.addSelectedCards = () => {
+window.addSelectedCards = async () => {
   removeAllCards();
   const parent = document.getElementById("selected-topics");
-  const list = parent.querySelectorAll("div");
+  let list = parent.querySelectorAll("div");
+  list = Array.from(list);
   list.forEach((l) => {
     const t = topics.find((t2) => t2.key === l.id);
     addConsumerCard(t);
   });
+  const topicKeys = list.map((l) => l.id);
+  try {
+    const method = "POST";
+    const body = JSON.stringify({env: activeEnvironment, topicKeys});
+    await fetch(`${apiUrl}/consumers`, {method, body});
+  } catch (e) {
+    console.error(e);
+  }
 };
 window.checkIfValidEnvironment = async (sel) => {
-  const val = sel.value;
-  const apiUrl = window.location.origin + "/api/v1";
-  if (val !== "") {
+  activeEnvironment = sel.value;
+  if (activeEnvironment !== "") {
     try {
-      const resp1 = await fetch(`${apiUrl}/env/${val}/topic`);
-      const t = await resp1.json();
-      const resp2 = await fetch(`${apiUrl}/env/${val}/group`);
-      const g = await resp2.json();
+      const res1 = await fetch(`${apiUrl}/envs/${activeEnvironment}/topics`);
+      const t = await res1.json();
+      const res2 = await fetch(`${apiUrl}/envs/${activeEnvironment}/groups`);
+      const g = await res2.json();
       topics = [...t.topics];
       groups = [...g.groups];
       populateAvailable();

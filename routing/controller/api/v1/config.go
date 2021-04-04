@@ -7,6 +7,19 @@ import (
 	"github.com/jwmwalrus/felice-franz/base"
 )
 
+func configEndPoints(r *gin.RouterGroup) {
+	r.GET("/config", getGlobalConfig)
+
+	ce := r.Group("/envs")
+	{
+		ce.GET("/", getEnvsList)
+		ce.GET("/:envname/config", getEnvConfig)
+		ce.GET("/:envname/topics", getEnvTopics)
+		ce.GET("/:envname/groups", getEnvGroups)
+		ce.GET("/:envname/groups/:groupname/topics", getEnvGroupTopics)
+	}
+}
+
 func getGlobalConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"port": base.Conf.Port})
 }
