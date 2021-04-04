@@ -34,7 +34,8 @@ func Load() (args []string) {
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
-	json.Unmarshal(byteValue, &userConf)
+	err = json.Unmarshal(byteValue, &userConf)
+	bnp.PanicOnError(err)
 
 	if userConf.FirstRun {
 		userConf.FirstRun = false
