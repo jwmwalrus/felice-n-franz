@@ -9,14 +9,19 @@ import (
 
 // Config Application's configuration
 type Config struct {
-	FirstRun bool          `json:"firstRun"`
-	Port     int           `json:"port"`
-	Envs     []Environment `json:"envs"`
+	FirstRun      bool          `json:"firstRun"`
+	Port          int           `json:"port"`
+	MaxTailOffset int           `json:"maxTailOffset"`
+	Envs          []Environment `json:"envs"`
 }
 
 func (rec *Config) setDefaults() {
 	if rec.Port == 0 {
 		rec.Port = DefaultPort
+	}
+
+	if rec.MaxTailOffset == 0 {
+		rec.MaxTailOffset = DefaultTailOffset
 	}
 
 	if len(rec.Envs) < 1 {
@@ -205,27 +210,27 @@ func (rec *Group) setGroupDefaults() {
 
 // KeyVal Defines a key-value pair
 type KeyVal struct {
-	Key string `json:"key"`
-	Val string `json:"val"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 func (rec *KeyVal) expandVars(vars []KeyVal) {
 	for _, kv := range vars {
-		rec.Val = strings.ReplaceAll(rec.Val, "{{"+kv.Key+"}}", kv.Val)
+		rec.Value = strings.ReplaceAll(rec.Value, "{{"+kv.Key+"}}", kv.Value)
 	}
 }
 
 func (rec *KeyVal) setTopicDefaults() {
 	*rec = KeyVal{
-		Key: "payment",
-		Val: "{{myVar}}.division.department.section.subsection.payment-type",
+		Key:   "payment",
+		Value: "{{myVar}}.division.department.section.subsection.payment-type",
 	}
 }
 
 func (rec *KeyVal) setVarDefaults() {
 	*rec = KeyVal{
-		Key: "myVar",
-		Val: "some-value",
+		Key:   "myVar",
+		Value: "some-value",
 	}
 }
 
@@ -238,7 +243,7 @@ func getKeys(kv []KeyVal) (keys []string) {
 
 func getValues(kv []KeyVal) (values []string) {
 	for _, x := range kv {
-		values = append(values, x.Val)
+		values = append(values, x.Value)
 	}
 	return
 }

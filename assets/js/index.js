@@ -11,7 +11,7 @@ const addConsumerCard = (t) => {
 
     const title = document.createElement('H5');
     title.classList.add('card-title');
-    title.innerText = t.val;
+    title.innerText = t.value;
 
     const body = document.createElement('DIV');
     body.classList.add('card-body');
@@ -46,7 +46,7 @@ const addTopicToList = (t, l, cb) => {
     node.classList.add('list-group-item-action');
     node.ondblclick = cb;
 
-    const textnode = document.createTextNode(t.val);
+    const textnode = document.createTextNode(t.value);
     node.appendChild(textnode);
 
     l.appendChild(node);
@@ -156,6 +156,9 @@ window.checkIfValidEnvironment = async (sel) => {
         document.getElementById('clear-contents-btn').disabled = true;
 
         clearTopicsAndGroups();
+
+        topics = [];
+        groups = [];
     }
 };
 

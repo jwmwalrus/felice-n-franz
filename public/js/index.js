@@ -7,7 +7,7 @@ var addConsumerCard = (t) => {
   list.classList.add("list-group");
   const title = document.createElement("H5");
   title.classList.add("card-title");
-  title.innerText = t.val;
+  title.innerText = t.value;
   const body = document.createElement("DIV");
   body.classList.add("card-body");
   const card = document.createElement("DIV");
@@ -34,7 +34,7 @@ var addTopicToList = (t, l, cb) => {
   node.classList.add("list-group-item");
   node.classList.add("list-group-item-action");
   node.ondblclick = cb;
-  const textnode = document.createTextNode(t.val);
+  const textnode = document.createTextNode(t.value);
   node.appendChild(textnode);
   l.appendChild(node);
 };
@@ -121,6 +121,8 @@ window.checkIfValidEnvironment = async (sel) => {
   } else {
     document.getElementById("clear-contents-btn").disabled = true;
     clearTopicsAndGroups();
+    topics = [];
+    groups = [];
   }
 };
 window.resetConsumers = () => {

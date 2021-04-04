@@ -22,35 +22,17 @@ const (
 	// AppName Application name
 	AppName = "Felice & Franz"
 
-	// DatabaseFilename defines the name of the music database
-	DatabaseFilename = "music.db"
-
-	// ServerAliveInterval Amount of seconds between checks
-	ServerAliveInterval = int64(180)
-
-	// ServerIdleTimeout Amount of idle seconds before server exits
-	ServerIdleTimeout = int64(300)
-
-	// SupportedFileExtensionMP3 supported mp3
-	SupportedFileExtensionMP3 = ".mp3"
-
-	// SupportedFileExtensionM4A supported m4a
-	SupportedFileExtensionM4A = ".m4a"
-
-	// SupportedFileExtensionOGG supported ogg
-	SupportedFileExtensionOGG = ".ogg"
-
-	// SupportedFileExtensionFLAC supported flac
-	SupportedFileExtensionFLAC = ".flac"
-
-	// DefaultServerBaseURL idem
-	DefaultServerBaseURL = "http://localhost"
-
-	// DefaultServerPort idem
-	DefaultServerPort = 3000
-
 	// DefaultServerAPIVersion idem
 	DefaultServerAPIVersion = "/api/v1"
+
+	// DefaultCA Kafka Certificate's filename
+	DefaultCA = "kafkacert.pem"
+
+	// DefaultPort Application's default port
+	DefaultPort = 9191
+
+	// DefaultTailOffset Maximum number of messages to keep per topic
+	DefaultTailOffset = 100
 )
 
 var (
@@ -85,12 +67,6 @@ var (
 
 	// Log Application's log
 	Log = log.New()
-
-	// DefaultCA Kafka Certificate's filename
-	DefaultCA = "kafkacert.pem"
-
-	// DefaultPort Application's default port
-	DefaultPort = 9191
 )
 
 // ParseArgs parses the given command line arguments
