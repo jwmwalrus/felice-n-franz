@@ -2,9 +2,11 @@
 /felice-franz
 /kc
 /kafkacert.pem
+/config.json
 *.db
 main
 .tags*
+node_modules
 
 # OSX leaves these everywhere on SMB shares
 ._*

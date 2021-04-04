@@ -6,11 +6,20 @@ version: '2'
 tasks:
   build:
     cmds:
-      - go build -v -o ./felice+franz{{exeExt}} .
+      - task: esbuild
+      - task: gobuild
 
   test:
     cmds:
       - go test -v -p 1 ./...
+
+  gobuild:
+    cmds:
+      - go build -v -o ./felice+franz{{exeExt}} .
+
+  esbuild:
+    cmds:
+      - npm run build
 
   # test-cli:
     # cmds:
