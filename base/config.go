@@ -1,10 +1,13 @@
 package base
 
 import (
+	"errors"
 	"os"
-	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
+
+	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
 // Config Application's configuration
@@ -38,6 +41,20 @@ func (rec *Config) GetPort() string {
 // GetURL Returns application's base URL
 func (rec *Config) GetURL() string {
 	return "http://localhost" + rec.GetPort()
+}
+
+// GetEnvConfig returns the configuration for the given environment
+func (rec *Config) GetEnvConfig(envName string) (env Environment) {
+	for _, e := range rec.Envs {
+		if !e.Active {
+			continue
+		}
+		if e.Name == envName {
+			env = e
+			break
+		}
+	}
+	return
 }
 
 // GetEnvsList returns the list of availablr environments
@@ -104,68 +121,91 @@ func (rec *Config) GetEnvGroupTopics(envName, groupName string) (topics []KeyVal
 
 // Environment Defines a topics environment
 type Environment struct {
-	Name              string   `json:"name"`
-	Active            bool     `json:"active"`
-	Broker            string   `json:"broker"`
-	SecurityProtocol  string   `json:"securityProtocol"`
-	SASLUsername      string   `json:"saslUsername"`
-	SASLPassword      string   `json:"saslPassword"`
-	SASLMechanism     string   `json:"saslMechanism"`
-	SSLCALocation     string   `json:"sslCaLocation"`
-	APIVersionRequest bool     `json:"apiVersionRequest"`
-	Vars              []KeyVal `json:"vars"`
-	TopicsFrom        string   `json:"inheritFrom"`
-	Topics            []KeyVal `json:"topics"`
-	Groups            []Group  `json:"grups"`
+	Name          string          `json:"name"`
+	Active        bool            `json:"active"`
+	Configuration kafka.ConfigMap `json:"configuration"`
+	Vars          []KeyVal        `json:"vars"`
+	TopicsFrom    string          `json:"inheritFrom"`
+	Topics        []KeyVal        `json:"topics"`
+	Groups        []Group         `json:"grups"`
+}
+
+// AllTopicsExist check if all topics exist for the given keys
+func (rec *Environment) AllTopicsExist(keys []string) (exist bool) {
+	_, err := rec.FindTopics(keys)
+	exist = err == nil
+	return
+}
+
+// FindTopic looks for topic by key
+func (rec *Environment) FindTopic(key string) (kv KeyVal, err error) {
+	for _, t := range rec.Topics {
+		if key == t.Key {
+			kv = t
+			break
+		}
+	}
+
+	if kv.Key == "" {
+		err = errors.New("Key not found")
+	}
+	return
+}
+
+// FindTopics looks for all topics in the given keys list
+func (rec *Environment) FindTopics(keys []string) (topics []KeyVal, err error) {
+	kv := KeyVal{}
+	for _, k := range keys {
+		kv, err = rec.FindTopic(k)
+		if err != nil {
+			return
+		}
+		topics = append(topics, kv)
+	}
+	return
+}
+
+// FindTopicValues looks for all topics in the given keys list
+func (rec *Environment) FindTopicValues(keys []string) (values []string, err error) {
+	topics := []KeyVal{}
+	if topics, err = rec.FindTopics(keys); err != nil {
+		return
+	}
+	values = getValues(topics)
+	return
 }
 
 func (rec *Environment) setDefaults() {
-	if rec.SecurityProtocol == "" {
-		rec.SecurityProtocol = "SASL_SSL"
-	}
-	if rec.SASLMechanism == "" {
-		rec.SASLMechanism = "PLAIN"
+	if len(rec.Vars) < 1 {
+		rec.Vars = append(rec.Vars, KeyVal{})
+		rec.Vars[0].setVarDefaults()
 	}
 
-	if rec.SSLCALocation == "" {
-		caFile := filepath.Join(ConfigDir, DefaultCA)
-		if _, err := os.Stat(caFile); !os.IsNotExist(err) {
-			rec.SSLCALocation = caFile
-		}
+	if len(rec.Topics) < 1 {
+		rec.Topics = append(rec.Topics, KeyVal{})
+		rec.Topics[0].setTopicDefaults()
+	}
 
-		if rec.SSLCALocation == "" {
-			caFile = filepath.Join("$HOME", DefaultCA)
-			if _, err := os.Stat(caFile); !os.IsNotExist(err) {
-				rec.SSLCALocation = caFile
-			}
-		}
-
-		if len(rec.Vars) < 1 {
-			rec.Vars = append(rec.Vars, KeyVal{})
-			rec.Vars[0].setVarDefaults()
-		}
-
-		if len(rec.Topics) < 1 {
-			rec.Topics = append(rec.Topics, KeyVal{})
-			rec.Topics[0].setTopicDefaults()
-		}
-
-		if len(rec.Groups) < 1 {
-			rec.Groups = append(rec.Groups, Group{})
-			rec.Groups[0].setGroupDefaults()
-		}
+	if len(rec.Groups) < 1 {
+		rec.Groups = append(rec.Groups, Group{})
+		rec.Groups[0].setGroupDefaults()
 	}
 }
 
 func (rec *Environment) setup() {
 	rec.Name = os.ExpandEnv(rec.Name)
-	rec.Broker = os.ExpandEnv(rec.Broker)
-	rec.SecurityProtocol = os.ExpandEnv(rec.SecurityProtocol)
-	rec.SASLUsername = os.ExpandEnv(rec.SASLUsername)
-	rec.SASLPassword = os.ExpandEnv(rec.SASLPassword)
-	rec.SASLMechanism = os.ExpandEnv(rec.SASLMechanism)
-	rec.SSLCALocation = os.ExpandEnv(rec.SSLCALocation)
 	rec.TopicsFrom = os.ExpandEnv(rec.TopicsFrom)
+
+	if _, ok := rec.Configuration["group.id"]; !ok {
+		rec.Configuration["group.id"] = "${USER}.${HOSTNAME}"
+	}
+
+	for k, v := range rec.Configuration {
+		if reflect.TypeOf(v).Name() != "string" {
+			continue
+		}
+		rec.Configuration[k] = os.ExpandEnv(v.(string))
+	}
 
 	fromIdx := -1
 	if rec.TopicsFrom != "" {
