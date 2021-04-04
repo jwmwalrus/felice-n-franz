@@ -1,92 +1,11 @@
 package base
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/jwmwalrus/bnp"
-	"github.com/nightlyone/lockfile"
+	"strings"
 )
-
-// Conf Application's global configuration
-var Conf Config
-
-// Load Loads application's configuration
-func Load() (args []string) {
-	args = ParseArgs()
-
-	err := SetEnvDirs()
-	bnp.PanicOnError(err)
-
-	_, err = os.Stat(configFile)
-	if os.IsNotExist(err) {
-		Conf.FirstRun = true
-		err := Save()
-		bnp.PanicOnError(err)
-	}
-
-	// var jsonFile *os.File
-	jsonFile, err := os.Open(configFile)
-	bnp.PanicOnError(err)
-	defer jsonFile.Close()
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-	json.Unmarshal(byteValue, &Conf)
-
-	return
-}
-
-// Save Saves application's configuration
-func Save() (err error) {
-	SetDefaults()
-
-	var lock lockfile.Lockfile
-	lock, err = lockfile.New(lockFile)
-	if err != nil {
-		return
-	}
-
-	if err = lock.TryLock(); err != nil {
-		return
-	}
-
-	defer func() {
-		if err := lock.Unlock(); err != nil {
-			fmt.Printf("Cannot unlock %q, reason: %v", lock, err)
-		}
-	}()
-
-	var file []byte
-	file, err = json.MarshalIndent(Conf, "", " ")
-	if err != nil {
-		return
-	}
-
-	err = ioutil.WriteFile(configFile, file, 0644)
-
-	return
-}
-
-// SetDefaults sets configuration defaults
-func SetDefaults() {
-	Conf.setDefaults()
-}
-
-// Unload Cleans up application before exit
-func Unload() {
-	Log.Info("Unloading application")
-	if Conf.FirstRun {
-		Conf.FirstRun = false
-
-		// NOTE: ignore error
-		Save()
-	}
-}
 
 // Config Application's configuration
 type Config struct {
@@ -116,9 +35,72 @@ func (rec *Config) GetURL() string {
 	return "http://localhost" + rec.GetPort()
 }
 
+// GetEnvsList returns the list of availablr environments
+func (rec *Config) GetEnvsList() (list []string) {
+	for _, e := range rec.Envs {
+		if !e.Active {
+			continue
+		}
+		list = append(list, e.Name)
+	}
+	return
+}
+
+// GetEnvTopics returns the list of topics for the given environment`
+func (rec *Config) GetEnvTopics(envName string) (topics []KeyVal) {
+	for _, e := range rec.Envs {
+		if e.Name == envName {
+			topics = e.Topics
+			break
+		}
+	}
+	return
+}
+
+// GetEnvGroups returns the list of groups in the given environment
+func (rec *Config) GetEnvGroups(envName string) (groups []Group) {
+	for _, e := range rec.Envs {
+		if e.Name == envName {
+			groups = e.Groups
+			break
+		}
+	}
+	return
+}
+
+// GetEnvGroupTopics returns the list of topics in a given group, for a given environment
+func (rec *Config) GetEnvGroupTopics(envName, groupName string) (topics []KeyVal) {
+	for _, e := range rec.Envs {
+		if e.Name != envName {
+			continue
+		}
+
+		var keys []string
+		for _, g := range e.Groups {
+			if g.Name == groupName {
+				keys = g.Keys
+				break
+			}
+		}
+
+		for _, k := range keys {
+			for _, t := range e.Topics {
+				if t.Key == k {
+					topics = append(topics, t)
+					break
+				}
+			}
+		}
+
+		break
+	}
+	return
+}
+
 // Environment Defines a topics environment
 type Environment struct {
 	Name              string   `json:"name"`
+	Active            bool     `json:"active"`
 	Broker            string   `json:"broker"`
 	SecurityProtocol  string   `json:"securityProtocol"`
 	SASLUsername      string   `json:"saslUsername"`
@@ -170,10 +152,45 @@ func (rec *Environment) setDefaults() {
 	}
 }
 
+func (rec *Environment) setup() {
+	rec.Name = os.ExpandEnv(rec.Name)
+	rec.Broker = os.ExpandEnv(rec.Broker)
+	rec.SecurityProtocol = os.ExpandEnv(rec.SecurityProtocol)
+	rec.SASLUsername = os.ExpandEnv(rec.SASLUsername)
+	rec.SASLPassword = os.ExpandEnv(rec.SASLPassword)
+	rec.SASLMechanism = os.ExpandEnv(rec.SASLMechanism)
+	rec.SSLCALocation = os.ExpandEnv(rec.SSLCALocation)
+	rec.TopicsFrom = os.ExpandEnv(rec.TopicsFrom)
+
+	fromIdx := -1
+	if rec.TopicsFrom != "" {
+		for j := 0; j < len(Conf.Envs); j++ {
+			if Conf.Envs[j].Name == rec.TopicsFrom {
+				fromIdx = j
+				break
+			}
+		}
+	}
+
+	if fromIdx < 0 {
+		// TODO: warn?
+		return
+	}
+
+	rec.Topics = nil
+	rec.Topics = make([]KeyVal, len(Conf.Envs[fromIdx].Topics))
+	copy(rec.Topics, Conf.Envs[fromIdx].Topics)
+
+	rec.Groups = nil
+	rec.Groups = make([]Group, len(Conf.Envs[fromIdx].Groups))
+	copy(rec.Groups, Conf.Envs[fromIdx].Groups)
+}
+
 // Group defines a group of topics
 type Group struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
+	Category    string   `json:"category"`
 	Keys        []string `json:"keys"`
 }
 
@@ -181,6 +198,7 @@ func (rec *Group) setGroupDefaults() {
 	*rec = Group{
 		Name:        "group1",
 		Description: "Group One",
+		Category:    "Category A",
 		Keys:        []string{"payment"},
 	}
 }
@@ -189,6 +207,12 @@ func (rec *Group) setGroupDefaults() {
 type KeyVal struct {
 	Key string `json:"key"`
 	Val string `json:"val"`
+}
+
+func (rec *KeyVal) expandVars(vars []KeyVal) {
+	for _, kv := range vars {
+		rec.Val = strings.ReplaceAll(rec.Val, "{{"+kv.Key+"}}", kv.Val)
+	}
 }
 
 func (rec *KeyVal) setTopicDefaults() {
@@ -203,4 +227,18 @@ func (rec *KeyVal) setVarDefaults() {
 		Key: "myVar",
 		Val: "some-value",
 	}
+}
+
+func getKeys(kv []KeyVal) (keys []string) {
+	for _, x := range kv {
+		keys = append(keys, x.Key)
+	}
+	return
+}
+
+func getValues(kv []KeyVal) (values []string) {
+	for _, x := range kv {
+		values = append(values, x.Val)
+	}
+	return
 }

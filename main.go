@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jwmwalrus/felice-franz/api/v1"
-	"github.com/jwmwalrus/felice-franz/api/v1/middleware"
 	"github.com/jwmwalrus/felice-franz/base"
+	"github.com/jwmwalrus/felice-franz/routing"
+	"github.com/jwmwalrus/felice-franz/routing/middleware"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	r.Use(middleware.LoggerToFile())
 	r.Use(gin.Recovery())
 
-	api.Route(r)
+	routing.Route(r)
 	fmt.Println("\n  Running", base.AppName, "on", cfg.GetURL())
 	r.Run(cfg.GetPort())
 
