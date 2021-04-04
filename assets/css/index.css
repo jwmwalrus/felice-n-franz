@@ -1,0 +1,118 @@
+/*!
+ * Start Bootstrap - Landing Page v5.0.9 (https://startbootstrap.com/theme/landing-page)
+ * Copyright 2013-2020 Start Bootstrap
+ * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-landing-page/blob/master/LICENSE)
+ */
+
+body {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  /* padding: 25px; */
+  background-color: white;
+  color: black;
+}
+
+.dark-mode {
+  background-color: black;
+  color: white;
+}
+
+.dark-mode-dialog {
+  background-color: DarkSlateGray;
+  color: white;
+}
+
+.dark-mode-card {
+  background-color: DarkSlateGray;
+  color: white;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
+header.masthead {
+  position: relative;
+  background-color: #343a40;
+  /* background: url("../img/bg-masthead.jpg") no-repeat center center; */
+  background-size: cover;
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+}
+
+header.masthead .overlay {
+  position: absolute;
+  background-color: #212529;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0.3;
+}
+
+header.masthead h1 {
+  font-size: 2rem;
+}
+
+@media (min-width: 768px) {
+  header.masthead {
+    padding-top: 12rem;
+    padding-bottom: 12rem;
+  }
+  header.masthead h1 {
+    font-size: 3rem;
+  }
+}
+
+footer.footer {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+ul.navbar-nav.mr-auto li.nav-item.active {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#available-groups,#selected-groups,#available-topics {
+  height: 180px; overflow-y: scroll;
+  width: 100%;
+}
+
+#selected-topics {
+  height: 90px; overflow-y: scroll;
+  width: 100%;
+}
+
+.modal .card-body {
+  min-width: 100%;
+}
+
+.modal .list-group-item.list-group-item-action {
+  font-size: 12px;
+  padding: 6px;
+  background-color: DarkSlateGray;
+  color: white;
+}
+
+.modal .list-group-item.list-group-item-action:nth-of-type(odd) {
+  color: black;
+  background-color: white;
+}
+
+.modal-body .card-title {
+  margin: 0;
+  padding: 0;
+}
+
+#consumer-cards {
+  min-height: 300px;
+}
+
+.selected-cards {
+}
