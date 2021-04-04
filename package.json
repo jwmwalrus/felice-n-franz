@@ -1,0 +1,36 @@
+{
+    "name": "felice-franz",
+    "version": "1.0.0",
+    "description": "Felice & Franz ==================",
+    "main": "index.js",
+    "scripts": {
+        "build": "node esbuild.config.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jwmwalrus/felice-franz.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/jwmwalrus/felice-franz/issues"
+    },
+    "homepage": "https://github.com/jwmwalrus/felice-franz#readme",
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.3",
+        "bootstrap": "^4.6.0",
+        "jquery": "^3.6.0",
+        "simple-line-icons": "^2.5.5"
+    },
+    "devDependencies": {
+        "esbuild": "^0.9.6",
+        "eslint": "^7.23.0",
+        "eslint-config-airbnb-base": "^14.2.1",
+        "eslint-plugin-import": "^2.22.1",
+        "glob": "^7.1.6",
+        "mv": "^2.1.1",
+        "ncp": "^2.0.0",
+        "path": "^0.12.7"
+    }
+}
