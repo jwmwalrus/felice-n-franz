@@ -1,29 +1,11 @@
 /*!
- * Start Bootstrap - Landing Page v5.0.9 (https://startbootstrap.com/theme/landing-page)
- * Copyright 2013-2020 Start Bootstrap
- * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-landing-page/blob/master/LICENSE)
+ * Custom styles
  */
 
 body {
   font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  /* padding: 25px; */
   background-color: white;
   color: black;
-}
-
-.dark-mode {
-  background-color: black;
-  color: white;
-}
-
-.dark-mode-dialog {
-  background-color: DarkSlateGray;
-  color: white;
-}
-
-.dark-mode-card {
-  background-color: DarkSlateGray;
-  color: white;
 }
 
 h1,
@@ -70,23 +52,16 @@ header.masthead h1 {
 }
 
 footer.footer {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height:80px;
+  padding-top: 15px;
 }
 
 ul.navbar-nav.mr-auto li.nav-item.active {
   padding-left: 5px;
   padding-right: 5px;
-}
-
-#available-groups,#selected-groups,#available-topics {
-  height: 180px; overflow-y: scroll;
-  width: 100%;
-}
-
-#selected-topics {
-  height: 90px; overflow-y: scroll;
-  width: 100%;
 }
 
 .modal .card-body {
@@ -105,14 +80,30 @@ ul.navbar-nav.mr-auto li.nav-item.active {
   background-color: white;
 }
 
+.modal-body .container-fluid {
+  flex-direction: column;
+  width: "100%";
+  padding: 0;
+}
+
 .modal-body .card-title {
   margin: 0;
   padding: 0;
 }
 
-#consumer-cards {
-  min-height: 300px;
+.selected-cards {
 }
 
-.selected-cards {
+#available-groups,#selected-groups,#available-topics {
+  height: 180px; overflow-y: scroll;
+  width: 100%;
+}
+
+#selected-topics {
+  height: 90px; overflow-y: scroll;
+  width: 100%;
+}
+
+#consumer-cards {
+  min-height: 300px;
 }
