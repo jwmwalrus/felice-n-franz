@@ -1,0 +1,16 @@
+<!-- /views/layouts/master.html -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {{ include "layouts/header" }}
+        {{ template "head" . }}
+        <script defer src="vendor/jquery/jquery.min.js"></script>
+        <script defer src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    </head>
+
+    <body class="dark-mode">
+        {{ template "content" . }}
+        <hr>
+        {{ include "layouts/footer" }}
+    </body>
+</html>
