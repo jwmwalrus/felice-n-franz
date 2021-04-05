@@ -8,6 +8,11 @@ body {
   color: black;
 }
 
+.dark-mode {
+  background-color: black;
+  color: white;
+}
+
 h1,
 h2,
 h3,
