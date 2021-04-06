@@ -1,9 +1,7 @@
 import '../css/index.css';
 
-const apiUrl = window.location.origin + '/api/v1';
-let activeEnvironment = '';
-let groups = [];
-let topics = [];
+const apiUrl = window.location.origin;
+let activeEnv = {};
 
 const addConsumerCard = (t) => {
     const parent = document.getElementById('consumer-cards');
@@ -76,7 +74,7 @@ const selectGroup = (event) => {
     removeElement(id);
 
     const groupsList = document.getElementById('selected-groups');
-    const g = groups.find((g) => g.name === id);
+    const g = activeEnv.groups.find((g) => g.name === id);
     addGroupToList(g, groupsList, unselectGroup);
 
     g.keys.forEach((k) => {
@@ -89,7 +87,7 @@ const selectTopic = (event) => {
     removeElement(id);
 
     const list = document.getElementById('selected-topics');
-    const t = topics.find((t) => t.key === id);
+    const t = activeEnv.topics.find((t) => t.key === id);
     addTopicToList((t), list, unselectTopic);
 };
 
@@ -98,7 +96,7 @@ const unselectGroup = (event) => {
     removeElement(id);
 
     const groupsList = document.getElementById('available-groups');
-    const g = groups.find((g) => g.name === id);
+    const g = activeEnv.groups.find((g) => g.name === id);
     addGroupToList(g, groupsList, selectGroup);
 
     g.keys.forEach((k) => {
@@ -111,7 +109,7 @@ const unselectTopic = (event) => {
     removeElement(id);
 
     const list = document.getElementById('available-topics');
-    const t = topics.find((t) => t.key === id);
+    const t = activeEnv.topics.find((t) => t.key === id);
     addTopicToList(t, list, selectTopic);
 };
 
@@ -119,26 +117,26 @@ const populateAvailable = () => {
     clearTopicsAndGroups();
 
     const groupsList = document.getElementById('available-groups');
-    groups.forEach((g) => addGroupToList(g, groupsList, selectGroup));
+    activeEnv.groups.forEach((g) => addGroupToList(g, groupsList, selectGroup));
 
     const topicsList = document.getElementById('available-topics');
-    topics.forEach((t) => addTopicToList(t, topicsList, selectTopic));
+    activeEnv.topics.forEach((t) => addTopicToList(t, topicsList, selectTopic));
 };
 
 window.addSelectedCards = async () => {
     removeAllCards();
     const parent = document.getElementById('selected-topics');
     let list = parent.querySelectorAll('div');
-    list = Array.from(list)
+    list = Array.from(list);
     list.forEach((l) => {
-        const t = topics.find((t) => t.key === l.id);
+        const t = activeEnv.topics.find((t) => t.key === l.id);
         addConsumerCard(t);
     });
 
     const topicKeys = list.map((l) => l.id);
     try {
         const method = 'POST';
-        const body = JSON.stringify({ env: activeEnvironment, topicKeys });
+        const body = JSON.stringify({ env: activeEnv.name, topicKeys });
         await fetch(`${apiUrl}/consumers`, { method, body });
     } catch (e) {
         console.error(e);
@@ -146,17 +144,14 @@ window.addSelectedCards = async () => {
 };
 
 window.checkIfValidEnvironment = async (sel) => {
-    activeEnvironment = sel.value;
+    const { value } = sel;
 
-    if (activeEnvironment !== '') {
+    if (value !== '') {
         try {
-            const res1 = await fetch(`${apiUrl}/envs/${activeEnvironment}/topics`);
-            const t = await res1.json();
-            const res2 = await fetch(`${apiUrl}/envs/${activeEnvironment}/groups`);
-            const g = await res2.json();
+            const res = await fetch(`${apiUrl}/envs/${value}`);
+            activeEnv = await res.json();
+            console.log(activeEnv);
 
-            topics = [...t.topics];
-            groups = [...g.groups];
             populateAvailable();
         } catch (e) {
             console.error(e);
@@ -169,8 +164,7 @@ window.checkIfValidEnvironment = async (sel) => {
 
         clearTopicsAndGroups();
 
-        topics = [];
-        groups = [];
+        activeEnv = {};
     }
 };
 

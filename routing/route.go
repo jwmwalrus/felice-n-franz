@@ -1,25 +1,50 @@
 package routing
 
 import (
+	"net/http"
+
+	"github.com/foolin/goview"
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
-	"github.com/jwmwalrus/felice-franz/routing/controller"
-	"github.com/jwmwalrus/felice-franz/routing/controller/api/v1"
+	"github.com/jwmwalrus/felice-franz/base"
 )
 
 // Route Configures all the API routes
 func Route(r *gin.Engine) *gin.Engine {
-	r.Static("/css", "./public/css")
-	r.Static("/img", "./public/img")
-	// r.Static("/scss", "./public/scss")
-	r.Static("/js", "./public/js")
-	r.Static("/vendor", "./public/vendor")
+	r.Static("/static", "./public/static")
 	// r.StaticFile("/favicon.ico", "./img/favicon.ico")
 
-	r.HTMLRender = ginview.Default()
-	controller.Landing(r)
-
-	api.EndPoints(r)
+	gv := goview.DefaultConfig
+	gv.Root = "assets/html"
+	r.HTMLRender = ginview.New(gv)
+	r.GET("/", index)
+	r.GET("/envs/:envname", getEnv)
+	r.GET("/ws", socket)
 
 	return r
+}
+
+func index(c *gin.Context) {
+	c.HTML(
+		http.StatusOK,
+		"index.html",
+		gin.H{
+			"title": base.AppName,
+			"envs":  base.Conf.GetEnvsList(),
+		},
+	)
+}
+
+func getEnv(c *gin.Context) {
+	envName := c.Param("envname")
+	config := base.Conf.GetEnvConfig(envName)
+	c.JSON(http.StatusOK, gin.H{
+		"name":   config.Name,
+		"groups": config.Groups,
+		"topics": config.Topics,
+	})
+}
+
+func socket(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "OK"})
 }
