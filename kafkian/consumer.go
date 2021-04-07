@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/jwmwalrus/bnp"
@@ -40,7 +41,7 @@ func CreateConsumers(env base.Environment, topics []string) (err error) {
 			}
 
 			var payload []byte
-			payload, err = json.Marshal(msg)
+			payload, err = getPayLoadFromMessage(msg)
 			if err != nil {
 				log.Error(err)
 				continue
@@ -95,5 +96,38 @@ func CreateConsumerPoll(env base.Environment, topics []string) (err error) {
 			}
 		}
 	}()
+	return
+}
+
+func getPayLoadFromMessage(m *kafka.Message) (payload []byte, err error) {
+	type ht struct {
+		Key, Value string
+	}
+
+	headers := []ht{}
+	for _, h := range m.Headers {
+		headers = append(headers, ht{h.Key, string(h.Value)})
+	}
+
+	flat := struct {
+		Topic         string
+		Partition     int32
+		Offset        kafka.Offset
+		Value         string
+		Key           string
+		Timestamp     time.Time
+		TimestampType kafka.TimestampType
+		Headers       []ht
+	}{
+		*m.TopicPartition.Topic,
+		m.TopicPartition.Partition,
+		m.TopicPartition.Offset,
+		string(m.Value),
+		string(m.Key),
+		m.Timestamp,
+		m.TimestampType,
+		headers,
+	}
+	payload, err = json.Marshal(flat)
 	return
 }
