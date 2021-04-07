@@ -7,6 +7,7 @@ import (
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
 	"github.com/jwmwalrus/felice-franz/base"
+	"github.com/jwmwalrus/felice-franz/kafkian"
 )
 
 // Route Configures all the API routes
@@ -19,7 +20,7 @@ func Route(r *gin.Engine) *gin.Engine {
 	r.HTMLRender = ginview.New(gv)
 	r.GET("/", index)
 	r.GET("/envs/:envname", getEnv)
-	r.GET("/ws", socket)
+	r.GET("/ws", webSocket)
 
 	return r
 }
@@ -45,6 +46,6 @@ func getEnv(c *gin.Context) {
 	})
 }
 
-func socket(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "OK"})
+func webSocket(c *gin.Context) {
+	kafkian.HandleWS(c.Writer, c.Request)
 }

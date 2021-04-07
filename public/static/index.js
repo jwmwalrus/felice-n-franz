@@ -1,6 +1,7 @@
 // assets/js/index.js
 var apiUrl = window.location.origin;
 var activeEnv = {};
+var conn;
 var addConsumerCard = (t) => {
   const parent = document.getElementById("consumer-cards");
   const list = document.createElement("DIV");
@@ -93,6 +94,14 @@ var populateAvailable = () => {
   const topicsList = document.getElementById("available-topics");
   activeEnv.topics.forEach((t) => addTopicToList(t, topicsList, selectTopic));
 };
+window.onload = () => {
+  conn = new WebSocket("ws://" + document.location.host + "/ws");
+  conn.onclose = () => console.info("Web socket closed!");
+  conn.onmessage = (event) => {
+    const messages = event.data.split("\n");
+    messages.forEach(console.log);
+  };
+};
 window.addSelectedCards = async () => {
   removeAllCards();
   const parent = document.getElementById("selected-topics");
@@ -103,13 +112,12 @@ window.addSelectedCards = async () => {
     addConsumerCard(t);
   });
   const topicKeys = list.map((l) => l.id);
-  try {
-    const method = "POST";
-    const body = JSON.stringify({env: activeEnvironment, topicKeys});
-    await fetch(`${apiUrl}/consumers`, {method, body});
-  } catch (e) {
-    console.error(e);
-  }
+  const msg = {
+    type: "consume",
+    env: activeEnv.name,
+    payload: topicKeys
+  };
+  conn.send(JSON.stringify(msg));
 };
 window.checkIfValidEnvironment = async (sel) => {
   const {value} = sel;

@@ -1,10 +1,14 @@
 package kafkian
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
+	"github.com/gorilla/websocket"
+	"github.com/jwmwalrus/bnp"
 	"github.com/jwmwalrus/felice-franz/base"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
@@ -24,14 +28,25 @@ func CreateConsumers(env base.Environment, topics []string) (err error) {
 		c.SubscribeTopics(topics, nil)
 
 		for {
-
 			msg, err := c.ReadMessage(-1)
-			if err == nil {
-				fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-			} else {
-				// The client will automatically try to recover from all errors.
-				fmt.Printf("Consumer error: %v (%v)\n", err, msg)
+			if err != nil {
+				log.Error(err)
+				continue
 			}
+			fmt.Printf("%% Message on %s:\n%s\n",
+				msg.TopicPartition, string(msg.Value))
+			if msg.Headers != nil {
+				fmt.Printf("%% Headers: %v\n", msg.Headers)
+			}
+
+			var payload []byte
+			payload, err = json.Marshal(msg)
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+			err = WS.WriteMessage(websocket.TextMessage, payload)
+			bnp.LogOnError(err)
 		}
 	}()
 	return
@@ -41,7 +56,6 @@ func CreateConsumers(env base.Environment, topics []string) (err error) {
 func CreateConsumerPoll(env base.Environment, topics []string) (err error) {
 	var c *kafka.Consumer
 
-	// cm := getConfigMap(env)
 	c, err = kafka.NewConsumer(&env.Configuration)
 
 	if err != nil {
