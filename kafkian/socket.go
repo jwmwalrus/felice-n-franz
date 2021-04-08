@@ -19,6 +19,7 @@ type connection struct {
 	ws *websocket.Conn
 }
 
+// WS web socket connection
 var WS *websocket.Conn
 
 // HandleWS handles web socket messages
@@ -34,7 +35,6 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 	go c.processMessages()
 }
 
-// processMessages reads and processes messages from the websocket
 func (c connection) processMessages() {
 	defer func() {
 		c.ws.Close()
@@ -62,7 +62,7 @@ func (c connection) processMessages() {
 		case "consume":
 			env := base.Conf.GetEnvConfig(res.Env)
 			topics, _ := env.FindTopicValues(res.Payload)
-			err := CreateConsumers(env, topics)
+			err := CreateConsumer(env, topics)
 			bnp.LogOnError(err)
 		default:
 		}

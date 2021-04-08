@@ -3,7 +3,6 @@ package kafkian
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -13,48 +12,8 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-// CreateConsumers creates consumers for the given environment topics
-func CreateConsumers(env base.Environment, topics []string) (err error) {
-	var c *kafka.Consumer
-
-	c, err = kafka.NewConsumer(&env.Configuration)
-
-	if err != nil {
-		return
-	}
-
-	go func() {
-		defer c.Close()
-
-		c.SubscribeTopics(topics, nil)
-
-		for {
-			msg, err := c.ReadMessage(-1)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-			fmt.Printf("%% Message on %s:\n%s\n",
-				msg.TopicPartition, string(msg.Value))
-			if msg.Headers != nil {
-				fmt.Printf("%% Headers: %v\n", msg.Headers)
-			}
-
-			var payload []byte
-			payload, err = getPayLoadFromMessage(msg)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-			err = WS.WriteMessage(websocket.TextMessage, payload)
-			bnp.LogOnError(err)
-		}
-	}()
-	return
-}
-
-// CreateConsumerPoll creates consumers for the given environment topics
-func CreateConsumerPoll(env base.Environment, topics []string) (err error) {
+// CreateConsumer creates a consumer for the given environment topics
+func CreateConsumer(env base.Environment, topics []string) (err error) {
 	var c *kafka.Consumer
 
 	c, err = kafka.NewConsumer(&env.Configuration)
@@ -81,13 +40,20 @@ func CreateConsumerPoll(env base.Environment, topics []string) (err error) {
 				if e.Headers != nil {
 					fmt.Printf("%% Headers: %v\n", e.Headers)
 				}
+				payload, err := getPayLoadFromMessage(e)
+				if err != nil {
+					log.Error(err)
+					continue
+				}
+				err = WS.WriteMessage(websocket.TextMessage, payload)
+				bnp.LogOnError(err)
 			case kafka.Error:
 				// Errors should generally be considered
 				// informational, the client will try to
 				// automatically recover.
 				// But in this example we choose to terminate
 				// the application if all brokers are down.
-				fmt.Fprintf(os.Stderr, "%% Error: %v: %v\n", e.Code(), e)
+				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
 				if e.Code() == kafka.ErrAllBrokersDown {
 					break
 				}
@@ -101,7 +67,8 @@ func CreateConsumerPoll(env base.Environment, topics []string) (err error) {
 
 func getPayLoadFromMessage(m *kafka.Message) (payload []byte, err error) {
 	type ht struct {
-		Key, Value string
+		Key   string `json:"key"`
+		Value string `json:"value"`
 	}
 
 	headers := []ht{}
@@ -110,14 +77,14 @@ func getPayLoadFromMessage(m *kafka.Message) (payload []byte, err error) {
 	}
 
 	flat := struct {
-		Topic         string
-		Partition     int32
-		Offset        kafka.Offset
-		Value         string
-		Key           string
-		Timestamp     time.Time
-		TimestampType kafka.TimestampType
-		Headers       []ht
+		Topic         string              `json:"topic"`
+		Partition     int32               `json:"partitio"`
+		Offset        kafka.Offset        `json:"offset"`
+		Value         string              `json:"value"`
+		Key           string              `json:"key"`
+		Timestamp     time.Time           `json:"timestamp"`
+		TimestampType kafka.TimestampType `json:"timestampType"`
+		Headers       []ht                `json:"headers"`
 	}{
 		*m.TopicPartition.Topic,
 		m.TopicPartition.Partition,

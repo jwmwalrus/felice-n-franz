@@ -12,6 +12,7 @@ var addConsumerCard = (t) => {
   const body = document.createElement("DIV");
   body.classList.add("card-body");
   const card = document.createElement("DIV");
+  card.setAttribute("id", t.value);
   card.classList.add("card");
   card.classList.add("bg-dark");
   body.appendChild(title);
@@ -26,6 +27,15 @@ var addGroupToList = (g, l, cb) => {
   node.classList.add("list-group-item-action");
   node.ondblclick = cb;
   const textnode = document.createTextNode(g.description);
+  node.appendChild(textnode);
+  l.appendChild(node);
+};
+var addMessageToList = (m, l) => {
+  const node = document.createElement("DIV");
+  node.classList.add("list-group-item");
+  node.classList.add("list-group-item-action");
+  node.ondblclick = () => showMessage(m);
+  const textnode = document.createTextNode(`partition: ${m.partition} offset:${m.offset} key:${m.key}`);
   node.appendChild(textnode);
   l.appendChild(node);
 };
@@ -52,6 +62,8 @@ var removeElement = (id) => {
 var removeAllCards = () => {
   const parent = document.getElementById("consumer-cards");
   parent.innerHTML = "";
+};
+var showMessage = (m) => {
 };
 var selectGroup = (event) => {
   const id = event.target.id;
@@ -99,7 +111,15 @@ window.onload = () => {
   conn.onclose = () => console.info("Web socket closed!");
   conn.onmessage = (event) => {
     const messages = event.data.split("\n");
-    messages.forEach(console.log);
+    messages.forEach((m) => {
+      console.log(m);
+      if ("topic" in m) {
+        const l = document.getElementById(m.topic);
+        if (l !== null) {
+          addMessageToList(m, l);
+        }
+      }
+    });
   };
 };
 window.addSelectedCards = async () => {
