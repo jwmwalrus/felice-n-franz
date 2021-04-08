@@ -176,6 +176,10 @@ func (rec *Environment) FindTopicValues(keys []string) (values []string, err err
 }
 
 func (rec *Environment) setDefaults() {
+	if rec.Configuration == nil {
+		rec.Configuration = kafka.ConfigMap{}
+	}
+
 	if len(rec.Vars) < 1 {
 		rec.Vars = append(rec.Vars, KeyVal{})
 		rec.Vars[0].setVarDefaults()
