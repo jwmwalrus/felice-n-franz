@@ -12,9 +12,11 @@ var addConsumerCard = (t) => {
   const body = document.createElement("DIV");
   body.classList.add("card-body");
   const card = document.createElement("DIV");
-  card.setAttribute("id", t.value);
+  card.setAttribute("id", t.value.replace(/[\.#]/g, "-"));
   card.classList.add("card");
   card.classList.add("bg-dark");
+  const col = document.createElement("DIV");
+  col.classList.add("col-6");
   body.appendChild(title);
   body.appendChild(list);
   card.appendChild(body);
@@ -35,7 +37,7 @@ var addMessageToList = (m, l) => {
   node.classList.add("list-group-item");
   node.classList.add("list-group-item-action");
   node.ondblclick = () => showMessage(m);
-  const textnode = document.createTextNode(`partition: ${m.partition} offset:${m.offset} key:${m.key}`);
+  const textnode = document.createTextNode(`{ partition: ${m.partition}, offset: ${m.offset}, key: ${m.key} }`);
   node.appendChild(textnode);
   l.appendChild(node);
 };
@@ -110,11 +112,12 @@ window.onload = () => {
   conn = new WebSocket("ws://" + document.location.host + "/ws");
   conn.onclose = () => console.info("Web socket closed!");
   conn.onmessage = (event) => {
-    const messages = event.data.split("\n");
+    const messages = event.data.split("\n").map((s) => JSON.parse(s));
     messages.forEach((m) => {
       console.log(m);
       if ("topic" in m) {
-        const l = document.getElementById(m.topic);
+        console.log(`#${m.topic.replace(/[\.#]/g, "-")} > div > div`);
+        const l = document.querySelector(`#${m.topic.replace(/[\.#]/g, "-")} .list-group`);
         if (l !== null) {
           addMessageToList(m, l);
         }

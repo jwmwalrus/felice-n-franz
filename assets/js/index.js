@@ -3,8 +3,15 @@ import '../css/index.css';
 const apiUrl = window.location.origin;
 let activeEnv = {};
 let conn;
+const tracker = new Map();
 
 const addConsumerCard = (t) => {
+    const key = t.value.replace(/[.#]/g, '-');
+    if (tracker.has(key)) {
+        return;
+    }
+    tracker.set(key, []);
+
     const parent = document.getElementById('consumer-cards');
 
     const list = document.createElement('DIV');
@@ -18,7 +25,7 @@ const addConsumerCard = (t) => {
     body.classList.add('card-body');
 
     const card = document.createElement('DIV');
-    card.setAttribute('id', t.value);
+    card.setAttribute('id', key);
     card.classList.add('card');
     card.classList.add('bg-dark');
 
@@ -47,7 +54,7 @@ const addMessageToList = (m, l) => {
     node.classList.add('list-group-item-action');
     node.ondblclick = () => showMessage(m);
 
-    const textnode = document.createTextNode(`partition: ${m.partition} offset:${m.offset} key:${m.key}`);
+    const textnode = document.createTextNode(`{ partition: ${m.partition}, offset: ${m.offset}, key: ${m.key} }`);
     node.appendChild(textnode);
 
     l.appendChild(node);
@@ -145,11 +152,10 @@ window.onload = () => {
     conn = new WebSocket('ws://' + document.location.host + '/ws');
     conn.onclose = () => console.info('Web socket closed!');
     conn.onmessage = (event) => {
-        const messages = event.data.split('\n');
+        const messages = event.data.split('\n').map((s) => JSON.parse(s));
         messages.forEach((m) => {
-            console.log(m);
             if ('topic' in m) {
-                const l = document.getElementById(m.topic);
+                const l = document.querySelector(`#${m.topic.replace(/[.#]/g, '-')} .list-group`);
                 if (l !== null) {
                     addMessageToList(m, l);
                 }
@@ -173,7 +179,7 @@ window.addSelectedCards = async () => {
         type: 'consume',
         env: activeEnv.name,
         payload: topicKeys,
-    }
+    };
     conn.send(JSON.stringify(msg));
 };
 
@@ -184,7 +190,6 @@ window.checkIfValidEnvironment = async (sel) => {
         try {
             const res = await fetch(`${apiUrl}/envs/${value}`);
             activeEnv = await res.json();
-            console.log(activeEnv);
 
             populateAvailable();
         } catch (e) {

@@ -78,7 +78,7 @@ func getPayLoadFromMessage(m *kafka.Message) (payload []byte, err error) {
 
 	flat := struct {
 		Topic         string              `json:"topic"`
-		Partition     int32               `json:"partitio"`
+		Partition     int32               `json:"partition"`
 		Offset        kafka.Offset        `json:"offset"`
 		Value         string              `json:"value"`
 		Key           string              `json:"key"`
