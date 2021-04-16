@@ -9,85 +9,92 @@
 
       <title>{{.title}}</title>
 
-      <!-- Bootstrap core CSS -->
-      <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
 
-      <!-- Custom fonts for this template -->
-      <link href="static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+      <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <!-- <link href="static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet"> -->
       <link href="static/vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
       <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+      <link href="static/css/index.css" rel="stylesheet">
 
-      <link href="static/index.css" rel="stylesheet">
       <script defer src="static/vendor/jquery/jquery.min.js"></script>
       <script defer src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-      <script defer src="static/index.js" type="module"></script>
+      <script defer src="static/js/index.js" type="module"></script>
     </head>
 
     <body class="dark-mode">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
           <a class="navbar-brand" href="#">f+f</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topnavbar" aria-controls="topnavbar" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-
           <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2" id="topnavbar">
-            <!-- <form> -->
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item">
-                <div class="form-group">
-                  <!-- <label for="exampleFormControlSelect1">Environment</label> -->
-                  <select class="form-control" id="envsSel" onchange="checkIfValidEnvironment(this);">
-                    <option value="" selected>Environment</option>
-                    {{range .envs}}
-                    <option value="{{.}}">{{.}}</option>
-                    {{end}}
-                  </select>
-                </div>
-              </li>
-              <li class="nav-item active">
-                <button type="button" id="consume-btn" class="btn btn-primary" data-toggle="modal" data-target="#consumersModal">
-                  Consume
-                </button>
-              </li>
+            <form>
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                  <div class="form-group">
+                    <select class="form-control" id="envsSel" onchange="checkIfValidEnvironment(this);">
+                      <option value="" selected>Environment</option>
+                      {{range .envs}}
+                      <option value="{{.}}">{{.}}</option>
+                      {{end}}
+                    </select>
+                  </div>
+                </li>
+                <li class="nav-item active">
+                  <button type="button" id="consume-btn" class="btn btn-primary" data-toggle="modal" data-target="#consumersModal">
+                    <span>
+                      <span class="icon-eye"></span>
+                      Consume
+                    </span>
+                  </button>
+                </li>
 
-              <li class="nav-item">
-                <button type="button" id="produce-btn" class="btn btn-secondary disabled">
-                  Produce
-                </button>
-              </li>
-
-            </ul>
-            <!-- </form> -->
+                <li class="nav-item">
+                  <button type="button" id="produce-btn" class="btn btn-secondary" data-toggle="modal" data-target="#producerModal">
+                    <span>
+                      <span class="icon-feed"></span>
+                      Produce
+                    </span>
+                  </button>
+                </li>
+              </ul>
+            </form>
           </div>
           <div class="mx-auto order-0">
-            <!-- <a class="navbar-brand mx-auto" href="#">Navbar 2</a> -->
-            <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2"> -->
-            <!--     <span class="navbar-toggler-icon"></span> -->
-            <!-- </button> -->
+                <button type="button" id="bag-btn" class="btn btn-secondary" data-toggle="modal" data-target="#bagModeless">
+                  <span>
+                    <span class="icon-bag"></span>
+                    Bag
+                  </span>
+                </button>
           </div>
           <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
-                <button type="button" id="clear-contents-btn" class="btn btn-warning float-right">
-                  Clear contents
+                <button type="button" id="playpause-btn" class="btn btn-secondary text-warning play" onclick="togglePlayPause();">
+                  <div class="icon-control-pause"></div>
+                </button>
+              </li>
+              <li class="nav-item">
+                <button type="button" id="clear-contents-btn" class="btn btn-secondary text-warning" onclick="clearAllContents();">
+                  <div class="icon-refresh"></div>
                 </button>
               </li>
             </ul>
           </div>
         </nav>
         <hr>
-        <div id="consumer-cards" class="border border-white">
+        <div id="alerts"></div>
+        <div id="consumer-cards">
           <p>Consumers go here</p>
         </div>
       </div>
 
-      <!-- Modal -->
+      <!-- Consume Modal -->
       <div class="modal fade" id="consumersModal" tabindex="-1" role="dialog" aria-labelledby="consumersModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content bg-dark">
             <div class="modal-header">
-              <h5 class="modal-title" id="consumersModalLabel">Select Consumers</h5>
+              <h5 class="modal-title" id="consumersModalLabel"><span><span class="icon-eye"></span>Select Consumers</span></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -108,16 +115,20 @@
                           <div class="row">
                             <div class="col-6">
                               <div class="card bg-dark">
-                                <div class="card-body">
+                                <div class="card-header">
                                   <h5 class="card-title">Available Groups</h5>
+                                </div>
+                                <div class="card-body">
                                   <div class="list-group" id="available-groups"></div>
                                 </div>
                               </div>
                             </div>
                             <div class="col-6">
                               <div class="card bg-dark">
-                                <div class="card-body">
+                                <div class="card-header">
                                   <h5 class="card-title">Selected Groups</h5>
+                                </div>
+                                <div class="card-body">
                                   <div class="list-group" id="selected-groups"></div>
                                 </div>
                               </div>
@@ -128,8 +139,10 @@
                           <div class="row">
                             <div class="col-12">
                               <div class="card bg-dark">
-                                <div class="card-body">
+                                <div class="card-header">
                                   <h5 class="card-title">Available Topics</h5>
+                                </div>
+                                <div class="card-body">
                                   <div class="list-group" id="available-topics"></div>
                                 </div>
                               </div>
@@ -139,11 +152,14 @@
                       </div>
                     </div>
                   </div>
+                  <br>
                   <div class="row">
                     <div class="col-12">
                       <div class="card bg-dark">
-                        <div class="card-body">
+                        <div class="card-header">
                           <h5 class="card-title">Selected Topics</h5>
+                        </div>
+                        <div class="card-body">
                           <div class="list-group" id="selected-topics"></div>
                         </div>
                       </div>
@@ -153,15 +169,67 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" id="reset-consumers" onclick="resetConsumers();" class="btn btn-danger mr-auto">Reset</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" onclick="addSelectedCards();" data-dismiss="modal">Add Selected</button>
+              <button type="button" id="reset-consumers" onclick="resetConsumers();" class="btn btn-danger mr-auto"><span><span class="icon-minus"></span>Reset</span></button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
+              <button type="button" class="btn btn-primary" onclick="addSelectedCards();" data-dismiss="modal"><span><span class="icon-eye"></span>Consume Selected</span></button>
             </div>
           </div>
         </div>
       </div>
 
       <hr>
+
+      <!-- Produce Modal -->
+      <div class="modal fade" id="producerModal" tabindex="-1" role="dialog" aria-labelledby="producerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content bg-dark">
+            <div class="modal-header">
+              <h5 class="modal-title" id="producerModalLabel"><span><span class="icon-feed"></span>Prodce a message</span></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid">
+                <form>
+                </form>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="reset-producer" onclick="resetProducer();" class="btn btn-danger mr-auto"><div class="icon"></div><span><span class="icon-minus"></span>Reset</span></button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
+              <button type="button" class="btn btn-info disabled" onclick="validateProducerMessage();"><span><span class="icon-check"></span>Validate</span></button>
+              <button type="button" class="btn btn-primary" onclick="produceMessage();" data-dismiss="modal"><span><span class="icon-feed">Produce</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Bag Modeless -->
+      <div class="modal fade" id="bagModeless" tabindex="-1" role="dialog" aria-labelledby="bagModelessLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+          <div class="modal-content bg-dark">
+            <div class="modal-header">
+              <h5 class="modal-title" id="bagModelessLabel">Saved Messages</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid">
+                <form>
+                </form>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="reset-bag" onclick="resetBag();" class="btn btn-danger mr-auto"><span><span class="icon"></span>Reset</span></button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Footer -->
       <footer class="footer bg-dark mt-auto">

@@ -1,167 +1,44 @@
 import '../css/index.css';
+import { getActiveEnv, setActiveEnv } from './env.js';
+import { loadSocket, subscribe } from './socket.js';
+import { populateAvailable, clearTopicsAndGroups } from './consume-modal.js';
+import { INFO, ERROR, showToast } from './toasts.js';
+import {
+    addConsumerCard,
+    addMessageToCardList,
+    clearAllCards,
+    getListGroupElement,
+    removeAllCards,
+} from './cards';
+import { resetBag } from './bag-modeless.js';
 
 const apiUrl = window.location.origin;
-let activeEnv = {};
-let conn;
-const tracker = new Map();
-
-const addConsumerCard = (t) => {
-    const key = t.value.replace(/[.#]/g, '-');
-    if (tracker.has(key)) {
-        return;
-    }
-    tracker.set(key, []);
-
-    const parent = document.getElementById('consumer-cards');
-
-    const list = document.createElement('DIV');
-    list.classList.add('list-group');
-
-    const title = document.createElement('H5');
-    title.classList.add('card-title');
-    title.innerText = t.value;
-
-    const body = document.createElement('DIV');
-    body.classList.add('card-body');
-
-    const card = document.createElement('DIV');
-    card.setAttribute('id', key);
-    card.classList.add('card');
-    card.classList.add('bg-dark');
-
-    body.appendChild(title);
-    body.appendChild(list);
-    card.appendChild(body);
-    parent.appendChild(card);
-};
-
-const addGroupToList = (g, l, cb) => {
-    const node = document.createElement('DIV');
-    node.setAttribute('id', g.name);
-    node.classList.add('list-group-item');
-    node.classList.add('list-group-item-action');
-    node.ondblclick = cb;
-
-    const textnode = document.createTextNode(g.description);
-    node.appendChild(textnode);
-
-    l.appendChild(node);
-};
-
-const addMessageToList = (m, l) => {
-    const node = document.createElement('DIV');
-    node.classList.add('list-group-item');
-    node.classList.add('list-group-item-action');
-    node.ondblclick = () => showMessage(m);
-
-    const textnode = document.createTextNode(`{ partition: ${m.partition}, offset: ${m.offset}, key: ${m.key} }`);
-    node.appendChild(textnode);
-
-    l.appendChild(node);
-};
-
-const addTopicToList = (t, l, cb) => {
-    const node = document.createElement('DIV');
-    node.setAttribute('id', t.key);
-    node.classList.add('list-group-item');
-    node.classList.add('list-group-item-action');
-    node.ondblclick = cb;
-
-    const textnode = document.createTextNode(t.value);
-    node.appendChild(textnode);
-
-    l.appendChild(node);
-};
-
-const clearTopicsAndGroups = () => {
-    document.getElementById('available-groups').innerHTML = '';
-    document.getElementById('available-topics').innerHTML = '';
-    document.getElementById('selected-groups').innerHTML = '';
-    document.getElementById('selected-topics').innerHTML = '';
-};
-
-const removeElement = (id) => {
-    const elem = document.getElementById(id);
-    elem.parentNode.removeChild(elem);
-};
-
-const removeAllCards = () => {
-    const parent = document.getElementById('consumer-cards');
-    parent.innerHTML = '';
-};
-
-const showMessage = (m) => {
-    // TODO: implement
-};
-
-const selectGroup = (event) => {
-    const id = event.target.id;
-    removeElement(id);
-
-    const groupsList = document.getElementById('selected-groups');
-    const g = activeEnv.groups.find((g) => g.name === id);
-    addGroupToList(g, groupsList, unselectGroup);
-
-    g.keys.forEach((k) => {
-        selectTopic({ target: { id: k } });
-    });
-};
-
-const selectTopic = (event) => {
-    const id = event.target.id;
-    removeElement(id);
-
-    const list = document.getElementById('selected-topics');
-    const t = activeEnv.topics.find((t) => t.key === id);
-    addTopicToList((t), list, unselectTopic);
-};
-
-const unselectGroup = (event) => {
-    const id = event.target.id;
-    removeElement(id);
-
-    const groupsList = document.getElementById('available-groups');
-    const g = activeEnv.groups.find((g) => g.name === id);
-    addGroupToList(g, groupsList, selectGroup);
-
-    g.keys.forEach((k) => {
-        unselectTopic({ target: { id: k } });
-    });
-};
-
-const unselectTopic = (event) => {
-    const id = event.target.id;
-    removeElement(id);
-
-    const list = document.getElementById('available-topics');
-    const t = activeEnv.topics.find((t) => t.key === id);
-    addTopicToList(t, list, selectTopic);
-};
-
-const populateAvailable = () => {
-    clearTopicsAndGroups();
-
-    const groupsList = document.getElementById('available-groups');
-    activeEnv.groups.forEach((g) => addGroupToList(g, groupsList, selectGroup));
-
-    const topicsList = document.getElementById('available-topics');
-    activeEnv.topics.forEach((t) => addTopicToList(t, topicsList, selectTopic));
-};
 
 window.onload = () => {
-    conn = new WebSocket('ws://' + document.location.host + '/ws');
-    conn.onclose = () => console.info('Web socket closed!');
-    conn.onmessage = (event) => {
-        const messages = event.data.split('\n').map((s) => JSON.parse(s));
-        messages.forEach((m) => {
-            if ('topic' in m) {
-                const l = document.querySelector(`#${m.topic.replace(/[.#]/g, '-')} .list-group`);
-                if (l !== null) {
-                    addMessageToList(m, l);
-                }
+    loadSocket({
+        open: () => console.info('Web socket started!'),
+        close: () => console.info('Web socket closed!'),
+        error: () => console.info('Web socket error!'),
+        message: (event) => {
+            const messages = event.data.split('\n').map((s) => JSON.parse(s));
+            const pp = document.getElementById('playpause-btn');
+            if (!pp.classList.contains('play')) {
+                return;
             }
-        });
-    };
+            messages.forEach((m) => {
+                if ('toastType' in m) {
+                    if (getListGroupElement(m.topic) !== null) {
+                        showToast(m);
+                    }
+                } else if ('topic' in m) {
+                    const l = getListGroupElement(m.topic);
+                    if (l !== null) {
+                        addMessageToCardList(m, l);
+                    }
+                }
+            });
+        },
+    });
 };
 
 window.addSelectedCards = async () => {
@@ -169,27 +46,26 @@ window.addSelectedCards = async () => {
     const parent = document.getElementById('selected-topics');
     let list = parent.querySelectorAll('div');
     list = Array.from(list);
+    const { topics } = getActiveEnv();
     list.forEach((l) => {
-        const t = activeEnv.topics.find((t) => t.key === l.id);
+        const t = topics.find((t) => t.key === l.id);
         addConsumerCard(t);
     });
 
     const topicKeys = list.map((l) => l.id);
-    const msg = {
-        type: 'consume',
-        env: activeEnv.name,
-        payload: topicKeys,
-    };
-    conn.send(JSON.stringify(msg));
+    subscribe(topicKeys);
 };
 
 window.checkIfValidEnvironment = async (sel) => {
     const { value } = sel;
+    showToast({ toastType: INFO, message: 'HELLO HELLO' });
+    showToast({ toastType: ERROR, message: 'HELLO HELLO' });
 
     if (value !== '') {
         try {
             const res = await fetch(`${apiUrl}/envs/${value}`);
-            activeEnv = await res.json();
+            const active = await res.json();
+            setActiveEnv(active);
 
             populateAvailable();
         } catch (e) {
@@ -202,14 +78,36 @@ window.checkIfValidEnvironment = async (sel) => {
         document.getElementById('clear-contents-btn').disabled = true;
 
         clearTopicsAndGroups();
-
-        activeEnv = {};
+        setActiveEnv({});
     }
 };
+
+window.clearAllContents = clearAllCards;
+
+window.produceMessage = () => {};
 
 window.resetConsumers = () => {
     removeAllCards();
     populateAvailable();
 };
 
-export default populateAvailable;
+window.resetProducer = () => {};
+
+window.resetBag = resetBag;
+
+window.togglePlayPause = () => {
+    const e = document.getElementById('playpause-btn');
+    if (e.classList.contains('play')) {
+        e.classList.remove('play');
+        e.classList.add('pause');
+        e.innerHTML = '<div class="icon-control-play"></div>';
+    } else {
+        e.classList.remove('pause');
+        e.classList.add('play');
+        e.innerHTML = '<div class="icon-control-pause"></div>';
+    }
+};
+
+window.validateProducerMessage = () => {};
+
+export default apiUrl;
