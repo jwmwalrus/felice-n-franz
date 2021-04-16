@@ -69,7 +69,7 @@ func (rec *Config) GetEnvsList() (list []string) {
 }
 
 // GetEnvTopics returns the list of topics for the given environment`
-func (rec *Config) GetEnvTopics(envName string) (topics []KeyVal) {
+func (rec *Config) GetEnvTopics(envName string) (topics []Topic) {
 	for _, e := range rec.Envs {
 		if e.Name == envName {
 			topics = e.Topics
@@ -91,7 +91,7 @@ func (rec *Config) GetEnvGroups(envName string) (groups []Group) {
 }
 
 // GetEnvGroupTopics returns the list of topics in a given group, for a given environment
-func (rec *Config) GetEnvGroupTopics(envName, groupName string) (topics []KeyVal) {
+func (rec *Config) GetEnvGroupTopics(envName, groupID string) (topics []Topic) {
 	for _, e := range rec.Envs {
 		if e.Name != envName {
 			continue
@@ -99,7 +99,7 @@ func (rec *Config) GetEnvGroupTopics(envName, groupName string) (topics []KeyVal
 
 		var keys []string
 		for _, g := range e.Groups {
-			if g.Name == groupName {
+			if g.ID == groupID {
 				keys = g.Keys
 				break
 			}
@@ -124,11 +124,14 @@ type Environment struct {
 	Name          string          `json:"name"`
 	Active        bool            `json:"active"`
 	Configuration kafka.ConfigMap `json:"configuration"`
-	Vars          []KeyVal        `json:"vars"`
+	Vars          EnvVars         `json:"vars"`
 	TopicsFrom    string          `json:"inheritFrom"`
-	Topics        []KeyVal        `json:"topics"`
+	Topics        []Topic         `json:"topics"`
 	Groups        []Group         `json:"grups"`
 }
+
+// EnvVars defines the Environment Vars type
+type EnvVars map[string]string
 
 // AllTopicsExist check if all topics exist for the given keys
 func (rec *Environment) AllTopicsExist(keys []string) (exist bool) {
@@ -138,36 +141,36 @@ func (rec *Environment) AllTopicsExist(keys []string) (exist bool) {
 }
 
 // FindTopic looks for topic by key
-func (rec *Environment) FindTopic(key string) (kv KeyVal, err error) {
+func (rec *Environment) FindTopic(key string) (v Topic, err error) {
 	for _, t := range rec.Topics {
 		if key == t.Key {
-			kv = t
+			v = t
 			break
 		}
 	}
 
-	if kv.Key == "" {
+	if v.Key == "" {
 		err = errors.New("Key not found")
 	}
 	return
 }
 
 // FindTopics looks for all topics in the given keys list
-func (rec *Environment) FindTopics(keys []string) (topics []KeyVal, err error) {
-	kv := KeyVal{}
+func (rec *Environment) FindTopics(keys []string) (topics []Topic, err error) {
+	v := Topic{}
 	for _, k := range keys {
-		kv, err = rec.FindTopic(k)
+		v, err = rec.FindTopic(k)
 		if err != nil {
 			return
 		}
-		topics = append(topics, kv)
+		topics = append(topics, v)
 	}
 	return
 }
 
 // FindTopicValues looks for all topics in the given keys list
 func (rec *Environment) FindTopicValues(keys []string) (values []string, err error) {
-	topics := []KeyVal{}
+	topics := []Topic{}
 	if topics, err = rec.FindTopics(keys); err != nil {
 		return
 	}
@@ -180,14 +183,14 @@ func (rec *Environment) setDefaults() {
 		rec.Configuration = kafka.ConfigMap{}
 	}
 
-	if len(rec.Vars) < 1 {
-		rec.Vars = append(rec.Vars, KeyVal{})
-		rec.Vars[0].setVarDefaults()
+	if rec.Vars == nil {
+		rec.Vars = EnvVars{}
+		rec.Vars.setDefaults()
 	}
 
 	if len(rec.Topics) < 1 {
-		rec.Topics = append(rec.Topics, KeyVal{})
-		rec.Topics[0].setTopicDefaults()
+		rec.Topics = append(rec.Topics, Topic{})
+		rec.Topics[0].setDefaults()
 	}
 
 	if len(rec.Groups) < 1 {
@@ -213,7 +216,7 @@ func (rec *Environment) setup() {
 
 	fromIdx := -1
 	if rec.TopicsFrom != "" {
-		for j := 0; j < len(Conf.Envs); j++ {
+		for j := range Conf.Envs {
 			if Conf.Envs[j].Name == rec.TopicsFrom {
 				fromIdx = j
 				break
@@ -227,8 +230,13 @@ func (rec *Environment) setup() {
 	}
 
 	rec.Topics = nil
-	rec.Topics = make([]KeyVal, len(Conf.Envs[fromIdx].Topics))
+	rec.Topics = make([]Topic, len(Conf.Envs[fromIdx].Topics))
 	copy(rec.Topics, Conf.Envs[fromIdx].Topics)
+	for i := range rec.Topics {
+		if rec.Topics[i].Headers == nil {
+			rec.Topics[i].Headers = TopicHeaders{}
+		}
+	}
 
 	rec.Groups = nil
 	rec.Groups = make([]Group, len(Conf.Envs[fromIdx].Groups))
@@ -237,7 +245,7 @@ func (rec *Environment) setup() {
 
 // Group defines a group of topics
 type Group struct {
-	Name        string   `json:"name"`
+	ID          string   `json:"id"`
 	Description string   `json:"description"`
 	Category    string   `json:"category"`
 	Keys        []string `json:"keys"`
@@ -245,49 +253,56 @@ type Group struct {
 
 func (rec *Group) setGroupDefaults() {
 	*rec = Group{
-		Name:        "group1",
+		ID:          "group1",
 		Description: "Group One",
 		Category:    "Category A",
 		Keys:        []string{"payment"},
 	}
 }
 
-// KeyVal Defines a key-value pair
-type KeyVal struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+func (rec *EnvVars) setDefaults() {
+	*rec = EnvVars{"myVar": "some-value"}
 }
 
-func (rec *KeyVal) expandVars(vars []KeyVal) {
-	for _, kv := range vars {
-		rec.Value = strings.ReplaceAll(rec.Value, "{{"+kv.Key+"}}", kv.Value)
+// Topic Defines a key-value pair
+type Topic struct {
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	Key         string       `json:"key"`
+	Value       string       `json:"value"`
+	Headers     TopicHeaders `json:headers`
+	Schema      string       `json:"schema"`
+}
+
+// TopicHeaders defines the Topic Headers type
+type TopicHeaders map[string]string
+
+func (rec *Topic) expandVars(vars EnvVars) {
+	for k, v := range vars {
+		rec.Value = strings.ReplaceAll(rec.Value, "{{"+k+"}}", v)
 	}
 }
 
-func (rec *KeyVal) setTopicDefaults() {
-	*rec = KeyVal{
-		Key:   "payment",
-		Value: "{{myVar}}.division.department.section.subsection.payment-type",
+func (rec *Topic) setDefaults() {
+	*rec = Topic{
+		Name:        "PaymentTopic",
+		Description: "Handles payment events",
+		Key:         "payment",
+		Value:       "{{myVar}}.division.department.section.subsection.payment-type",
+		Headers:     TopicHeaders{},
 	}
 }
 
-func (rec *KeyVal) setVarDefaults() {
-	*rec = KeyVal{
-		Key:   "myVar",
-		Value: "some-value",
-	}
-}
-
-func getKeys(kv []KeyVal) (keys []string) {
-	for _, x := range kv {
-		keys = append(keys, x.Key)
+func getKeys(topics []Topic) (keys []string) {
+	for _, t := range topics {
+		keys = append(keys, t.Key)
 	}
 	return
 }
 
-func getValues(kv []KeyVal) (values []string) {
-	for _, x := range kv {
-		values = append(values, x.Value)
+func getValues(topics []Topic) (values []string) {
+	for _, t := range topics {
+		values = append(values, t.Value)
 	}
 	return
 }

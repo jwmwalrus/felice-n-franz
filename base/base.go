@@ -101,12 +101,12 @@ func copyUserConfig() {
 	Conf.Envs = make([]Environment, len(userConf.Envs))
 	copy(Conf.Envs, userConf.Envs)
 
-	for i := 0; i < len(Conf.Envs); i++ {
+	for i := range Conf.Envs {
 		Conf.Envs[i].setup()
 	}
 
-	for i := 0; i < len(Conf.Envs); i++ {
-		for j := 0; j < len(Conf.Envs[i].Topics); j++ {
+	for i := range Conf.Envs {
+		for j := range Conf.Envs[i].Topics {
 			Conf.Envs[i].Topics[j].expandVars(Conf.Envs[i].Vars)
 		}
 	}
