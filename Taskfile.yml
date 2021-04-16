@@ -4,9 +4,17 @@
 version: '2'
 
 tasks:
+  dev:
+    cmds:
+      - task: wpdev
+      - task: gobuild
+  prod:
+    cmds:
+      - task: build
   build:
     cmds:
-      - task: esbuild
+      # - task: esbuild
+      - task: wpbuild
       - task: gobuild
 
   test:
@@ -20,6 +28,14 @@ tasks:
   esbuild:
     cmds:
       - npm run build
+
+  wpbuild:
+    cmds:
+      - npm run prod
+
+  wpdev:
+    cmds:
+      - npm run dev
 
   # test-cli:
     # cmds:
