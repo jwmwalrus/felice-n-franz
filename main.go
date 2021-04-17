@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jwmwalrus/bnp"
-	"github.com/jwmwalrus/felice-franz/base"
-	"github.com/jwmwalrus/felice-franz/kafkian"
+	"github.com/jwmwalrus/felice-n-franz/base"
+	"github.com/jwmwalrus/felice-n-franz/kafkian"
 )
 
 //go:embed assets/html/index.html

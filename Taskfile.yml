@@ -13,25 +13,25 @@ tasks:
       - task: build
   build:
     cmds:
-      # - task: esbuild
+      - task: clean
       - task: wpbuild
       - task: gobuild
 
+  clean:
+      - rm -rf public/css
+      - rm -rf public/js
+      - rm -rf public/vendor
   test:
     cmds:
       - go test -v -p 1 ./...
 
   gobuild:
     cmds:
-      - go build -v -o ./felice+franz{{exeExt}} .
-
-  esbuild:
-    cmds:
-      - npm run build
+      - go build -v -o ./felice-n-franz{{exeExt}} .
 
   wpbuild:
     cmds:
-      - npm run prod
+      - npm run build
 
   wpdev:
     cmds:

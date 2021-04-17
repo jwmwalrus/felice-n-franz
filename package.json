@@ -1,18 +1,17 @@
 {
-    "name": "felice-franz",
+    "name": "felice-n-franz",
     "version": "0.1.0",
     "description": "Felice & Franz ==================",
     "main": "index.js",
     "scripts": {
-        "build": "node esbuild.config.js",
-        "watch": "node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development --watch",
-        "dev": "node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development",
-        "prod": "./node_modules/.bin/webpack --mode production",
+        "build": "./node_modules/.bin/webpack --mode production",
+        "watch": "DEV_MODE=1 node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development --watch",
+        "dev": "DEV_MODE=1 node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/jwmwalrus/felice-franz.git"
+        "url": "git+https://github.com/jwmwalrus/felice-n-franz.git"
     },
     "author": "",
     "license": "ISC",

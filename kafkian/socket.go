@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/jwmwalrus/bnp"
-	"github.com/jwmwalrus/felice-franz/base"
+	"github.com/jwmwalrus/felice-n-franz/base"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )

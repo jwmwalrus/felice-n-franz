@@ -2,8 +2,7 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
-const devmode = process.env.NODE_ENV !== 'production';
-console.log({ devmode });
+const devmode = process.env.DEV_MODE === '1';
 
 module.exports = {
     name: 'index',

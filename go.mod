@@ -1,11 +1,10 @@
-module github.com/jwmwalrus/felice-franz
+module github.com/jwmwalrus/felice-n-franz
 
 go 1.16
 
 require (
 	github.com/adrg/xdg v0.3.2
-	github.com/confluentinc/confluent-kafka-go v1.6.1
-	github.com/foolin/goview v0.3.0
+	github.com/confluentinc/confluent-kafka-go v1.6.1 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/gorilla/websocket v1.4.2
 	github.com/jwmwalrus/bnp v0.0.0

@@ -17,7 +17,7 @@ const (
 	lockFilename   = configFilename + ".lock"
 
 	// AppDirName Application's directory name
-	AppDirName = "felice+franz"
+	AppDirName = "felice-n-franz"
 
 	// AppName Application name
 	AppName = "Felice & Franz"

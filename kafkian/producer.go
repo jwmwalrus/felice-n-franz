@@ -1,7 +1,7 @@
 package kafkian
 
 import (
-	"github.com/jwmwalrus/felice-franz/base"
+	"github.com/jwmwalrus/felice-n-franz/base"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
