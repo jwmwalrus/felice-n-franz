@@ -126,12 +126,16 @@ type Environment struct {
 	Configuration kafka.ConfigMap `json:"configuration"`
 	Vars          EnvVars         `json:"vars"`
 	TopicsFrom    string          `json:"inheritFrom"`
+	Schemas       EnvSchemas      `json:"schemas"`
 	Topics        []Topic         `json:"topics"`
 	Groups        []Group         `json:"grups"`
 }
 
 // EnvVars defines the Environment Vars type
 type EnvVars map[string]string
+
+// EnvSchemas defines common JSON schemas
+type EnvSchemas map[string]interface{}
 
 // AllTopicsExist check if all topics exist for the given keys
 func (rec *Environment) AllTopicsExist(keys []string) (exist bool) {
@@ -276,6 +280,9 @@ type Topic struct {
 
 // TopicHeaders defines the Topic Headers type
 type TopicHeaders map[string]string
+
+// TopicSchema defines the applicable JSON schema
+type TopicSchema map[string]interface{}
 
 func (rec *Topic) expandVars(vars EnvVars) {
 	for k, v := range vars {
