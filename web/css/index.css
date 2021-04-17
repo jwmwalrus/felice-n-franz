@@ -2,10 +2,6 @@
  * Custom styles
  */
 
-/* * { */
-/*   box-sizing: border-box; */
-/* } */
-
 /*
  * Global
  **/
@@ -14,6 +10,7 @@ body {
   font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   background-color: white;
   color: black;
+  padding-bottom: 0;
 }
 
 h1,
@@ -38,7 +35,6 @@ button > span > span,
 
 div[class^="icon-"],
 span[class^="icon-"] {
-  border: 2px solid red;
 }
 
 /*
@@ -70,7 +66,8 @@ li.nav-item {
 
 #consumer-cards .card {
   flex-basis: 450px;
-  padding-top: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
   margin-top: 5px;
   margin-bottom: 5px;
   box-sizing: border-box;
@@ -84,20 +81,18 @@ li.nav-item {
 
 #consumer-cards .card-header .btn-group,
 #consumer-cards .card-header .btn-group a {
-  border: 2px solid red;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 #consumer-cards .card-header .card-controls {
-  border: 2px solid red;
   display: flex;
   justify-content: flex-end;
-  margin: 0px;
+  margin: 0;
 }
 
 #consumer-cards .card-body {
-  padding: 0px;
+  padding: 0;
   min-width: 50%;
 }
 
@@ -157,7 +152,7 @@ footer.footer {
 .modal .card-body,
 #consumer-cards .card-body {
   min-width: 100%;
-  padding: 0px;
+  padding: 0;
 }
 
 .modal .list-group-item.list-group-item-action,

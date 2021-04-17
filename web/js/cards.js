@@ -74,7 +74,7 @@ const addConsumerCard = (t) => {
     parent.appendChild(card);
 };
 
-const addMessageToCardList = (m, l) => {
+const addMessageToCardList = async (m, l) => {
     if (!tracker.has(m.topic)) {
         return;
     }
@@ -85,7 +85,7 @@ const addMessageToCardList = (m, l) => {
     node.classList.add('list-group-item', 'list-group-item-action');
     node.ondblclick = () => showMessage(m);
 
-    const textnode = document.createTextNode(`{ partition: ${m.partition}, offset: ${m.offset}, key: ${m.key} }`);
+    const textnode = document.createTextNode(`{ timestamp: ${m.timestamp}, offset: ${m.offset}, key: ${m.key},  partition: ${m.partition} }`);
     node.appendChild(textnode);
 
     l.appendChild(node);
@@ -93,7 +93,7 @@ const addMessageToCardList = (m, l) => {
     msgs.push(m);
     while (msgs.length > 100) {
         const e = msgs.shift();
-        removeElement(actionId(e));
+        await removeElement(actionId(e));
     }
     tracker.set(m.topic, msgs);
 };
@@ -112,8 +112,8 @@ const removeAllCards = () => {
     tracker.clear();
 };
 
-const removeCard = (topic) => {
-    removeElement(getTopicId(topic));
+const removeCard = async (topic) => {
+    await removeElement(getTopicId(topic));
     unsubscribe([topic]);
     tracker.delete(topic);
 };

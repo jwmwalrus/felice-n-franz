@@ -31,11 +31,11 @@ tasks:
 
   wpbuild:
     cmds:
-      - npm run build
+      - npm --prefix ./web/ run build
 
   wpdev:
     cmds:
-      - npm run dev
+      - npm --prefix ./web/ run dev
 
   # test-cli:
     # cmds:

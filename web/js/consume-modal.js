@@ -32,68 +32,72 @@ const clearTopicsAndGroups = () => {
     document.getElementById('selected-topics').innerHTML = '';
 };
 
-const populateAvailable = () => {
+const populateAvailable = async () => {
     clearTopicsAndGroups();
 
     const { groups, topics } = getActiveEnv();
 
     const groupsList = document.getElementById('available-groups');
-    groups.forEach((g) => addGroupToList(g, groupsList, selectGroup));
+    for await (const g of groups) {
+        addGroupToList(g, groupsList, selectGroup);
+    }
 
     const topicsList = document.getElementById('available-topics');
-    topics.forEach((t) => addTopicToList(t, topicsList, selectTopic));
+    for await (const t of topics) {
+        addTopicToList(t, topicsList, selectTopic);
+    }
 };
 
-const selectGroup = (event) => {
+const selectGroup = async (event) => {
     const id = event.target.id;
-    removeElement(id);
+    await removeElement(id);
 
     const { groups } = getActiveEnv();
 
     const groupsList = document.getElementById('selected-groups');
     const g = groups.find((g) => g.id === id);
-    addGroupToList(g, groupsList, unselectGroup);
+    await addGroupToList(g, groupsList, unselectGroup);
 
-    g.keys.forEach((k) => {
+    for await (const k of g.keys) {
         selectTopic({ target: { id: k } });
-    });
+    }
 };
 
-const selectTopic = (event) => {
+const selectTopic = async (event) => {
     const id = event.target.id;
-    removeElement(id);
+    await removeElement(id);
 
     const { topics } = getActiveEnv();
 
     const list = document.getElementById('selected-topics');
     const t = topics.find((t) => t.key === id);
-    addTopicToList((t), list, unselectTopic);
+    await addTopicToList((t), list, unselectTopic);
 };
 
-const unselectGroup = (event) => {
+const unselectGroup = async (event) => {
     const id = event.target.id;
-    removeElement(id);
+    await removeElement(id);
 
     const { groups } = getActiveEnv();
 
     const groupsList = document.getElementById('available-groups');
     const g = groups.find((g) => g.id === id);
-    addGroupToList(g, groupsList, selectGroup);
+    await addGroupToList(g, groupsList, selectGroup);
 
-    g.keys.forEach((k) => {
+    for await (const k of g.keys) {
         unselectTopic({ target: { id: k } });
-    });
+    }
 };
 
-const unselectTopic = (event) => {
+const unselectTopic = async (event) => {
     const id = event.target.id;
-    removeElement(id);
+    await removeElement(id);
 
     const { topics } = getActiveEnv();
 
     const list = document.getElementById('available-topics');
     const t = topics.find((t) => t.key === id);
-    addTopicToList(t, list, selectTopic);
+    await addTopicToList(t, list, selectTopic);
 };
 
 export {

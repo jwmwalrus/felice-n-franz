@@ -7,12 +7,12 @@ const devmode = process.env.DEV_MODE === '1';
 module.exports = {
     name: 'index',
     entry: {
-        index: './assets/js/index.js',
+        index: './js/index.js',
     },
     output: {
-        path: path.join(__dirname, 'public'),
+        path: path.join(__dirname, '..', 'public'),
         filename: 'js/[name].js',
-        publicPath: 'public/',
+        publicPath: path.join('..', 'public'),
     },
     target: 'es2021',
     cache: false,

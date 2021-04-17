@@ -19,13 +19,13 @@ window.onload = () => {
         open: () => console.info('Web socket started!'),
         close: () => console.info('Web socket closed!'),
         error: () => console.info('Web socket error!'),
-        message: (event) => {
+        message: async (event) => {
             const messages = event.data.split('\n').map((s) => JSON.parse(s));
             const pp = document.getElementById('playpause-btn');
             if (!pp.classList.contains('play')) {
                 return;
             }
-            messages.forEach((m) => {
+            for await (const m of messages) {
                 if ('toastType' in m) {
                     if (getListGroupElement(m.topic) !== null) {
                         showToast(m);
@@ -33,10 +33,10 @@ window.onload = () => {
                 } else if ('topic' in m) {
                     const l = getListGroupElement(m.topic);
                     if (l !== null) {
-                        addMessageToCardList(m, l);
+                        await addMessageToCardList(m, l);
                     }
                 }
-            });
+            }
         },
     });
 };
