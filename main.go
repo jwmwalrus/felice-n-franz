@@ -15,7 +15,7 @@ import (
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
 )
 
-//go:embed assets/html/index.html
+//go:embed web/html/index.html
 var indexHTML string
 
 //go:embed public

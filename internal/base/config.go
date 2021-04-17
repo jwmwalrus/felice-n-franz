@@ -2,11 +2,13 @@ package base
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
@@ -18,34 +20,36 @@ type Config struct {
 	Envs          []Environment `json:"envs"`
 }
 
-func (rec *Config) setDefaults() {
-	if rec.Port == 0 {
-		rec.Port = DefaultPort
+func (c *Config) setDefaults() {
+	log.Info("Setting config defaults")
+
+	if c.Port == 0 {
+		c.Port = DefaultPort
 	}
 
-	if rec.MaxTailOffset == 0 {
-		rec.MaxTailOffset = DefaultTailOffset
+	if c.MaxTailOffset == 0 {
+		c.MaxTailOffset = DefaultTailOffset
 	}
 
-	if len(rec.Envs) < 1 {
-		rec.Envs = append(rec.Envs, Environment{})
-		rec.Envs[0].setDefaults()
+	if len(c.Envs) < 1 {
+		c.Envs = append(c.Envs, Environment{})
+		c.Envs[0].setDefaults()
 	}
 }
 
 // GetPort Returns port as a string
-func (rec *Config) GetPort() string {
-	return ":" + strconv.Itoa(rec.Port)
+func (c *Config) GetPort() string {
+	return ":" + strconv.Itoa(c.Port)
 }
 
 // GetURL Returns application's base URL
-func (rec *Config) GetURL() string {
-	return "http://localhost" + rec.GetPort()
+func (c *Config) GetURL() string {
+	return "http://localhost" + c.GetPort()
 }
 
 // GetEnvConfig returns the configuration for the given environment
-func (rec *Config) GetEnvConfig(envName string) (env Environment) {
-	for _, e := range rec.Envs {
+func (c *Config) GetEnvConfig(envName string) (env Environment) {
+	for _, e := range c.Envs {
 		if !e.Active {
 			continue
 		}
@@ -58,8 +62,8 @@ func (rec *Config) GetEnvConfig(envName string) (env Environment) {
 }
 
 // GetEnvsList returns the list of availablr environments
-func (rec *Config) GetEnvsList() (list []string) {
-	for _, e := range rec.Envs {
+func (c *Config) GetEnvsList() (list []string) {
+	for _, e := range c.Envs {
 		if !e.Active {
 			continue
 		}
@@ -69,8 +73,8 @@ func (rec *Config) GetEnvsList() (list []string) {
 }
 
 // GetEnvTopics returns the list of topics for the given environment`
-func (rec *Config) GetEnvTopics(envName string) (topics []Topic) {
-	for _, e := range rec.Envs {
+func (c *Config) GetEnvTopics(envName string) (topics []Topic) {
+	for _, e := range c.Envs {
 		if e.Name == envName {
 			topics = e.Topics
 			break
@@ -80,8 +84,8 @@ func (rec *Config) GetEnvTopics(envName string) (topics []Topic) {
 }
 
 // GetEnvGroups returns the list of groups in the given environment
-func (rec *Config) GetEnvGroups(envName string) (groups []Group) {
-	for _, e := range rec.Envs {
+func (c *Config) GetEnvGroups(envName string) (groups []Group) {
+	for _, e := range c.Envs {
 		if e.Name == envName {
 			groups = e.Groups
 			break
@@ -91,8 +95,8 @@ func (rec *Config) GetEnvGroups(envName string) (groups []Group) {
 }
 
 // GetEnvGroupTopics returns the list of topics in a given group, for a given environment
-func (rec *Config) GetEnvGroupTopics(envName, groupID string) (topics []Topic) {
-	for _, e := range rec.Envs {
+func (c *Config) GetEnvGroupTopics(envName, groupID string) (topics []Topic) {
+	for _, e := range c.Envs {
 		if e.Name != envName {
 			continue
 		}
@@ -119,6 +123,15 @@ func (rec *Config) GetEnvGroupTopics(envName, groupID string) (topics []Topic) {
 	return
 }
 
+func (c *Config) validate() (err error) {
+	for i := range c.Envs {
+		if err = c.Envs[i].validate(); err != nil {
+			return
+		}
+	}
+	return
+}
+
 // Environment Defines a topics environment
 type Environment struct {
 	Name          string          `json:"name"`
@@ -128,7 +141,7 @@ type Environment struct {
 	TopicsFrom    string          `json:"inheritFrom"`
 	Schemas       EnvSchemas      `json:"schemas"`
 	Topics        []Topic         `json:"topics"`
-	Groups        []Group         `json:"grups"`
+	Groups        []Group         `json:"groups"`
 }
 
 // EnvVars defines the Environment Vars type
@@ -138,15 +151,15 @@ type EnvVars map[string]string
 type EnvSchemas map[string]interface{}
 
 // AllTopicsExist check if all topics exist for the given keys
-func (rec *Environment) AllTopicsExist(keys []string) (exist bool) {
-	_, err := rec.FindTopics(keys)
+func (e *Environment) AllTopicsExist(keys []string) (exist bool) {
+	_, err := e.FindTopics(keys)
 	exist = err == nil
 	return
 }
 
 // FindTopic looks for topic by key
-func (rec *Environment) FindTopic(key string) (v Topic, err error) {
-	for _, t := range rec.Topics {
+func (e *Environment) FindTopic(key string) (v Topic, err error) {
+	for _, t := range e.Topics {
 		if key == t.Key {
 			v = t
 			break
@@ -160,10 +173,10 @@ func (rec *Environment) FindTopic(key string) (v Topic, err error) {
 }
 
 // FindTopics looks for all topics in the given keys list
-func (rec *Environment) FindTopics(keys []string) (topics []Topic, err error) {
+func (e *Environment) FindTopics(keys []string) (topics []Topic, err error) {
 	v := Topic{}
 	for _, k := range keys {
-		v, err = rec.FindTopic(k)
+		v, err = e.FindTopic(k)
 		if err != nil {
 			return
 		}
@@ -173,55 +186,63 @@ func (rec *Environment) FindTopics(keys []string) (topics []Topic, err error) {
 }
 
 // FindTopicValues looks for all topics in the given keys list
-func (rec *Environment) FindTopicValues(keys []string) (values []string, err error) {
+func (e *Environment) FindTopicValues(keys []string) (values []string, err error) {
 	topics := []Topic{}
-	if topics, err = rec.FindTopics(keys); err != nil {
+	if topics, err = e.FindTopics(keys); err != nil {
 		return
 	}
 	values = getValues(topics)
 	return
 }
 
-func (rec *Environment) setDefaults() {
-	if rec.Configuration == nil {
-		rec.Configuration = kafka.ConfigMap{}
+func (e *Environment) setDefaults() {
+	log.Info("Setting env defaults")
+
+	if e.Configuration == nil {
+		e.Configuration = kafka.ConfigMap{}
 	}
 
-	if rec.Vars == nil {
-		rec.Vars = EnvVars{}
-		rec.Vars.setDefaults()
+	if e.Vars == nil {
+		e.Vars = EnvVars{}
+		e.Vars.setDefaults()
 	}
 
-	if len(rec.Topics) < 1 {
-		rec.Topics = append(rec.Topics, Topic{})
-		rec.Topics[0].setDefaults()
+	if e.Schemas == nil {
+		e.Schemas = EnvSchemas{}
 	}
 
-	if len(rec.Groups) < 1 {
-		rec.Groups = append(rec.Groups, Group{})
-		rec.Groups[0].setGroupDefaults()
+	if len(e.Topics) < 1 {
+		e.Topics = append(e.Topics, Topic{})
+		e.Topics[0].setDefaults()
+	}
+
+	if len(e.Groups) < 1 {
+		e.Groups = append(e.Groups, Group{})
+		e.Groups[0].setGroupDefaults()
 	}
 }
 
-func (rec *Environment) setup() {
-	rec.Name = os.ExpandEnv(rec.Name)
-	rec.TopicsFrom = os.ExpandEnv(rec.TopicsFrom)
+func (e *Environment) setup() {
+	log.Info("Setting environment " + e.Name)
 
-	if _, ok := rec.Configuration["group.id"]; !ok {
-		rec.Configuration["group.id"] = "${USER}.${HOSTNAME}"
+	e.Name = os.ExpandEnv(e.Name)
+	e.TopicsFrom = os.ExpandEnv(e.TopicsFrom)
+
+	if _, ok := e.Configuration["group.id"]; !ok {
+		e.Configuration["group.id"] = "${USER}.${HOSTNAME}"
 	}
 
-	for k, v := range rec.Configuration {
+	for k, v := range e.Configuration {
 		if reflect.TypeOf(v).Name() != "string" {
 			continue
 		}
-		rec.Configuration[k] = os.ExpandEnv(v.(string))
+		e.Configuration[k] = os.ExpandEnv(v.(string))
 	}
 
 	fromIdx := -1
-	if rec.TopicsFrom != "" {
+	if e.TopicsFrom != "" {
 		for j := range Conf.Envs {
-			if Conf.Envs[j].Name == rec.TopicsFrom {
+			if Conf.Envs[j].Name == e.TopicsFrom {
 				fromIdx = j
 				break
 			}
@@ -229,43 +250,104 @@ func (rec *Environment) setup() {
 	}
 
 	if fromIdx < 0 {
-		// TODO: warn?
 		return
 	}
 
-	rec.Topics = nil
-	rec.Topics = make([]Topic, len(Conf.Envs[fromIdx].Topics))
-	copy(rec.Topics, Conf.Envs[fromIdx].Topics)
-	for i := range rec.Topics {
-		if rec.Topics[i].Headers == nil {
-			rec.Topics[i].Headers = TopicHeaders{}
+	e.Topics = nil
+	e.Topics = make([]Topic, len(Conf.Envs[fromIdx].Topics))
+	copy(e.Topics, Conf.Envs[fromIdx].Topics)
+	for i := range e.Topics {
+		if e.Topics[i].Headers == nil {
+			e.Topics[i].Headers = TopicHeaders{}
 		}
 	}
 
-	rec.Groups = nil
-	rec.Groups = make([]Group, len(Conf.Envs[fromIdx].Groups))
-	copy(rec.Groups, Conf.Envs[fromIdx].Groups)
+	e.Groups = nil
+	e.Groups = make([]Group, len(Conf.Envs[fromIdx].Groups))
+	copy(e.Groups, Conf.Envs[fromIdx].Groups)
+}
+
+func (e *Environment) validate() (err error) {
+	if e.Name == "" {
+		errors.New("Environment name cannot be empty")
+		return
+	}
+
+	if e.TopicsFrom != "" {
+		return
+	}
+
+	if e.Schemas == nil {
+		e.Schemas = EnvSchemas{}
+	}
+
+	for i := range e.Topics {
+		if err = e.Topics[i].validate(); err != nil {
+			return
+		}
+	}
+
+	for i := range e.Groups {
+		if err = e.Groups[i].validate(); err != nil {
+			return
+		}
+	}
+
+	unique := make(map[string]string)
+
+	n := 0
+	for _, t := range e.Topics {
+		n++
+		if u, ok := unique[t.Key]; ok {
+			err = errors.New(fmt.Sprintf("Key %v is already in use by topic/group (#%v)", t.Key, u, n))
+			return
+		}
+		unique[t.Key] = t.Name
+	}
+	log.Infof("Found %v unique topic keys for environment %v", n, e.Name)
+
+	n = 0
+	for _, g := range e.Groups {
+		n++
+		if u, ok := unique[g.ID]; ok {
+			err = errors.New(fmt.Sprintf("ID %v is already in use by topic/group (#%v)", g.ID, u, n))
+			return
+		}
+		unique[g.ID] = g.Name
+	}
+	log.Infof("Found %v unique group IDs for environment %v", n, e.Name)
+	return
 }
 
 // Group defines a group of topics
 type Group struct {
-	ID          string   `json:"id"`
+	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Category    string   `json:"category"`
+	ID          string   `json:"id"`
 	Keys        []string `json:"keys"`
 }
 
-func (rec *Group) setGroupDefaults() {
-	*rec = Group{
-		ID:          "group1",
+func (g *Group) setGroupDefaults() {
+	*g = Group{
+		Name:        "GroupOne",
 		Description: "Group One",
 		Category:    "Category A",
+		ID:          "group1",
 		Keys:        []string{"payment"},
 	}
 }
 
-func (rec *EnvVars) setDefaults() {
-	*rec = EnvVars{"myVar": "some-value"}
+func (g *Group) validate() (err error) {
+	if g.ID == "" || len(g.Keys) == 0 {
+		err = errors.New("Group id and keys mus be non-empty")
+		return
+	}
+	return
+}
+
+func (g *EnvVars) setDefaults() {
+	*g = EnvVars{"myVar": "some-value"}
 }
 
 // Topic Defines a key-value pair
@@ -274,8 +356,8 @@ type Topic struct {
 	Description string       `json:"description"`
 	Key         string       `json:"key"`
 	Value       string       `json:"value"`
-	Headers     TopicHeaders `json:headers`
-	Schema      string       `json:"schema"`
+	Headers     TopicHeaders `json:"headers"`
+	Schema      TopicSchema  `json:"schema"`
 }
 
 // TopicHeaders defines the Topic Headers type
@@ -284,20 +366,37 @@ type TopicHeaders map[string]string
 // TopicSchema defines the applicable JSON schema
 type TopicSchema map[string]interface{}
 
-func (rec *Topic) expandVars(vars EnvVars) {
+func (t *Topic) expandVars(vars EnvVars) {
 	for k, v := range vars {
-		rec.Value = strings.ReplaceAll(rec.Value, "{{"+k+"}}", v)
+		t.Value = strings.ReplaceAll(t.Value, "{{"+k+"}}", v)
 	}
 }
 
-func (rec *Topic) setDefaults() {
-	*rec = Topic{
+func (t *Topic) setDefaults() {
+	*t = Topic{
 		Name:        "PaymentTopic",
 		Description: "Handles payment events",
 		Key:         "payment",
 		Value:       "{{myVar}}.division.department.section.subsection.payment-type",
 		Headers:     TopicHeaders{},
+		Schema:      TopicSchema{},
 	}
+}
+
+func (t *Topic) validate() (err error) {
+	if t.Key == "" || t.Value == "" {
+		err = errors.New("Topic key and value mus be non-empty")
+		return
+	}
+
+	if t.Headers == nil {
+		t.Headers = TopicHeaders{}
+	}
+
+	if t.Schema == nil {
+		t.Schema = TopicSchema{}
+	}
+	return
 }
 
 func getKeys(topics []Topic) (keys []string) {

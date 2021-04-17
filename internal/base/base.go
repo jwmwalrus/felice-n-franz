@@ -2,12 +2,12 @@ package base
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/jwmwalrus/bnp"
 	"github.com/nightlyone/lockfile"
+	log "github.com/sirupsen/logrus"
 )
 
 // Conf Application's global configuration
@@ -22,6 +22,7 @@ func Load() (args []string) {
 
 	_, err = os.Stat(configFile)
 	if os.IsNotExist(err) {
+		log.Info(configFilename + " was not found. Generating one")
 		userConf.FirstRun = true
 		err := Save()
 		bnp.PanicOnError(err)
@@ -35,6 +36,9 @@ func Load() (args []string) {
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 
 	err = json.Unmarshal(byteValue, &userConf)
+	bnp.PanicOnError(err)
+
+	err = userConf.validate()
 	bnp.PanicOnError(err)
 
 	if userConf.FirstRun {
@@ -64,7 +68,7 @@ func Save() (err error) {
 
 	defer func() {
 		if err := lock.Unlock(); err != nil {
-			fmt.Printf("Cannot unlock %q, reason: %v", lock, err)
+			log.Warningf("Cannot unlock %q, reason: %v", lock, err)
 		}
 	}()
 

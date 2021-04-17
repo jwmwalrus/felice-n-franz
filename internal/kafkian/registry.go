@@ -1,8 +1,7 @@
 package kafkian
 
 import (
-	"fmt"
-
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
@@ -22,7 +21,7 @@ func detachTopicFromConsumer(topic string, c *kafka.Consumer) {
 			if v == topic {
 				r.topics[k] = r.topics[len(r.topics)-1]
 				r.topics = r.topics[:len(r.topics)-1]
-				fmt.Println("Detaching topic", v)
+				log.Info("Detaching topic", v)
 				if len(r.topics) == 0 {
 					unregister(r.consumer)
 				}
@@ -36,7 +35,7 @@ func getConsumerForTopic(topic string) (c *kafka.Consumer) {
 	for _, r := range reg {
 		for _, t := range r.topics {
 			if t == topic {
-				fmt.Println("Consumer found")
+				log.Info("Consumer found for topic " + topic)
 				c = r.consumer
 				return
 			}
@@ -59,7 +58,7 @@ func register(c *kafka.Consumer, topics []string) {
 	if isRegistered(c) {
 		return
 	}
-	fmt.Println("Registering consumer")
+	log.Info("Registering consumer")
 
 	reg = append(reg, record{c, topics})
 }
@@ -67,9 +66,9 @@ func register(c *kafka.Consumer, topics []string) {
 func unregister(c *kafka.Consumer) {
 	for k, v := range reg {
 		if v.consumer == c {
-			fmt.Println("Unregistering consumer")
 			reg[k] = reg[len(reg)-1]
 			reg = reg[:len(reg)-1]
+			log.Info("Consumer unregistered")
 			return
 		}
 	}

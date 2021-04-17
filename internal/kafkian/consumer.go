@@ -1,8 +1,6 @@
 package kafkian
 
 import (
-	"fmt"
-
 	"github.com/jwmwalrus/bnp"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	log "github.com/sirupsen/logrus"
@@ -40,7 +38,7 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 		for {
 			ev := c.Poll(100)
 			if !isRegistered(c) {
-				fmt.Println("Unsubscribing consumer")
+				log.Info("Unsubscribing consumer")
 				err := c.Unsubscribe()
 				bnp.WarnOnError(err)
 				break
