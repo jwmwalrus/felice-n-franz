@@ -25,9 +25,9 @@ func main() {
 	base.Load()
 	cfg := base.Conf
 
-	gin.DefaultWriter = base.NewDefaultWriter()
+	gin.DefaultWriter = bnp.NewDefaultWriter()
 	r := gin.Default()
-	r.Use(base.LoggerToFile())
+	r.Use(bnp.LoggerToFile())
 	r.Use(gin.Recovery())
 
 	route(r)
