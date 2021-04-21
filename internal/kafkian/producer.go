@@ -5,10 +5,16 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-func ProduceMessage(env base.Environment, topic string, payload []byte) (err error) {
-
+func ProduceMessage(env base.Environment, msg *kafka.Message) (err error) {
 	var p *kafka.Producer
-	p, err = kafka.NewProducer(&env.Configuration)
+	ec := kafka.ConfigMap{}
+	for k, v := range env.Configuration {
+		if k == "group.id" {
+			continue
+		}
+		ec[k] = v
+	}
+	p, err = kafka.NewProducer(&ec)
 	if err != nil {
 		return
 	}
@@ -37,12 +43,9 @@ func ProduceMessage(env base.Environment, topic string, payload []byte) (err err
 		}
 	}()
 
-	p.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value:          payload,
-	}, nil)
+	p.Produce(msg, nil)
 
 	// Wait for message deliveries before shutting down
-	p.Flush(15 * 1000)
+	p.Flush(60 * 1000)
 	return
 }

@@ -27,7 +27,10 @@ type connection struct {
 type receivedMsg struct {
 	MsgType string   `json:"type"`
 	Env     string   `json:"env"`
+	Topic   string   `json:"topic"`
+	Key     string   `json:"key"`
 	Payload []string `json:"payload"`
+	Headers []ht     `json:"headers"`
 }
 
 type toastMsg struct {
@@ -37,6 +40,11 @@ type toastMsg struct {
 	Topic     string       `json:"topic"`
 	Partition int32        `json:"partition"`
 	Offset    kafka.Offset `json:"offset"`
+}
+
+type ht struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 // HandleWS handles web socket messages
@@ -67,6 +75,7 @@ func (c connection) processMessages() {
 			}
 			break
 		}
+
 		res := receivedMsg{}
 		json.Unmarshal(msg, &res)
 
@@ -79,13 +88,17 @@ func (c connection) processMessages() {
 
 		case "produce":
 			env := base.Conf.GetEnvConfig(res.Env)
-			topic := ""
-			payload := []byte{}
-			if len(res.Payload) > 1 {
-				topic = res.Payload[0]
-				payload = []byte(res.Payload[1])
+			msg := kafka.Message{
+				TopicPartition: kafka.TopicPartition{Topic: &res.Topic},
+				Value:          []byte(res.Payload[0]),
 			}
-			err := ProduceMessage(env, topic, payload)
+			if res.Key != "" {
+				msg.Key = []byte(res.Key)
+			}
+			if len(res.Headers) > 0 {
+				msg.Headers = ht2header(res.Headers)
+			}
+			err := ProduceMessage(env, &msg)
 			bnp.LogOnError(err)
 
 		case "unsubscribe":
@@ -100,25 +113,18 @@ func (c connection) processMessages() {
 }
 
 func sendKafkaMessage(m *kafka.Message) {
-	type ht struct {
-		Key   string `json:"key"`
-		Value string `json:"value"`
-	}
-
-	headers := []ht{}
-	for _, h := range m.Headers {
-		headers = append(headers, ht{h.Key, string(h.Value)})
-	}
+	headers := header2ht(m.Headers)
 
 	flat := struct {
-		Topic         string              `json:"topic"`
-		Partition     int32               `json:"partition"`
-		Offset        kafka.Offset        `json:"offset"`
-		Value         string              `json:"value"`
-		Key           string              `json:"key"`
-		Timestamp     time.Time           `json:"timestamp"`
-		TimestampType kafka.TimestampType `json:"timestampType"`
-		Headers       []ht                `json:"headers"`
+		Topic               string              `json:"topic"`
+		Partition           int32               `json:"partition"`
+		Offset              kafka.Offset        `json:"offset"`
+		Value               string              `json:"value"`
+		Key                 string              `json:"key"`
+		Timestamp           time.Time           `json:"timestamp"`
+		TimestampType       kafka.TimestampType `json:"timestampType"`
+		TimestampTypeString string              `json:"timestampTypeString"`
+		Headers             []ht                `json:"headers"`
 	}{
 		*m.TopicPartition.Topic,
 		m.TopicPartition.Partition,
@@ -127,6 +133,7 @@ func sendKafkaMessage(m *kafka.Message) {
 		string(m.Key),
 		m.Timestamp,
 		m.TimestampType,
+		m.TimestampType.String(),
 		headers,
 	}
 	payload, err := json.Marshal(flat)
@@ -147,4 +154,18 @@ func sendToast(t toastMsg) {
 	}
 	err = WS.WriteMessage(websocket.TextMessage, payload)
 	bnp.LogOnError(err)
+}
+
+func header2ht(kh []kafka.Header) (h []ht) {
+	for _, v := range kh {
+		h = append(h, ht{v.Key, string(v.Value)})
+	}
+	return
+}
+
+func ht2header(h []ht) (kh []kafka.Header) {
+	for _, v := range h {
+		kh = append(kh, kafka.Header{v.Key, []byte(v.Value)})
+	}
+	return
 }
