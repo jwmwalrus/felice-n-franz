@@ -58,8 +58,10 @@ func index(c *gin.Context) {
 		http.StatusOK,
 		"index.html",
 		gin.H{
-			"title": base.AppName,
-			"envs":  base.Conf.GetEnvsList(),
+			"title":              base.AppName,
+			"envs":               base.Conf.GetEnvsList(),
+			"defaultHeader":      `[{"key": "Content-Type","value": "application/json"}]`,
+			"payloadPlaceholder": `e.g.: {"year": 1984, "enemy": "Eastasia"}`,
 		},
 	)
 }
@@ -68,9 +70,11 @@ func getEnv(c *gin.Context) {
 	envName := c.Param("envname")
 	config := base.Conf.GetEnvConfig(envName)
 	c.JSON(http.StatusOK, gin.H{
-		"name":   config.Name,
-		"groups": config.Groups,
-		"topics": config.Topics,
+		"name":         config.Name,
+		"headerPrefix": config.HeaderPrefix,
+		"groups":       config.Groups,
+		"topics":       config.Topics,
+		"schemas":      config.Schemas,
 	})
 }
 
