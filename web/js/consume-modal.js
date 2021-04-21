@@ -1,5 +1,5 @@
-import { getActiveEnv } from './env.js';
 import { removeElement } from './util.js';
+import { getActiveEnv } from './env.js';
 
 const addGroupToList = (g, l, cb) => {
     const node = document.createElement('DIV');

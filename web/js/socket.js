@@ -24,6 +24,19 @@ const loadSocket = ({
     }
 };
 
+const produce = (topic, payload, key = '', headers = []) => {
+    const { name } = getActiveEnv();
+    const msg = {
+        type: 'produce',
+        env: name,
+        topic,
+        key,
+        headers: JSON.parse(headers),
+        payload: [JSON.stringify(JSON.parse(payload))],
+    };
+    conn.send(JSON.stringify(msg));
+};
+
 const subscribe = (topicKeys) => {
     const { name } = getActiveEnv();
     const msg = {
@@ -47,6 +60,7 @@ const unsubscribe = (topics) => {
 
 export {
     loadSocket,
+    produce,
     subscribe,
     unsubscribe,
 };

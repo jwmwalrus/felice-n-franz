@@ -73,6 +73,11 @@ li.nav-item {
   box-sizing: border-box;
 }
 
+#consumer-cards .card-header {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 #consumer-cards .card-header,
 #consumer-cards .card-header .btn-group,
 #consumer-cards .card-header .btn-group a {
