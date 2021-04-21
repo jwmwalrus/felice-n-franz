@@ -12,8 +12,13 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
+const (
+	CurrentConfigFileVersion = 1
+)
+
 // Config Application's configuration
 type Config struct {
+	Version       int           `json:"version"`
 	FirstRun      bool          `json:"firstRun"`
 	Port          int           `json:"port"`
 	MaxTailOffset int           `json:"maxTailOffset"`
@@ -22,6 +27,10 @@ type Config struct {
 
 func (c *Config) setDefaults() {
 	log.Info("Setting config defaults")
+
+	if c.Version == 0 {
+		c.Version = CurrentConfigFileVersion
+	}
 
 	if c.Port == 0 {
 		c.Port = DefaultPort
@@ -138,6 +147,7 @@ type Environment struct {
 	Active        bool            `json:"active"`
 	Configuration kafka.ConfigMap `json:"configuration"`
 	Vars          EnvVars         `json:"vars"`
+	HeaderPrefix  string          `json:"headerPrefix"`
 	TopicsFrom    string          `json:"inheritFrom"`
 	Schemas       EnvSchemas      `json:"schemas"`
 	Topics        []Topic         `json:"topics"`
