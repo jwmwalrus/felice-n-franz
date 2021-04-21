@@ -78,34 +78,29 @@ module.exports = {
             patterns: [
                 {
                     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-                    to: 'vendor/bootstrap/css/',
+                    to: 'tp/bootstrap/css/',
                     toType: 'dir',
                 },
                 {
                     from: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
-                    to: 'vendor/bootstrap/js/',
+                    to: 'tp/bootstrap/js/',
                     toType: 'dir',
                 },
                 {
                     from: 'node_modules/jquery/dist/jquery.min.js',
-                    to: 'vendor/jquery',
+                    to: 'tp/jquery',
                     toType: 'dir',
                 },
                 {
                     from: 'node_modules/simple-line-icons/dist/styles/simple-line-icons.css',
-                    to: 'vendor/simple-line-icons/css/',
+                    to: 'tp/simple-line-icons/css/',
                     toType: 'dir',
                 },
                 {
                     from: 'node_modules/simple-line-icons/dist/fonts',
-                    to: 'vendor/simple-line-icons/fonts',
+                    to: 'tp/simple-line-icons/fonts',
                     toType: 'dir',
                 },
-                // {
-                //     from: 'node_modules/@fortawesome/fontawesome-free',
-                //     to: 'vendor/fontawesome-free',
-                //     toType: 'dir',
-                // },
             ],
         }),
     ],
