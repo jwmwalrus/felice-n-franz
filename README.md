@@ -56,26 +56,24 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Configuration file version</dd>
             <dt>default</dt>
-            <dd>`1`</dd>
+            <dd><code>1</code></dd>
             <dt>required/optional</dt>
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>firstRun</dt>
     <dd>
         <dl>
             <dt>type</dt>
             <dd>bool</dd>
             <dt>description</dt>
-            <dd>If true, overwrite the `config.json` file upon reading its contents</dd>
+            <dd>If true, overwrite the <code>config.json</code> file upon reading its contents</dd>
             <dt>default</dt>
-            <dd>`false`</dd>
+            <dd><code>false</code></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>port</dt>
     <dd>
         <dl>
@@ -84,26 +82,24 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Application's port</dd>
             <dt>default</dt>
-            <dd>`9191`</dd>
+            <dd><code>9191</code></dd>
             <dt>required/optional</dt>
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>maxTailOffset</dt>
     <dd>
         <dl>
             <dt>type</dt>
             <dd>int</dd>
             <dt>description</dt>
-            <dd>Keep only the last `n` messages per consumer, with `n` given by this value</dd>
+            <dd>Keep only the last <code>n</code> messages per consumer, with <code>n</code> given by this value</dd>
             <dt>default</dt>
-            <dd>`100`</dd>
+            <dd><code>100</code></dd>
             <dt>required/optional</dt>
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>consumeForward</dt>
     <dd>
         <dl>
@@ -112,12 +108,11 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Ignore messages sent by the broker, if timestamp is older than consumer's creation</dd>
             <dt>default</dt>
-            <dd>`false`</dd>
+            <dd><code>false</code></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>envs</dt>
     <dd>
         <dl>
@@ -126,12 +121,11 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Configured environments</dd>
             <dt>default</dt>
-            <dd>`[]`</dd>
+            <dd><code>[]</code></dd>
             <dt>required/optional</dt>
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.name</dt>
     <dd>
         <dl>
@@ -145,7 +139,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.active</dt>
     <dd>
         <dl>
@@ -159,7 +152,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.configuration</dt>
     <dd>
         <dl>
@@ -173,7 +165,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.vars</dt>
     <dd>
         <dl>
@@ -182,14 +173,13 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Environment variables used for topic values</dd>
             <dt>example</dt>
-            <dd>`{"env": ""}`</dd>
+            <dd><code>{"env": ""}</code></dd>
             <dt>default</dt>
-            <dd>`{}`</dd>
+            <dd><code>{}</code></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.headerPrefix</dt>
     <dd>
         <dl>
@@ -203,21 +193,19 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.topicsFrom</dt>
     <dd>
         <dl>
             <dt>type</dt>
             <dd>string</dd>
             <dt>description</dt>
-            <dd>Copy `env.schemas`, `env.topics` and `env.groups` from the given environment</dd>
+            <dd>Copy <code>env.schemas</code>, <code>env.topics</code> and <code>env.groups</code> from the given environment</dd>
             <dt>default</dt>
             <dd></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.schemas</dt>
     <dd>
         <dl>
@@ -231,7 +219,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.topics</dt>
     <dd>
         <dl>
@@ -240,12 +227,11 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Configured topics for this environment</dd>
             <dt>default</dt>
-            <dd>`[]`</dd>
+            <dd><code>[]</code></dd>
             <dt>required/optional</dt>
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.topic.name</dt>
     <dd>
         <dl>
@@ -259,7 +245,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.topic.description</dt>
     <dd>
         <dl>
@@ -273,7 +258,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.topic.key</dt>
     <dd>
         <dl>
@@ -287,7 +271,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.topic.value</dt>
     <dd>
         <dl>
@@ -301,23 +284,21 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.topic.headers</dt>
     <dd>
         <dl>
             <dt>type</dt>
             <dd>array</dd>
             <dt>description</dt>
-            <dd>Array of key-value` objects defining the headers associated to this topic</dd>
+            <dd>Array of key-value objects defining the headers associated to this topic</dd>
             <dt>example</dt>
-            <dd>`[{"key": "Content-Type","value": "application/json"}]`</dd>
+            <dd><code>[{"key": "Content-Type","value": "application/json"}]</code></dd>
             <dt>default</dt>
-            <dd>`[]`</dd>
+            <dd><code>[]</code></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.topic.schema</dt>
     <dd>
         <dl>
@@ -326,13 +307,11 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>TBD</dd>
             <dt>default</dt>
-            <dd>`{}`</dd>
+            <dd><code>{}</code></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
-
     <dt>env.groups</dt>
     <dd>
         <dl>
@@ -341,12 +320,11 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>description</dt>
             <dd>Groups of topics</dd>
             <dt>default</dt>
-            <dd>`[]`</dd>
+            <dd><code>[]</code></dd>
             <dt>required/optional</dt>
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.group.name</dt>
     <dd>
         <dl>
@@ -360,7 +338,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.group.description</dt>
     <dd>
         <dl>
@@ -374,7 +351,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.group.category</dt>
     <dd>
         <dl>
@@ -388,7 +364,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>optional</dd>
         </dl>
     </dd>
-
     <dt>env.group.id</dt>
     <dd>
         <dl>
@@ -402,7 +377,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd>required</dd>
         </dl>
     </dd>
-
     <dt>env.group.keys</dt>
     <dd>
         <dl>
