@@ -15,6 +15,8 @@ import (
 // WS web socket connection
 var WS *websocket.Conn
 
+var socketGuard chan struct{}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
@@ -25,12 +27,12 @@ type connection struct {
 }
 
 type receivedMsg struct {
-	MsgType string   `json:"type"`
-	Env     string   `json:"env"`
-	Topic   string   `json:"topic"`
-	Key     string   `json:"key"`
-	Payload []string `json:"payload"`
-	Headers []ht     `json:"headers"`
+	MsgType string        `json:"type"`
+	Env     string        `json:"env"`
+	Topic   string        `json:"topic"`
+	Key     string        `json:"key"`
+	Payload []string      `json:"payload"`
+	Headers []base.Header `json:"headers"`
 }
 
 type toastMsg struct {
@@ -40,11 +42,6 @@ type toastMsg struct {
 	Topic     string       `json:"topic"`
 	Partition int32        `json:"partition"`
 	Offset    kafka.Offset `json:"offset"`
-}
-
-type ht struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
 }
 
 // HandleWS handles web socket messages
@@ -96,7 +93,7 @@ func (c connection) processMessages() {
 				msg.Key = []byte(res.Key)
 			}
 			if len(res.Headers) > 0 {
-				msg.Headers = ht2header(res.Headers)
+				msg.Headers = headerB2K(res.Headers)
 			}
 			err := ProduceMessage(env, &msg)
 			bnp.LogOnError(err)
@@ -113,7 +110,7 @@ func (c connection) processMessages() {
 }
 
 func sendKafkaMessage(m *kafka.Message) {
-	headers := header2ht(m.Headers)
+	headers := headerK2B(m.Headers)
 
 	flat := struct {
 		Topic               string              `json:"topic"`
@@ -124,7 +121,7 @@ func sendKafkaMessage(m *kafka.Message) {
 		Timestamp           time.Time           `json:"timestamp"`
 		TimestampType       kafka.TimestampType `json:"timestampType"`
 		TimestampTypeString string              `json:"timestampTypeString"`
-		Headers             []ht                `json:"headers"`
+		Headers             []base.Header       `json:"headers"`
 	}{
 		*m.TopicPartition.Topic,
 		m.TopicPartition.Partition,
@@ -141,8 +138,9 @@ func sendKafkaMessage(m *kafka.Message) {
 		log.Error(err)
 		return
 	}
-	err = WS.WriteMessage(websocket.TextMessage, payload)
-	bnp.LogOnError(err)
+
+	socketGuard <- struct{}{}
+	go writeToSocket(payload)
 	return
 }
 
@@ -152,20 +150,32 @@ func sendToast(t toastMsg) {
 		log.Error(err)
 		return
 	}
-	err = WS.WriteMessage(websocket.TextMessage, payload)
-	bnp.LogOnError(err)
+
+	socketGuard <- struct{}{}
+	go writeToSocket(payload)
+	return
 }
 
-func header2ht(kh []kafka.Header) (h []ht) {
+func writeToSocket(payload []byte) {
+	err := WS.WriteMessage(websocket.TextMessage, payload)
+	bnp.LogOnError(err)
+	<-socketGuard
+}
+
+func headerK2B(kh []kafka.Header) (h []base.Header) {
 	for _, v := range kh {
-		h = append(h, ht{v.Key, string(v.Value)})
+		h = append(h, base.Header{v.Key, string(v.Value)})
 	}
 	return
 }
 
-func ht2header(h []ht) (kh []kafka.Header) {
+func headerB2K(h []base.Header) (kh []kafka.Header) {
 	for _, v := range h {
 		kh = append(kh, kafka.Header{v.Key, []byte(v.Value)})
 	}
 	return
+}
+
+func init() {
+	socketGuard = make(chan struct{}, 1)
 }

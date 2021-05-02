@@ -13,16 +13,18 @@ import (
 )
 
 const (
+	// CurrentConfigFileVersion current or default config file version
 	CurrentConfigFileVersion = 1
 )
 
 // Config Application's configuration
 type Config struct {
-	Version       int           `json:"version"`
-	FirstRun      bool          `json:"firstRun"`
-	Port          int           `json:"port"`
-	MaxTailOffset int           `json:"maxTailOffset"`
-	Envs          []Environment `json:"envs"`
+	Version        int           `json:"version"`
+	FirstRun       bool          `json:"firstRun"`
+	Port           int           `json:"port"`
+	MaxTailOffset  int           `json:"maxTailOffset"`
+	ConsumeForward bool          `json:"consumeForward"`
+	Envs           []Environment `json:"envs"`
 }
 
 func (c *Config) setDefaults() {
@@ -268,7 +270,7 @@ func (e *Environment) setup() {
 	copy(e.Topics, Conf.Envs[fromIdx].Topics)
 	for i := range e.Topics {
 		if e.Topics[i].Headers == nil {
-			e.Topics[i].Headers = TopicHeaders{}
+			e.Topics[i].Headers = []Header{}
 		}
 	}
 
@@ -279,7 +281,7 @@ func (e *Environment) setup() {
 
 func (e *Environment) validate() (err error) {
 	if e.Name == "" {
-		errors.New("Environment name cannot be empty")
+		err = errors.New("Environment name cannot be empty")
 		return
 	}
 
@@ -309,7 +311,7 @@ func (e *Environment) validate() (err error) {
 	for _, t := range e.Topics {
 		n++
 		if u, ok := unique[t.Key]; ok {
-			err = errors.New(fmt.Sprintf("Key %v is already in use by topic/group (#%v)", t.Key, u, n))
+			err = fmt.Errorf("Key %v is already in use by topic/group (#%v)", t.Key, u, n)
 			return
 		}
 		unique[t.Key] = t.Name
@@ -320,12 +322,76 @@ func (e *Environment) validate() (err error) {
 	for _, g := range e.Groups {
 		n++
 		if u, ok := unique[g.ID]; ok {
-			err = errors.New(fmt.Sprintf("ID %v is already in use by topic/group (#%v)", g.ID, u, n))
+			err = fmt.Errorf("ID %v is already in use by topic/group (#%v)", g.ID, u, n)
 			return
 		}
 		unique[g.ID] = g.Name
 	}
 	log.Infof("Found %v unique group IDs for environment %v", n, e.Name)
+	return
+}
+
+func (g *EnvVars) setDefaults() {
+	*g = EnvVars{"myVar": "some-value"}
+}
+
+// Topic Defines a key-value pair
+type Topic struct {
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Key         string      `json:"key"`
+	Value       string      `json:"value"`
+	Headers     []Header    `json:"headers"`
+	Schema      TopicSchema `json:"schema"`
+}
+
+// TopicSchema defines the applicable JSON schema
+type TopicSchema map[string]interface{}
+
+func (t *Topic) expandVars(vars EnvVars) {
+	for k, v := range vars {
+		t.Value = strings.ReplaceAll(t.Value, "{{"+k+"}}", v)
+	}
+}
+
+func (t *Topic) setDefaults() {
+	*t = Topic{
+		Name:        "PaymentTopic",
+		Description: "Handles payment events",
+		Key:         "payment",
+		Value:       "{{myVar}}.division.department.section.subsection.payment-type",
+		Headers:     []Header{},
+		Schema:      TopicSchema{},
+	}
+}
+
+func (t *Topic) validate() (err error) {
+	if t.Key == "" || t.Value == "" {
+		err = errors.New("Topic key and value mus be non-empty")
+		return
+	}
+
+	if t.Headers == nil {
+		t.Headers = []Header{}
+	}
+
+	if t.Schema == nil {
+		t.Schema = TopicSchema{}
+	}
+	return
+}
+
+func getKeys(topics []Topic) (keys []string) {
+	for _, t := range topics {
+		keys = append(keys, t.Key)
+	}
+	return
+}
+
+func getValues(topics []Topic) (values []string) {
+	for _, t := range topics {
+		values = append(values, t.Value)
+	}
 	return
 }
 
@@ -356,69 +422,8 @@ func (g *Group) validate() (err error) {
 	return
 }
 
-func (g *EnvVars) setDefaults() {
-	*g = EnvVars{"myVar": "some-value"}
-}
-
-// Topic Defines a key-value pair
-type Topic struct {
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	Key         string       `json:"key"`
-	Value       string       `json:"value"`
-	Headers     TopicHeaders `json:"headers"`
-	Schema      TopicSchema  `json:"schema"`
-}
-
-// TopicHeaders defines the Topic Headers type
-type TopicHeaders map[string]string
-
-// TopicSchema defines the applicable JSON schema
-type TopicSchema map[string]interface{}
-
-func (t *Topic) expandVars(vars EnvVars) {
-	for k, v := range vars {
-		t.Value = strings.ReplaceAll(t.Value, "{{"+k+"}}", v)
-	}
-}
-
-func (t *Topic) setDefaults() {
-	*t = Topic{
-		Name:        "PaymentTopic",
-		Description: "Handles payment events",
-		Key:         "payment",
-		Value:       "{{myVar}}.division.department.section.subsection.payment-type",
-		Headers:     TopicHeaders{},
-		Schema:      TopicSchema{},
-	}
-}
-
-func (t *Topic) validate() (err error) {
-	if t.Key == "" || t.Value == "" {
-		err = errors.New("Topic key and value mus be non-empty")
-		return
-	}
-
-	if t.Headers == nil {
-		t.Headers = TopicHeaders{}
-	}
-
-	if t.Schema == nil {
-		t.Schema = TopicSchema{}
-	}
-	return
-}
-
-func getKeys(topics []Topic) (keys []string) {
-	for _, t := range topics {
-		keys = append(keys, t.Key)
-	}
-	return
-}
-
-func getValues(topics []Topic) (values []string) {
-	for _, t := range topics {
-		values = append(values, t.Value)
-	}
-	return
+// Header defines the Headers type
+type Header struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }

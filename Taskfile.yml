@@ -20,7 +20,7 @@ tasks:
   clean:
       - rm -rf public/css
       - rm -rf public/js
-      - rm -rf public/vendor
+      - rm -rf public/tp
   test:
     cmds:
       - go test -v -p 1 ./...

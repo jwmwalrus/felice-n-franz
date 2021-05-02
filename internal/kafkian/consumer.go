@@ -1,6 +1,8 @@
 package kafkian
 
 import (
+	"time"
+
 	"github.com/jwmwalrus/bnp"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	log "github.com/sirupsen/logrus"
@@ -23,6 +25,7 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 		return
 	}
 
+	cct := time.Now()
 	c, err = kafka.NewConsumer(&env.Configuration)
 	if err != nil {
 		return
@@ -38,7 +41,7 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 		for {
 			ev := c.Poll(100)
 			if !isRegistered(c) {
-				log.Info("Unsubscribing consumer")
+				log.Info("Consumer is not registered anymore!")
 				err := c.Unsubscribe()
 				bnp.WarnOnError(err)
 				break
@@ -50,8 +53,10 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 
 			switch e := ev.(type) {
 			case *kafka.Message:
-				log.Infof("%% Message on %s:\n%s\n",
-					e.TopicPartition, string(e.Value))
+				if base.Conf.ConsumeForward && e.Timestamp.Unix() <= cct.Unix() {
+					continue
+				}
+				log.Infof("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
 				if e.Headers != nil {
 					log.Infof("%% Headers: %v\n", e.Headers)
 				}

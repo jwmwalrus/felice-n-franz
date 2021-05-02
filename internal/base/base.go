@@ -105,7 +105,8 @@ func Load() (args []string) {
 	bnp.PanicOnError(err)
 	defer jsonFile.Close()
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	bnp.PanicOnError(err)
 
 	err = json.Unmarshal(byteValue, &userConf)
 	bnp.PanicOnError(err)
@@ -172,8 +173,11 @@ func Unload() {
 }
 
 func copyUserConfig() {
+	Conf.Version = userConf.Version
 	Conf.FirstRun = userConf.FirstRun
 	Conf.Port = userConf.Port
+	Conf.MaxTailOffset = userConf.MaxTailOffset
+	Conf.ConsumeForward = userConf.ConsumeForward
 	Conf.Envs = make([]Environment, len(userConf.Envs))
 	copy(Conf.Envs, userConf.Envs)
 
