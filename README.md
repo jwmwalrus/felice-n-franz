@@ -158,7 +158,7 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>type</dt>
             <dd>object</dd>
             <dt>description</dt>
-            <dd>librdkafka configuration for this environment. See [here]() for further details </dd>
+            <dd>librdkafka configuration for this environment. See [here](https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md) for further details </dd>
             <dt>default</dt>
             <dd>{}</dd>
             <dt>required/optional</dt>
