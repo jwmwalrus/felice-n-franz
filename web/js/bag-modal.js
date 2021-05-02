@@ -1,52 +1,38 @@
+import * as _ from 'lodash/lodash.js';
 import {
     copyStringToClipboard,
     getActionId,
     removeElement,
 } from './util.js';
-
-import { getOutstandingHeader } from './env.js';
+import { getTopicName } from './env.js';
 
 const bag = [];
 
-const removeFromBag = (m) => removeElement(getActionId(m));
+const updateBagBadge = () => {
+    const badge = document.querySelector('#bag-btn span.badge');
+    badge.innerText = bag.length.toString();
+};
 
-const addMessageToList = (m, l, id, cb = null, dbl = null) => {
-    const node = document.createElement('DIV');
-    node.setAttribute('id', id);
-    node.classList.add('list-group-item', 'list-group-item-action');
-
-    if (cb) {
-        node.onclick = cb;
+const removeFromBag = (m) => {
+    const id = getActionId(m);
+    let i = 0;
+    for (;;) {
+        if (i >= bag.length) {
+            break;
+        }
+        if (id === getActionId(bag[i])) {
+            bag.splice(i, 1);
+            break;
+        }
+        i += 1;
     }
-    if (dbl) {
-        node.ondblclick = dbl;
-    }
 
-    const left = document.createElement('DIV');
-    left.innerHTML = `<small>offset: ${m.offset}</small>`;
-    const middle = document.createElement('DIV');
-    const h = getOutstandingHeader(m);
-    if (h) {
-        middle.innerHTML = `<small>type: ${h}</small>`;
-    } else {
-        middle.innerHTML = `</small>key: ${m.key ? m.key : '0'}</small>`;
-    }
-    const right = document.createElement('SMALL');
-    right.innerHTML = `</small>ts: ${m.timestamp}</small>`;
-
-    const text = document.createElement('DIV');
-    node.classList.add('d-flex');
-    text.appendChild(left);
-    text.appendChild(middle);
-    text.appendChild(right);
-
-    node.appendChild(text);
-
-    l.appendChild(node);
+    removeElement(`bag-${id}`);
+    updateBagBadge();
 };
 
 const showBagMessage = (m) => {
-    document.getElementById('bag-copy-raw-btn=b').onclick = () => copyStringToClipboard(JSON.stringify(m));
+    document.getElementById('bag-copy-raw-btn').onclick = () => copyStringToClipboard(JSON.stringify(m));
     document.getElementById('bag-remove-msg-btn').onclick = () => removeFromBag(m);
 
     const {
@@ -56,70 +42,72 @@ const showBagMessage = (m) => {
         offset,
         timestamp,
         timestampType,
+        timestampTypeString,
     } = m;
+
     document.getElementById('bag-topic').value = topic;
     document.getElementById('bag-partition').value = partition;
     document.getElementById('bag-key').value = key;
     document.getElementById('bag-offset').value = offset;
     document.getElementById('bag-timestamp').value = timestamp;
-    document.getElementById('bag-timestamptype').value = timestampType;
+    document.getElementById('bag-timestamp-help-btn').setAttribute('title', `type: ${timestampType} (${timestampTypeString})`);
 
-    const headers = JSON.stringify(JSON.parse(m.headers), null, 2);
-    document.getelementbyid('bag-headers').value = headers;
+    const headers = JSON.stringify(m.headers, null, 2);
+    document.getElementById('bag-headers').value = headers;
 
-    const payload = JSON.stringify(JSON.parse(m.payload), null, 2);
+    const payload = JSON.stringify(JSON.parse(m.value), null, 2);
     document.getElementById('bag-payload').value = payload;
 };
 
 const addToBag = async (m) => {
     bag.push(m);
-    await addMessageToList(
-        m,
-        document.getElementById('bag-list'),
-        `bag-${getActionId(m)}`,
-        () => showBagMessage(m),
-    );
+
+    const node = document.createElement('div');
+    node.setAttribute('id', `bag-${getActionId(m)}`);
+    node.classList.add('list-group-item', 'list-group-item-action');
+    if (bag.length === 1) {
+        node.classList.add('selected');
+    }
+    node.onclick = () => {
+        showBagMessage(m);
+        try {
+            document.querySelector('#bag-list .active')?.classList.remove('active');
+        } catch (e) {
+            // pass
+        }
+        document.getElementById(`bag-${getActionId(m)}`).classList.add('active');
+    };
+
+    const truncate = (s) => _.truncate(s, { length: 30 });
+
+    const name = getTopicName(m);
+    let inner = '';
+    if (name) {
+        inner += `${name}<br>`;
+    }
+    inner += `offset: ${m.offset}<br>`;
+    if (m.key) {
+        inner += `key: ${truncate(m.key)}<br>`;
+    }
+    inner += `ts: ${m.timestamp}`;
+    const child = document.createElement('p');
+    child.innerHTML = `${inner}`;
+
+    node.appendChild(child);
+
+    document.getElementById('bag-list').appendChild(node);
+    updateBagBadge();
 };
 
 const resetBag = () => {
     const e = document.getElementById('bag-list');
     e.innerHTML = '';
-    // bag.length = 0;
-};
-
-const showMessage = (m) => {
-    document.getElementById('showmsg-raw-copy-btn').onclick = () => copyStringToClipboard(JSON.stringify(m));
-    document.getElementById('showmsg-add-to-bag-btn').onclick = async () => addToBag(m);
-
-    const {
-        topic,
-        partition,
-        key,
-        offset,
-        timestamp,
-        timestampType,
-        headers,
-    } = m;
-    const envelope = JSON.stringify({
-        topic,
-        partition,
-        key,
-        offset,
-        timestamp,
-        timestampType,
-        headers,
-    }, null, 2);
-    document.getElementById('showmsg-envelope').value = envelope;
-
-    const payload = JSON.stringify(JSON.parse(m.value), null, 2);
-    document.getElementById('showmsg-payload').value = payload;
-
-    document.getElementById('showmsg-btn').click();
+    bag.length = 0;
+    document.getElementById('bag-form').reset();
+    updateBagBadge();
 };
 
 export {
     addToBag,
-    addMessageToList,
     resetBag,
-    showMessage,
 };

@@ -47,7 +47,8 @@ li.nav-item {
 }
 
 #bag-btn {
-  min-width: 80px;
+  min-width: 100px;
+  padding: 5px;
 }
 
 /*
@@ -65,7 +66,7 @@ li.nav-item {
 }
 
 #consumer-cards .card {
-  flex-basis: 450px;
+  flex-basis: 400px;
   padding-top: 0;
   padding-bottom: 0;
   margin-top: 5px;
@@ -92,7 +93,7 @@ li.nav-item {
 
 #consumer-cards .card-header .card-controls {
   display: flex;
-  justify-content: flex-end;
+  /* justify-content: flex-end; */
   margin: 0;
 }
 
@@ -106,6 +107,45 @@ li.nav-item {
   min-width: 50%;
 }
 
+#consumer-cards .card-body .list-group-item p {
+  font-size: 10px;
+  padding: 1px;
+  margin: 0;
+  line-height: 12px;
+}
+
+.list-group-item-details {
+    background: #606060;
+    padding: 3px;
+}
+
+.list-group-item-details small,
+.list-group-item-details input,
+.list-group-item-details textarea {
+  font-size: 8px;
+}
+
+.list-group-item-details textarea {
+  white-space: pre;
+}
+
+.list-group-item-details .form-control.d-flex,
+.list-group-item-details .form-control.d-flex small,
+.list-group-item-details .form-control.d-flex a.btn {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.toggle-content {
+	display: none;
+}
+
+.toggle-content.is-visible {
+	display: block;
+}
+
 /*
  * Footer
  **/
@@ -117,20 +157,8 @@ footer.footer {
 }
 
 /*
- * Modals
+ * Consume Modal
  **/
-
-.modal-body .container-fluid {
-  flex-direction: column;
-  width: "100%";
-  padding: 0;
-}
-
-.modal-body .card-title,
-.consumer-cards .card-title {
-  margin: 0;
-  padding: 0;
-}
 
 .selected-cards {
 }
@@ -143,6 +171,51 @@ footer.footer {
 #selected-topics {
   height: 90px; overflow-y: scroll;
   width: 100%;
+}
+
+/*
+ * Produce Modal
+ **/
+
+#producerModal .modal-body textarea {
+  font-size: 10px;
+  white-space: pre;
+}
+
+/*
+ * Bag Modal
+ **/
+
+.bag-top-buttons {
+  margin-left: 200px;
+}
+
+#bag-list p {
+  font-size: 10px;
+  padding: 1px;
+  margin: 0;
+  line-height: 12px;
+}
+
+#bagModal .modal-body textarea {
+  font-size: 10px;
+  white-space: pre;
+}
+
+/*
+ * All Modals
+ **/
+
+.modal-body .container-fluid {
+  flex-direction: column;
+  width: "100%";
+  padding: 0;
+}
+
+.modal-body .card-title,
+.consumer-cards .card-title {
+  margin: 0;
+  padding: 0;
 }
 
 /*
@@ -169,7 +242,7 @@ footer.footer {
 }
 
 .modal .list-group-item.list-group-item-action:nth-of-type(odd),
-#consumer-cards .card-body .list-group-item.list-group-item-action:nth-of-type(odd) {
+#consumer-cards .card-body .list-group-item.list-group-item-action:nth-of-type(4n+1) {
   color: black;
-  background-color: white;
+  background-color: #000000;
 }

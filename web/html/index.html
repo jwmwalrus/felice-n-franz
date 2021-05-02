@@ -12,7 +12,6 @@
       <link rel="shortcut icon" href="static/favicon.ico" type="image/x-icon">
 
       <link href="static/tp/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-      <!-- <link href="static/tp/fontawesome-free/css/all.min.css" rel="stylesheet"> -->
       <link href="static/tp/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">
       <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
       <link href="static/css/index.css" rel="stylesheet">
@@ -31,13 +30,12 @@
               <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                   <div class="form-floating">
-                    <select class="form-control" id="envs-sel" placeholder="Select" title="Select environment">
+                    <select class="form-control" id="envs-sel" title="Select environment">
                       <option value="" selected>Environment</option>
                       {{range .envs}}
                       <option value="{{.}}">{{.}}</option>
                       {{end}}
                     </select>
-                    <!-- <label for="envs-sel">Environment</label> -->
                   </div>
                 </li>
                 <li class="nav-item active">
@@ -61,17 +59,21 @@
             </form>
           </div>
           <div class="mx-auto order-0">
-                <button type="button" id="bag-btn" class="btn btn-secondary" data-toggle="modal" data-target="#bagModeless" title="Message bag">
+                <button type="button" id="bag-btn" class="btn btn-secondary" data-toggle="modal" data-target="#bagModal" title="Message bag">
                   <span>
                     <span class="icon-bag"></span>
                     Bag
                   </span>
+                  <span class="badge badge-primary">0</span>
                 </button>
           </div>
           <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
                 <div class="btn-group">
+                  <button type="button" id="filter-btn" class="btn btn-secondary text-warning" data-toggle="modal" data-target="#filterModal"  title="Filter messages">
+                    <div class="icon-tag"></div>
+                  </button>
                   <button type="button" id="playpause-btn" class="btn btn-secondary text-warning play" title="Toggle play/pause">
                     <div class="icon-control-pause"></div>
                   </button>
@@ -80,15 +82,12 @@
                   </button>
                 </div>
               </li>
-              <li class="nav-item">
-              </li>
             </ul>
           </div>
         </nav>
         <hr>
         <div id="alerts"></div>
         <div id="consumer-cards">
-          <p>Consumers go here</p>
         </div>
       </div>
 
@@ -196,20 +195,24 @@
               <div class="container-fluid">
                 <form id="producer-form">
                   <div class="row">
-                    <div class="col-6">
+                    <div class="col-8">
                       <div class="input-group mb-3">
                         <span class="input-group-text">Topic:</span>
-                        <input type="text" class="form-control" id="produce-topic" placeholder="Start typing and select..." aria-label="produce-topic">
+                            <input type="search" class="form-control" id="produce-topic" placeholder="Start typing and select..." aria-label="produce-topic" dir="ltr" spellcheck=false autocorrect="off" autocomplete="off" autocapitalize="off">
                       </div>
+                    </div>
+                    <div class="col-4">
                       <div class="input-group mb-3">
                         <span class="input-group-text">Key:</span>
                         <input type="text" class="form-control" id="produce-key" aria-describedby="produceKeylp">
                       </div>
                     </div>
-                    <div class="col-6">
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
                       <div class="input-group mb-3">
                         <span class="input-group-text">Heaers:</span>
-                        <textarea class="form-control" id="produce-headers" rows="3">{{.defaultHeader}}</textarea>
+                        <textarea class="form-control" id="produce-headers" rows="3" placeholder="{{.headerPlaceholder}}"></textarea>
                       </div>
                     </div>
                   </div>
@@ -229,7 +232,7 @@
               <button type="button" id="reset-producer-btn" class="btn btn-danger mr-auto"><div class="icon"></div><span><span class="icon-minus"></span>Reset</span></button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
               <button type="button" class="btn btn-info disabled" id="validate-producer-payload-btn"><span><span class="icon-check"></span>Validate</span></button>
-              <button type="button" class="btn btn-primary" id="produce-message-btn" data-dismiss="modal"><span><span class="icon-feed"></span>Produce</span></button>
+              <button type="button" class="btn btn-primary" id="produce-message-btn" data-dismiss="modal" disabled><span><span class="icon-feed"></span>Produce</span></button>
             </div>
           </div>
         </div>
@@ -238,11 +241,11 @@
       <hr>
 
       <!-- Bag Modal -->
-      <div class="modal fade" id="bagModeless" tabindex="-1" role="dialog" aria-labelledby="bagModelessLabel" aria-hidden="true">
+      <div class="modal fade" id="bagModal" tabindex="-1" role="dialog" aria-labelledby="bagModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content bg-dark">
             <div class="modal-header">
-              <h5 class="modal-title" id="bagModelessLabel">Bag of saved Messages</h5>
+              <h5 class="modal-title" id="bagModal">Bag of saved Messages</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -253,74 +256,80 @@
                   <div class="col-4">
                     <div class="list-group" id="bag-list"></div>
                   </div>
-                    <div class="col-8">
-                      <form id="bag-form">
-                        <div class="row">
-                          <div class="btn-group btn-group-sm ml-auto">
-                            <button class="btn btn-sm bg-transparent text-warning" id="bag-raw-copy-btn" title="Copy raw message"><span class="icon-docs"></span></button>
-                            <button class="btn btn-sm bg-transparent text-danger" id="bag-remove-msg-btn" title="Remove from bag"><span class="icon-close"></span></button>
+                  <div class="col-8">
+                    <div class="row">
+                      <div class="bag-top-buttons">
+                        <div class="btn-group btn-group-sm ml-auto mb-3">
+                          <button class="btn btn-sm btn-secondary text-warning" id="bag-copy-raw-btn" title="Copy raw message"><span class="icon-docs"></span></button>
+                          <button class="btn btn-sm btn-secondary text-danger" id="bag-remove-msg-btn" title="Remove from bag"><span class="icon-close"></span></button>
+                        </div>
+                      </div>
+                    </div>
+                    <form id="bag-form">
+                      <div class="row">
+                        <div class="col-12">
+                          <div class="input-group">
+                            <span class="input-group-text small">topic:</span>
+                            <input type="text" class="form-control" id="bag-topic" aria-label="Message topic" readonly>
+                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-topic-btn" title="Copy topicv"><span class="icon-docs"></span></button>
                           </div>
                         </div>
-                        <div class="row">
-                          <div class="col-12">
-                            <div class="input-group">
-                              <span class="input-group-text small">topic:</span>
-                              <input type="text" class="form-control" id="bag-topic" aria-label="Message topic" readonly>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-topic-btn" title="Copy"><span class="icon-docs"></span></button>
-                            </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-6">
+                          <div class="input-group">
+                            <span class="input-group-text">partition:</span>
+                            <input type="text" class="form-control" id="bag-partition" aria-label="Message partition" readonly>
+                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-partition-btn" title="Copy partition"><span class="icon-docs"></span></button>
                           </div>
                         </div>
-                        <div class="row">
-                          <div class="col-6">
-                            <div class="input-group">
-                              <span class="input-group-text">partition:</span>
-                              <input type="text" class="form-control" id="bag-partition" aria-label="Message partition" readonly>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-partition-btn" title="Copy"><span class="icon-docs"></span></button>
-                            </div>
+                        <div class="col-6">
+                          <div class="input-group">
+                            <span class="input-group-text">key:</span>
+                            <input type="text" class="form-control" id="bag-key" aria-label="Message key" readonly>
+                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-key-btn" title="Copy key"><span class="icon-docs"></span></button>
                           </div>
-                          <div class="col-6">
-                            <div class="input-group">
-                              <span class="input-group-text">key:</span>
-                              <input type="text" class="form-control" id="bag-key" aria-label="Message key" readonly>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-key-btn" title="Copy"><span class="icon-docs"></span></button>
-                            </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="input-group">
+                            <span class="input-group-text">offset:</span>
+                            <input type="text" class="form-control" id="bag-offset" aria-label="Message offset" readonly>
+                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-offset-btn" title="Copy offset"><span class="icon-docs"></span></button>
                           </div>
-                          <div class="col-6">
-                            <div class="input-group">
-                              <span class="input-group-text">offset:</span>
-                              <input type="text" class="form-control" id="bag-offset" aria-label="Message offset" readonly>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-offset-btn" title="Copy"><span class="icon-docs"></span></button>
-                            </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="input-group">
+                            <span class="input-group-text">ts:</span>
+                            <input type="text" class="form-control input-sm" id="bag-timestamp" aria-label="Message timestamp" readonly>
+                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-help-btn" title="Timestamp help"><span class="icon-question"></span></button>
+                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-btn" title="Copy timestamp"><span class="icon-docs"></span></button>
                           </div>
-                          <div class="col-6">
-                            <div class="input-group">
-                              <span class="input-group-text">ts:</span>
-                              <input type="text" class="form-control input-sm" id="bag-timestamp" aria-label="Message timestamp" readonly>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-help-btn" title="Copy"><span class="icon-question"></span></button>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-btn" title="Copy"><span class="icon-docs"></span></button>
-                            </div>
-                          </div>
-                          <div class="col-12">
-                            <div class="input-group">
-                              <span class="input-group-text">heaers:</span>
-                              <textarea class="form-control" id="bag-headers" rows="2" readonly></textarea>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-btn" title="Copy"><span class="icon-docs"></span></button>
+                        </div>
+                        <div class="col-12">
+                          <div class="input-group">
+                            <span class="input-group-text">heaers:</span>
+                            <textarea class="form-control" id="bag-headers" rows="2" readonly></textarea>
+                            <div class="btn-group-vertical btn-group-sm">
+                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-btn" title="Copy headers"><span class="icon-docs"></span></button>
                               <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-toggle-compact-btn" title="Toogle compact headers"><span class="icon-crop"></span></button>
                             </div>
                           </div>
-                          </div>
-                          <div class="row">
-                            <div class="col-12">
-                              <div class="input-group">
-                                <span class="input-group-text">payload:</span>
-                                <textarea class="form-control" id="bag-payload" rows="6" readonly></textarea>
-                                <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-btn" title="Copy"><span class="icon-docs"></span></button>
-                                <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-toggle-compact-btn" title="Toogle compact headers"><span class="icon-crop"></span></button>
-                              </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-12">
+                          <div class="input-group">
+                            <span class="input-group-text">payload:</span>
+                            <textarea class="form-control" id="bag-payload" rows="6" readonly></textarea>
+                            <div class="btn-group-vertical btn-group-sm">
+                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-btn" title="Copy payload"><span class="icon-docs"></span></button>
+                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-toggle-compact-btn" title="Toogle compact payload"><span class="icon-crop"></span></button>
                             </div>
                           </div>
-                      </form>
-                    </div>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
@@ -332,50 +341,46 @@
         </div>
       </div>
 
-      <!-- ShowMessage Modeless -->
-      <button type="button" id="showmsg-btn" data-toggle="modal" data-target="#showmsgModeless"> WHATEVER </button>
-      <div class="modal fade" id="showmsgModeless" tabindex="-1" role="dialog" aria-labelledby="bagModelessLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+      <!-- Filter modal -->
+      <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal" role="document">
           <div class="modal-content bg-dark">
-            <div class="modal-header my-0 py-0">
-              <div class="btn-group btn-group-sm ml-auto">
-                <button type="button" class="btn btn-sm bg-transparent text-warning" id="showmsg-add-to-bag-btn" title="Add to bag">
-                  <span class="icon-bag"></span>
-                </button>
-                <button type="button" class="btn btn-sm bg-transparent text-warning" id="showmsg-raw-copy-btn" title="Copy raw message">
-                  <span class="icon-docs"></span>
-                </button>
-              </div>
+            <div class="modal-header">
+              <h5 class="modal-title" id="filterModalLabel"><span><span class="icon-tag"></span>Filter Messages</span></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body my-1 py-0">
+            <div class="modal-body">
               <div class="container-fluid">
-                <form id="showmsg-form">
+                <form id="filter-form">
                   <div class="row">
                     <div class="col-12">
-                      <label for="showmsg-envelope">Envelope:</label>
-                      <div class="input-group">
-                        <textarea class="form-control" id="showmsg-envelope" rows="5" readonly></textarea>
-                        <button type="button" class="btn btn-sm bg-transparent text-warning" id="showmsg-envelope-btn" title="Copy"><span class="icon-docs"></span></button>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">Key:</span>
+                        <input type="text" class="form-control" id="filter-key" placeholder="Filter by key" aria-label="filter-by-key">
                       </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <lagel for="showmsg-payload">Payload:</label>
-                      <div class="input-group">
-                        <textarea class="form-control" id="showmsg-payload" rows="10" readonly></textarea>
-                        <div class="btn-group-vertical">
-                        <button type="button" class="btn btn-sm bg-transparent text-warning" id="showmsg-payload-btn" title="Copy"><span class="icon-docs"></span></button>
-                        <button type="button" class="btn btn-sm bg-transparent text-warning" id="showmsg-payload-toggle-compact-btn" title="Toggle compact payload"><span class="icon-crop"></span></button>
+                      <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label class="btn btn-secondary active">
+                          <input type="radio" name="options" id="filter-or" autocomplete="off" checked> OR
+                        </label>
+                        <label class="btn btn-secondary">
+                          <input type="radio" name="options" id="filter-and" autocomplete="off"> AND
+                        </label>
                       </div>
-                        </div>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text">Value:</span>
+                        <input type="text" class="form-control" id="filter-value" placeholder="Filter by value" aria-label="filter-by-value">
+                      </div>
                     </div>
                   </div>
                 </form>
               </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="reset-filter-btn" class="btn btn-danger mr-auto"><div class="icon"></div><span><span class="icon-minus"></span>Reset</span></button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
+              <button type="button" class="btn btn-primary" id="apply-filter-btn" data-dismiss="modal"><span><span class="icon-tag"></span>Apply</span></button>
             </div>
           </div>
         </div>
@@ -388,7 +393,7 @@
             <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
               <ul class="list-inline mb-2">
                 <li class="list-inline-item">
-                  <a href="/about">About</a>
+                  <a href="#">About</a>
                 </li>
                 <li class="list-inline-item">&sdot;</li>
                 <li class="list-inline-item">

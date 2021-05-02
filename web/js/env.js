@@ -20,15 +20,15 @@ const getOutstandingHeader = (m) => {
     const th = activeEnv
         .topics
         .find((t) => t.value === m.topic)
-        .headers ?? {};
+        .headers ?? [];
 
     try {
         for (const i of th) {
-            for (const j in mh) {
+            for (const j of mh) {
                 if (!(EXCEPT.includes(i.value))
-                   && i.key === j
-                   && (i.value === mh[j]
-                       || activeEnv.headerPrefix + i.value === mh[j])
+                   && i.key === j.key
+                   && (i.value === j.value
+                       || activeEnv.headerPrefix + i.value === j.value)
                 ) {
                     oh = i.value;
                     break;
@@ -41,8 +41,21 @@ const getOutstandingHeader = (m) => {
     return oh;
 };
 
+const getTopicName = (m) => {
+    const h = getOutstandingHeader(m);
+
+    if (!h) {
+        return activeEnv
+            .topics
+            .find((t) => t.value === m.topic)?.name ?? '';
+    }
+
+    return h;
+};
+
 export {
     getActiveEnv,
     setActiveEnv,
     getOutstandingHeader,
+    getTopicName,
 };

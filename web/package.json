@@ -20,7 +20,7 @@
     },
     "homepage": "https://github.com/jwmwalrus/felice-franz#readme",
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^5.15.3",
+        "@tarekraafat/autocomplete.js": "^9.0.3",
         "bootstrap": "^4.6.0",
         "jquery": "^3.6.0",
         "lodash": "^4.17.21",

@@ -21,9 +21,6 @@ const showToast = (t) => {
         escapeMarkup: false,
         duration: 5000,
         close: true,
-        // style: {
-        //     background: 'linear-gradient(to right, #303030, #505050)',
-        // },
     };
     switch (t.toastType) {
         case ERROR:

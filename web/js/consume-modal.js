@@ -2,20 +2,26 @@ import { removeElement } from './util.js';
 import { getActiveEnv } from './env.js';
 
 const addGroupToList = (g, l, cb) => {
-    const node = document.createElement('DIV');
+    const node = document.createElement('div');
     node.setAttribute('id', g.id);
+    if (g.description) {
+        node.setAttribute('title', g.description);
+    }
     node.classList.add('list-group-item', 'list-group-item-action');
     node.ondblclick = cb;
 
-    const textnode = document.createTextNode(g.description);
+    const textnode = document.createTextNode(g.name);
     node.appendChild(textnode);
 
     l.appendChild(node);
 };
 
 const addTopicToList = (t, l, cb) => {
-    const node = document.createElement('DIV');
+    const node = document.createElement('div');
     node.setAttribute('id', t.key);
+    if (t.description) {
+        node.setAttribute('title', t.description);
+    }
     node.classList.add('list-group-item', 'list-group-item-action');
     node.ondblclick = cb;
 
