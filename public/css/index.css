@@ -37,6 +37,18 @@ div[class^="icon-"],
 span[class^="icon-"] {
 }
 
+select,input,textarea {
+  background-color: black !important;
+  color: white !important;
+}
+
+.input-group-text {
+  background-color: #222426 !important;
+  color: white !important;
+}
+
+
+
 /*
  * Navbar
  **/
@@ -122,7 +134,7 @@ li.nav-item {
 .list-group-item-details small,
 .list-group-item-details input,
 .list-group-item-details textarea {
-  font-size: 8px;
+  font-size: 9px;
 }
 
 .list-group-item-details textarea {
@@ -234,7 +246,7 @@ footer.footer {
 }
 
 .modal .list-group-item.list-group-item-action,
-#consumer-cards .card-body .list-group-item.list-group-item-action {
+#consumer-cards .card-body .list-group-item {
   font-size: 12px;
   padding: 6px;
   background-color: DarkSlateGray;
@@ -242,8 +254,8 @@ footer.footer {
 }
 
 .modal .list-group-item.list-group-item-action:nth-of-type(odd),
-#consumer-cards .card-body .list-group-item.list-group-item-action:nth-of-type(4n+1) {
-  color: black;
+#consumer-cards .card-body .list-group-item:nth-of-type(4n+1) {
+  color: white;
   background-color: #000000;
 }
 
