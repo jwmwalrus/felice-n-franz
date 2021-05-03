@@ -8,6 +8,7 @@ A generic, web-based producer and consumer for Apache Kafka.
 * [Installation](#installation)
 * [Usage](#usage)
 * [Configuration](#configuration)
+* [TODO](#todo)
 
 ## Requirements
 
@@ -391,4 +392,11 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
         </dl>
     </dd>
 </dl>
+
+## TODO
+
+- [ ] Add Consumer Group filters/categories.
+- [ ] Improve headers handling for the producer.
+- [ ] Add a way of reordering consumer cards.
+- [ ] Improve global filter.
 
