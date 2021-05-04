@@ -39,12 +39,19 @@ span[class^="icon-"] {
 
 select,input,textarea {
   background-color: black !important;
+  border: 1px solid #ced4da !important;
   color: white !important;
+}
+
+textarea {
+  white-space: pre;
+  font-size: 11px;
 }
 
 .input-group-text {
   background-color: #222426 !important;
   color: white !important;
+  border: 1px solid #ced4da;
 }
 
 
@@ -74,7 +81,7 @@ li.nav-item {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  border: 2px solid white;
+  border: 1px solid #ced4da;
 }
 
 #consumer-cards .card {
@@ -91,10 +98,8 @@ li.nav-item {
   padding-bottom: 0;
 }
 
-#consumer-cards .card-header,
-#consumer-cards .card-header .btn-group,
-#consumer-cards .card-header .btn-group a {
-  background: linear-gradient(to right, #202020, #353535);
+#consumer-cards .card-header {
+  background: linear-gradient(to right, #303030, #555555);
 }
 
 #consumer-cards .card-header .btn-group,
@@ -105,7 +110,6 @@ li.nav-item {
 
 #consumer-cards .card-header .card-controls {
   display: flex;
-  /* justify-content: flex-end; */
   margin: 0;
 }
 
@@ -115,8 +119,20 @@ li.nav-item {
 }
 
 #consumer-cards .card-body .list-group {
-  height: 150px; overflow-y: scroll;
+  height: 250px; overflow-y: scroll;
   min-width: 50%;
+}
+
+#consumer-cards .card-body .list-group-item {
+  font-size: 12px;
+  padding: 6px;
+  background-color: DarkSlateGray;
+  color: white;
+}
+#consumer-cards .card-body .list-group-item:nth-of-type(4n-3),
+#consumer-cards .card-body .list-group-item:nth-of-type(4n-2) {
+  background-color: #000000;
+  color: white;
 }
 
 #consumer-cards .card-body .list-group-item p {
@@ -127,18 +143,11 @@ li.nav-item {
 }
 
 .list-group-item-details {
-    background: #606060;
     padding: 3px;
 }
 
-.list-group-item-details small,
-.list-group-item-details input,
-.list-group-item-details textarea {
-  font-size: 9px;
-}
-
-.list-group-item-details textarea {
-  white-space: pre;
+.list-group-item-details small {
+  font-size: 10px;
 }
 
 .list-group-item-details .form-control.d-flex,
@@ -189,11 +198,6 @@ footer.footer {
  * Produce Modal
  **/
 
-#producerModal .modal-body textarea {
-  font-size: 10px;
-  white-space: pre;
-}
-
 /*
  * Bag Modal
  **/
@@ -207,11 +211,6 @@ footer.footer {
   padding: 1px;
   margin: 0;
   line-height: 12px;
-}
-
-#bagModal .modal-body textarea {
-  font-size: 10px;
-  white-space: pre;
 }
 
 /*
@@ -230,6 +229,18 @@ footer.footer {
   padding: 0;
 }
 
+.modal .list-group-item.list-group-item-action {
+  font-size: 12px;
+  padding: 6px;
+  background-color: DarkSlateGray;
+  color: white;
+}
+
+.modal .list-group-item.list-group-item-action:nth-of-type(odd) {
+  background-color: #000000;
+  color: white;
+}
+
 /*
  * Modals + Consumer cards
  **/
@@ -243,20 +254,6 @@ footer.footer {
 #consumer-cards .card-body {
   min-width: 100%;
   padding: 0;
-}
-
-.modal .list-group-item.list-group-item-action,
-#consumer-cards .card-body .list-group-item {
-  font-size: 12px;
-  padding: 6px;
-  background-color: DarkSlateGray;
-  color: white;
-}
-
-.modal .list-group-item.list-group-item-action:nth-of-type(odd),
-#consumer-cards .card-body .list-group-item:nth-of-type(4n+1) {
-  color: white;
-  background-color: #000000;
 }
 
 /*!
