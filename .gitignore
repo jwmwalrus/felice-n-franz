@@ -8,6 +8,7 @@
 main
 .tags*
 node_modules
+README.html
 
 # OSX leaves these everywhere on SMB shares
 ._*
