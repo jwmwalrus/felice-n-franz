@@ -51,8 +51,8 @@ const messageMatchesFilter = (m) => {
 };
 
 const applyFilter = () => {
-    filter.key = document.getElementById('filter-key').value;
-    filter.value = document.getElementById('filter-value').value;
+    filter.key = document.getElementById('filter-key').value.trim();
+    filter.value = document.getElementById('filter-value').value.trim();
     filter.and = document.getElementById('filter-and').checked;
 
     for (const k of tracker.keys()) {
@@ -272,7 +272,7 @@ const createMessageDetails = async (m) => {
     const payloadId = `details-${getActionId(m)}-payload`;
     const pTextArea = document.createElement('textarea');
     pTextArea.setAttribute('id', payloadId);
-    pTextArea.setAttribute('rows', 5);
+    pTextArea.setAttribute('rows', 8);
     pTextArea.readonly = true;
     pTextArea.classList.add('form-control');
     pTextArea.value = JSON.stringify(JSON.parse(m.value), null, 2);
@@ -297,8 +297,8 @@ const createMessageDetails = async (m) => {
     pBox.appendChild(pBtnGroup);
 
     const form = document.createElement('form');
-    form.appendChild(eBox);
     form.appendChild(pBox);
+    form.appendChild(eBox);
 
     const body = document.createElement('div');
     body.classList.add('card-body');
