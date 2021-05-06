@@ -1,13 +1,10 @@
 import * as _ from 'lodash/lodash.js';
 import {
     copyStringToClipboard,
-    copyToClipboard,
-    createBtnSm,
     createBtnGroupSm,
     getActionId,
     getTopicId,
     removeElement,
-    toggleCompactBtn,
 } from './util.js';
 import { getActiveEnv, getOutstandingHeader } from './env.js';
 import { subscribe, unsubscribe } from './socket.js';
@@ -222,90 +219,52 @@ const createMessageNode = async (m) => {
 };
 
 const createMessageDetails = async (m) => {
-    const eText = document.createElement('span');
-    eText.classList.add('input-group-text');
-    eText.innerHTML = '<small><b>Envelope:</b></small>';
-
-    const envelopeId = `details-${getActionId(m)}-envelope`;
-    const eTextArea = document.createElement('textarea');
-    eTextArea.setAttribute('rows', 3);
-    eTextArea.setAttribute('id', envelopeId);
-    eTextArea.readonly = true;
-    eTextArea.classList.add('form-control');
-
-    const {
-        topic,
-        partition,
-        key,
-        offset,
-        timestamp,
-        timestampType,
-        headers,
-    } = m;
-    eTextArea.value = JSON.stringify({
-        topic,
-        partition,
-        key,
-        offset,
-        timestamp,
-        timestampType,
-        headers,
-    }, null, 2);
-
-    const eBtn = await createBtnSm({
-        title: 'Copy envelope',
-        iconClass: 'icon-docs',
-        classList: ['btn', 'btn-sm', 'bg-transparent', 'text-warning'],
-        onclick: () => copyToClipboard(envelopeId),
-    });
-
-    const eBox = document.createElement('div');
-    eBox.classList.add('input-group', 'mb-3');
-    eBox.appendChild(eText);
-    eBox.appendChild(eTextArea);
-    eBox.appendChild(eBtn);
-
-    const pText = document.createElement('span');
-    pText.classList.add('input-group-text');
-    pText.innerHTML = '<small></b>Payload:</b></small>';
-
-    const payloadId = `details-${getActionId(m)}-payload`;
-    const pTextArea = document.createElement('textarea');
-    pTextArea.setAttribute('id', payloadId);
-    pTextArea.setAttribute('rows', 8);
-    pTextArea.readonly = true;
-    pTextArea.classList.add('form-control');
-    pTextArea.value = JSON.stringify(JSON.parse(m.value), null, 2);
+    const payload = JSON.stringify(JSON.parse(m.value), null, 2);
 
     const pBtnGroup = await createBtnGroupSm([
         {
-            title: 'Toggle compact JSOM',
-            iconClass: 'icon-crop',
-            onclick: () => toggleCompactBtn(payloadId),
-        },
-        {
             title: 'Copy payload',
             iconClass: 'icon-docs',
-            onclick: () => copyToClipboard(payloadId),
+            onclick: () => copyStringToClipboard(payload),
+        },
+        {
+            title: 'Copy compact payload',
+            iconClass: 'icon-size-actual',
+            onclick: () => copyStringToClipboard(m.value),
         },
     ]);
+    pBtnGroup.classList.add('btn-group-vertical');
 
-    const pBox = document.createElement('div');
-    pBox.classList.add('input-group', 'mb-3');
-    pBox.appendChild(pText);
-    pBox.appendChild(pTextArea);
-    pBox.appendChild(pBtnGroup);
+    const code = document.createElement('code');
+    code.innerText = payload;
+
+    const pre = document.createElement('pre');
+    pre.classList.add('scrollable-pre');
+    pre.appendChild(code);
+
+    const td1 = document.createElement('td');
+    td1.classList.add('scrollable-td');
+    td1.appendChild(pre);
+
+    const td2 = document.createElement('td');
+    td2.appendChild(pBtnGroup);
+
+    const tr = document.createElement('tr');
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+
+    const table = document.createElement('table');
+    table.appendChild(tr);
 
     const form = document.createElement('form');
-    form.appendChild(pBox);
-    form.appendChild(eBox);
+    form.appendChild(table);
 
     const body = document.createElement('div');
     body.classList.add('card-body');
     body.appendChild(form);
 
     const card = document.createElement('div');
-    card.classList.add('card', 'bg-dark');
+    card.classList.add('card');
     card.appendChild(body);
 
     const details = document.createElement('div');

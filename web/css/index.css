@@ -126,12 +126,12 @@ li.nav-item {
 #consumer-cards .card-body .list-group-item {
   font-size: 12px;
   padding: 6px;
-  background-color: DarkSlateGray;
+  background-color: DarkSlateGray !important;
   color: white;
 }
 #consumer-cards .card-body .list-group-item:nth-of-type(4n-3),
 #consumer-cards .card-body .list-group-item:nth-of-type(4n-2) {
-  background-color: #000000;
+  background-color: #000000 !important;
   color: white;
 }
 
@@ -146,8 +146,29 @@ li.nav-item {
     padding: 3px;
 }
 
-.list-group-item-details small {
-  font-size: 10px;
+.list-group-item-details .card {
+  background: inherit;
+}
+
+.list-group-item-details table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.list-group-item-details td {
+  vertical-align: top;
+}
+
+.scrollable-td {
+  width: 90%;
+}
+
+.scrollable-pre {
+  overflow-y: auto;
+}
+
+.list-group-item-details pre {
+  color: white;
 }
 
 .list-group-item-details .form-control.d-flex,
