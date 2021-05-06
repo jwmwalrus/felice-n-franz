@@ -70,17 +70,26 @@
           <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
             <ul class="navbar-nav ml-auto">
               <li class="nav-item">
-                <div class="btn-group">
-                  <button type="button" id="filter-btn" class="btn btn-secondary text-warning" data-toggle="modal" data-target="#filterModal"  title="Filter messages">
-                    <div class="icon-tag"></div>
-                  </button>
-                  <button type="button" id="playpause-btn" class="btn btn-secondary text-warning play" title="Toggle play/pause">
-                    <div class="icon-control-pause"></div>
-                  </button>
-                  <button type="button" id="clear-contents-btn" class="btn btn-secondary text-warning" title="Clear all messages">
-                    <div class="icon-reload"></div>
-                  </button>
-                </div>
+                <form>
+                  <div class="input-group input-group-sm">
+                    <input type="text" id="search-input" class="form-control input-sm" placeholder="Search..." aria-label="Search in messages">
+                    <div class="input-group-append">
+                      <button type="button" id="reset-search-btn" class="btn bg-secondary text-warning" title="Reset" style="display:none">
+                        <div class="icon-minus"></div>
+                      </button>
+                      <button type="button" id="search-btn" class="btn btn-secondary text-warning" title="Search in messages">
+                        <div class="icon-magnifier"></div>
+                      </button>
+                      <span>&nbsp;</span>
+                      <button type="button" id="playpause-btn" class="btn btn-secondary text-warning play" title="Toggle play/pause">
+                        <div class="icon-control-pause"></div>
+                      </button>
+                      <button type="button" id="clear-contents-btn" class="btn btn-secondary text-warning" title="Clear all messages">
+                        <div class="icon-reload"></div>
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </li>
             </ul>
           </div>
@@ -344,51 +353,6 @@
             <div class="modal-footer">
               <button type="button" id="reset-bag-btn" class="btn btn-danger mr-auto"><span><span class="icon"></span>Reset</span></button>
               <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Filter modal -->
-      <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal" role="document">
-          <div class="modal-content bg-dark">
-            <div class="modal-header">
-              <h5 class="modal-title" id="filterModalLabel"><span><span class="icon-tag"></span>Filter Messages</span></h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="container-fluid">
-                <form id="filter-form">
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="input-group mb-3">
-                        <span class="input-group-text">Key:</span>
-                        <input type="text" class="form-control" id="filter-key" placeholder="Filter by key" aria-label="filter-by-key">
-                      </div>
-                      <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                        <label class="btn btn-secondary active">
-                          <input type="radio" name="options" id="filter-or" autocomplete="off" checked> OR
-                        </label>
-                        <label class="btn btn-secondary">
-                          <input type="radio" name="options" id="filter-and" autocomplete="off"> AND
-                        </label>
-                      </div>
-                      <div class="input-group mb-3">
-                        <span class="input-group-text">Value:</span>
-                        <input type="text" class="form-control" id="filter-value" placeholder="Filter by value" aria-label="filter-by-value">
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" id="reset-filter-btn" class="btn btn-danger mr-auto"><div class="icon"></div><span><span class="icon-minus"></span>Reset</span></button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal"><span><span class="icon-close"></span>Close</span></button>
-              <button type="button" class="btn btn-primary" id="apply-filter-btn" data-dismiss="modal"><span><span class="icon-tag"></span>Apply</span></button>
             </div>
           </div>
         </div>

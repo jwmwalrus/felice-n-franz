@@ -13,44 +13,40 @@ import { addToBag } from './bag-modal.js';
 
 const tracker = new Map();
 
+const FILTER_TYPE_TEXT = 0;
+const FILTER_TYPE_KEY = 1;
+const FILTER_TYPE_RE = 2;
+
 const filter = {
-    key: '',
-    and: false,
+    type: FILTER_TYPE_TEXT,
+    ignoreCase: false,
     value: '',
 };
 
+const messageMatchesRegExp = (m) => m.value.match(new RegExp(filter.value)) !== null;
+
+const messageMatchesKey = (m) => filter.value in JSON.parse(m.value);
+
+const messageMatchesText = (m) => m.value.includes(filter.value);
+
 const messageMatchesFilter = (m) => {
-    let matches = true;
-
-    const parsed = JSON.parse(m.value);
-    const valueRe = new RegExp(`\b${filter.value}\b`);
-    if (
-        (filter.key && !filter.and && !filter.value)
-        || (filter.key && filter.and && !filter.value)
-    ) {
-        matches = filter.key in parsed;
-    } else if (
-        (filter.key && !filter.and && filter.value)
-    ) {
-        matches = filter.key in parsed || m.value.match(valueRe) !== null;
-    } else if (
-        (filter.key && filter.and && filter.value)
-    ) {
-        matches = filter.key in parsed && m.value.match(valueRe) !== null;
-    } else if (
-        (!filter.key && !filter.and && filter.value)
-        || (!filter.key && filter.and && filter.value)
-    ) {
-        matches = m.value.match(valueRe) !== null;
+    switch (filter.type) {
+        case FILTER_TYPE_RE:
+            return messageMatchesRegExp(m);
+        case FILTER_TYPE_KEY:
+            return messageMatchesKey(m);
+        default:
+            return messageMatchesText(m);
     }
-
-    return matches;
 };
 
 const applyFilter = () => {
-    filter.key = document.getElementById('filter-key').value.trim();
-    filter.value = document.getElementById('filter-value').value.trim();
-    filter.and = document.getElementById('filter-and').checked;
+    filter.value = document.getElementById('search-input').value.trim();
+
+    if (filter.value === '') {
+        resetFilter();
+        return;
+    }
 
     for (const k of tracker.keys()) {
         tracker.get(k).forEach((m) => {
@@ -65,14 +61,14 @@ const applyFilter = () => {
         });
     }
 
-    document.getElementById('filter-btn').classList.replace('text-warning', 'text-danger');
+    document.getElementById('search-btn').classList.replace('text-warning', 'text-danger');
+    document.getElementById('reset-search-btn').style.display = 'block';
 };
 
 const resetFilter = () => {
     filter.key = '';
     filter.value = '';
     filter.and = false;
-    document.getElementById('filter-form').reset();
 
     for (const k of tracker.keys()) {
         tracker.get(k).forEach((m) => {
@@ -81,7 +77,9 @@ const resetFilter = () => {
         });
     }
 
-    document.getElementById('filter-btn').classList.replace('text-danger', 'text-warning');
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-btn').classList.replace('text-danger', 'text-warning');
+    document.getElementById('reset-search-btn').style.display = 'none';
 };
 
 const getListGroupElement = (topic) => {

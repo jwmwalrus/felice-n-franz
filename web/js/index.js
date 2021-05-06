@@ -104,8 +104,8 @@ window.onload = () => {
     document.getElementById('bag-payload-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-payload');
     document.getElementById('reset-bag-btn').onclick = resetBag;
 
-    document.getElementById('reset-filter-btn').onclick = resetFilter;
-    document.getElementById('apply-filter-btn').onclick = applyFilter;
+    document.getElementById('search-btn').onclick = applyFilter;
+    document.getElementById('reset-search-btn').onclick = resetFilter;
 
     setAutoCompleteTopic();
 

@@ -70,6 +70,10 @@ li.nav-item {
   padding: 5px;
 }
 
+#search-input {
+  width: 150px;
+}
+
 /*
  * Consumer cards
  **/
