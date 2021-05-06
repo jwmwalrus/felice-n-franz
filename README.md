@@ -395,8 +395,10 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
 
 ## TODO
 
-- [ ] Add Consumer Group filters/categories.
+- [x] Add Consumer Group filters/categories.
 - [ ] Improve headers handling for the producer.
 - [ ] Add a way of reordering consumer cards.
-- [ ] Improve global filter.
+- [x] Improve global filter.
+- [ ] Implement search by key.
+- [ ] Implement search by regex.
 
