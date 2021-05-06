@@ -6,6 +6,27 @@ All noticeable changes in the project  are documented in this file.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
+## [0.51.0] 2021-05-06
+
+New features and improvements
+
+### Added
+
+* Consumer group categories
+
+* Search box in navbar
+
+### Modified
+
+* Show only payload in the message details
+    - Use table and pre instead of textarea
+
+### Removed
+
+* Envelope information in details
+
+* Filter modal
+
 ## [0.50.2] 2021-05-03
 
 More fixes
