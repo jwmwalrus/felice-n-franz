@@ -6,6 +6,7 @@ import { loadSocket } from './socket.js';
 import {
     populateAvailable,
     clearTopicsAndGroups,
+    filterGroups,
 } from './consume-modal.js';
 import {
     addSelectedCards,
@@ -80,6 +81,7 @@ window.onload = () => {
     document.getElementById('playpause-btn').onclick = togglePlayPause;
     document.getElementById('clear-contents-btn').onclick = clearAllCards;
 
+    document.getElementById('group-categories').onchange = filterGroups;
     document.getElementById('reset-consumers-btn').onclick = resetConsumers;
     document.getElementById('add-selected-cards-btn').onclick = addSelectedCards;
 

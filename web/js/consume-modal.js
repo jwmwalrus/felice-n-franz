@@ -7,7 +7,7 @@ const addGroupToList = (g, l, cb) => {
     if (g.description) {
         node.setAttribute('title', g.description);
     }
-    node.classList.add('list-group-item', 'list-group-item-action');
+    node.classList.add('list-group-item', 'list-group-item-action', 'toggle-content', 'is-visible');
     node.ondblclick = cb;
 
     const textnode = document.createTextNode(g.name);
@@ -32,10 +32,30 @@ const addTopicToList = (t, l, cb) => {
 };
 
 const clearTopicsAndGroups = () => {
+    document.getElementById('group-categories').innerHTML = '<option value="" selected>Category</option>';
+
     document.getElementById('available-groups').innerHTML = '';
     document.getElementById('available-topics').innerHTML = '';
     document.getElementById('selected-groups').innerHTML = '';
     document.getElementById('selected-topics').innerHTML = '';
+};
+
+const filterGroups = (sel) => {
+    const { value } = sel.target;
+    const { groups } = getActiveEnv();
+
+    if (value !== '') {
+        groups.forEach((g) => {
+            const e = document.getElementById(g.id);
+            if (g.category === value) {
+                e.classList.add('is-visible');
+            } else {
+                e.classList.remove('is-visible');
+            }
+        });
+    } else {
+        groups.forEach((g) => document.getElementById(g.id).classList.add('is-visible'));
+    }
 };
 
 const populateAvailable = async () => {
@@ -43,14 +63,27 @@ const populateAvailable = async () => {
 
     const { groups, topics } = getActiveEnv();
 
+    const coll = [];
     const groupsList = document.getElementById('available-groups');
     for await (const g of groups) {
         addGroupToList(g, groupsList, selectGroup);
+        if (g.category) {
+            coll.push(g.category);
+        }
     }
 
     const topicsList = document.getElementById('available-topics');
     for await (const t of topics) {
         addTopicToList(t, topicsList, selectTopic);
+    }
+
+    const gc = document.getElementById('group-categories');
+    const cats = [...new Set(coll)];
+    for await (const c of cats) {
+        const e = document.createElement('option');
+        e.value = c;
+        e.innerText = c;
+        gc.appendChild(e);
     }
 };
 
@@ -110,6 +143,7 @@ export {
     addGroupToList,
     addTopicToList,
     clearTopicsAndGroups,
+    filterGroups,
     populateAvailable,
     selectGroup,
     selectTopic,
