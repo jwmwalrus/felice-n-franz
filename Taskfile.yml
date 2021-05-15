@@ -37,6 +37,15 @@ tasks:
     cmds:
       - npm --prefix ./web/ run dev
 
+  npmci:
+    cmds:
+      - npm --prefix ./web/ ci
+
+  npmi:
+    cmds:
+      - rm -rf web/node_modules
+      - npm --prefix ./web/ install
+
   # test-cli:
     # cmds:
       # - ./testfixtures -d sqlite -c testdb.sqlite3 -D testdata/fixtures
