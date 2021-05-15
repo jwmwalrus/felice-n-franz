@@ -30,13 +30,11 @@
     "devDependencies": {
         "copy-webpack-plugin": "^8.1.1",
         "css-loader": "^5.2.1",
-        "esbuild": "^0.9.6",
         "eslint": "^7.23.0",
         "eslint-config-airbnb-base": "^14.2.1",
         "eslint-plugin-import": "^2.22.1",
         "file-loader": "^6.2.0",
         "mini-css-extract-plugin": "^1.4.1",
-        "ncp": "^2.0.0",
         "webpack": "^5.31.2",
         "webpack-cli": "^4.6.0"
     }
