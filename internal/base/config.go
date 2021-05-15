@@ -210,6 +210,10 @@ func (e *Environment) FindTopicValues(keys []string) (values []string, err error
 func (e *Environment) setDefaults() {
 	log.Info("Setting env defaults")
 
+	if e.Name == "" {
+		e.Name = "default"
+	}
+
 	if e.Configuration == nil {
 		e.Configuration = kafka.ConfigMap{}
 	}
