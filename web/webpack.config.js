@@ -12,7 +12,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, '..', 'public'),
         filename: 'js/[name].js',
-        publicPath: path.join('..', 'public'),
+        // publicPath: 'static/',
     },
     target: 'es2021',
     cache: false,
@@ -47,7 +47,7 @@ module.exports = {
                 use: {
                     loader: 'file-loader',
                     options: {
-                        name: 'img/[name].[ext]',
+                        name: '../img/[name].[ext]',
                     },
                 },
             },
@@ -56,7 +56,7 @@ module.exports = {
                 use: {
                     loader: 'file-loader',
                     options: {
-                        name: 'fonts/[name].[ext]',
+                        name: '../fonts/[name].[ext]',
                     },
                 },
             },
