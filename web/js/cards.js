@@ -10,6 +10,13 @@ import { getActiveEnv, getOutstandingHeader } from './env.js';
 import { subscribe, unsubscribe } from './socket.js';
 import { populateAvailable } from './consume-modal.js';
 import { addToBag } from './bag-modal.js';
+import {
+    broomIcon,
+    compressIcon,
+    copyIcon,
+    ellipsisHIcon,
+    shoppingBagIcon,
+} from './icons.js';
 
 const tracker = new Map();
 
@@ -131,12 +138,12 @@ const addConsumerCard = async (t) => {
 
     const btnGroup = await createBtnGroupSm([
         {
-            iconClass: 'icon-docs',
+            icon: copyIcon,
             title: 'Copy topic',
             onclick: () => copyStringToClipboard(t.value),
         },
         {
-            iconClass: 'icon-reload',
+            icon: broomIcon,
             title: 'Clear messages',
             onclick: () => clearCard(t.value),
         },
@@ -184,7 +191,7 @@ const createMessageNode = async (m) => {
 
     const btnGroup = await createBtnGroupSm([
         {
-            iconClass: 'icon-options',
+            icon: ellipsisHIcon,
             title: 'Toggle details',
             onclick: () => {
                 const details = document.getElementById(`details-${getActionId(m)}`);
@@ -192,7 +199,7 @@ const createMessageNode = async (m) => {
             },
         },
         {
-            iconClass: 'icon-bag',
+            icon: shoppingBagIcon,
             title: 'Add message to bag',
             onclick: () => addToBag(m),
         },
@@ -222,12 +229,12 @@ const createMessageDetails = async (m) => {
     const pBtnGroup = await createBtnGroupSm([
         {
             title: 'Copy payload',
-            iconClass: 'icon-docs',
+            icon: copyIcon,
             onclick: () => copyStringToClipboard(payload),
         },
         {
             title: 'Copy compact payload',
-            iconClass: 'icon-size-actual',
+            icon: compressIcon,
             onclick: () => copyStringToClipboard(m.value),
         },
     ]);

@@ -1,4 +1,3 @@
-import '../css/index.css';
 import { copyToClipboard, toggleCompactBtn } from './util.js';
 import { setActiveEnv } from './env.js';
 import { showToast } from './toasts.js';
@@ -24,6 +23,9 @@ import {
     setAutoCompleteTopic,
 } from './produce-modal.js';
 import { resetBag } from './bag-modal.js';
+import { pauseIcon, playIcon } from './icons.js';
+
+import '../css/index.css';
 
 const apiUrl = window.location.origin;
 
@@ -67,12 +69,10 @@ const togglePlayPause = () => {
     const e = document.getElementById('playpause-btn');
     if (e.classList.contains('play')) {
         e.classList.replace('play', 'pause');
-        const i = document.querySelector('#playpause-btn div');
-        i.classList.replace('icon-control-pause', 'icon-control-play');
+        e.innerHTML = playIcon;
     } else {
         e.classList.remove('pause', 'play');
-        const i = document.querySelector('#playpause-btn div');
-        i.classList.replace('icon-control-play', 'icon-control-pause');
+        e.innerHTML = pauseIcon;
     }
 };
 

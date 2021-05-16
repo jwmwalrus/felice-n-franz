@@ -20,6 +20,8 @@
     },
     "homepage": "https://github.com/jwmwalrus/felice-franz#readme",
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^1.2.35",
+        "@fortawesome/free-solid-svg-icons": "^5.15.3",
         "@tarekraafat/autocomplete.js": "^9.0.3",
         "bootstrap": "^4.6.0",
         "jquery": "^3.6.0",

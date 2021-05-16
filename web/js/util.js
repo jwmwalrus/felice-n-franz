@@ -7,15 +7,12 @@ const copyStringToClipboard = (str) => {
 
 const createBtnSm = async ({
     id,
-    iconClass,
+    icon,
     classList,
     title,
     onclick,
 }) => {
     const cl = classList && classList.length > 0 ? classList : ['btn', 'btn-sm', 'bg-transparent', 'text-warning'];
-
-    const icon = document.createElement('span');
-    icon.classList.add(iconClass);
 
     const btn = document.createElement('a');
     btn.setAttribute('title', title);
@@ -26,7 +23,7 @@ const createBtnSm = async ({
         btn.classList.add(c);
     }
     btn.onclick = onclick;
-    btn.appendChild(icon);
+    btn.innerHTML = icon;
 
     return btn;
 };
@@ -38,7 +35,7 @@ const createBtnGroupSm = async (list = []) => {
     for await (const l of list) {
         const btn = await createBtnSm({
             id: l.id,
-            iconClass: l.iconClass,
+            icon: l.icon,
             title: l.title,
             classList: l.classList,
             onclick: l.onclick,
