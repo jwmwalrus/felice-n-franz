@@ -26,7 +26,6 @@
         "bootstrap": "^4.6.0",
         "jquery": "^3.6.0",
         "lodash": "^4.17.21",
-        "simple-line-icons": "^2.5.5",
         "toastify-js": "^1.10.0"
     },
     "devDependencies": {

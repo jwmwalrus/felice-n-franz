@@ -78,27 +78,17 @@ module.exports = {
             patterns: [
                 {
                     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-                    to: 'tp/bootstrap/css/',
+                    to: 'bootstrap/css/',
                     toType: 'dir',
                 },
                 {
                     from: 'node_modules/bootstrap/dist/js/bootstrap.bundle.min.js',
-                    to: 'tp/bootstrap/js/',
+                    to: 'bootstrap/js/',
                     toType: 'dir',
                 },
                 {
                     from: 'node_modules/jquery/dist/jquery.min.js',
-                    to: 'tp/jquery',
-                    toType: 'dir',
-                },
-                {
-                    from: 'node_modules/simple-line-icons/dist/styles/simple-line-icons.css',
-                    to: 'tp/simple-line-icons/css/',
-                    toType: 'dir',
-                },
-                {
-                    from: 'node_modules/simple-line-icons/dist/fonts',
-                    to: 'tp/simple-line-icons/fonts',
+                    to: 'jquery',
                     toType: 'dir',
                 },
             ],

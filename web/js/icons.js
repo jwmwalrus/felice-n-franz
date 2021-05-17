@@ -17,10 +17,6 @@ import {
     faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
-// import '@fortawesome/fontawesome-free/css/brands.min.css';
-// import '@fortawesome/fontawesome-free/css/solid.min.css';
-// import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
-
 library.add(
     faBroom,
     faCheck,
