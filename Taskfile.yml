@@ -19,6 +19,7 @@ tasks:
 
   clean:
       - rm -rf public/css
+      - rm -rf public/img
       - rm -rf public/js
       - rm -rf public/bootstrap
       - rm -rf public/jquery
