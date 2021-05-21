@@ -6,6 +6,24 @@ All noticeable changes in the project  are documented in this file.
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.0] 2021-05-20
+
+Improvements and Fixes
+
+### Fixed
+
+* Environment name for generated config.json
+
+* Webpack's public path
+
+### Modified
+
+* Use fontawesome icons
+
+### Removed
+
+* Dependencies not needed anymore
+
 ## [0.51.0] 2021-05-06
 
 New features and improvements
