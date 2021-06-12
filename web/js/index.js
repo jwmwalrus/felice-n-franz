@@ -14,7 +14,7 @@ import {
     getListGroupElement,
     removeAllCards,
     applyFilter,
-    resetFilter,
+    clearFilter,
 } from './cards';
 import {
     resetProducer,
@@ -104,8 +104,8 @@ window.onload = () => {
     document.getElementById('bag-payload-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-payload');
     document.getElementById('reset-bag-btn').onclick = resetBag;
 
-    document.getElementById('search-btn').onclick = applyFilter;
-    document.getElementById('reset-search-btn').onclick = resetFilter;
+    document.getElementById('filter-btn').onclick = applyFilter;
+    document.getElementById('clear-filter-btn').onclick = clearFilter;
 
     setAutoCompleteTopic();
 

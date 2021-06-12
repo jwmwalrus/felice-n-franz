@@ -20,38 +20,21 @@ import {
 
 const tracker = new Map();
 
-const FILTER_TYPE_TEXT = 0;
 const FILTER_TYPE_KEY = 1;
 const FILTER_TYPE_RE = 2;
 
 const filter = {
-    type: FILTER_TYPE_TEXT,
     ignoreCase: false,
     value: '',
 };
 
-const messageMatchesRegExp = (m) => m.value.match(new RegExp(filter.value)) !== null;
-
-const messageMatchesKey = (m) => filter.value in JSON.parse(m.value);
-
-const messageMatchesText = (m) => m.value.includes(filter.value);
-
-const messageMatchesFilter = (m) => {
-    switch (filter.type) {
-        case FILTER_TYPE_RE:
-            return messageMatchesRegExp(m);
-        case FILTER_TYPE_KEY:
-            return messageMatchesKey(m);
-        default:
-            return messageMatchesText(m);
-    }
-};
+const messageMatchesFilter = (m) => m.value.includes(filter.value);
 
 const applyFilter = () => {
-    filter.value = document.getElementById('search-input').value.trim();
+    filter.value = document.getElementById('filter-input').value.trim();
 
     if (filter.value === '') {
-        resetFilter();
+        clearFilter();
         return;
     }
 
@@ -68,11 +51,11 @@ const applyFilter = () => {
         });
     }
 
-    document.getElementById('search-btn').classList.replace('text-warning', 'text-danger');
-    document.getElementById('reset-search-btn').style.display = 'block';
+    document.getElementById('filter-btn').classList.replace('text-warning', 'text-danger');
+    document.getElementById('clear-filter-btn').style.display = 'block';
 };
 
-const resetFilter = () => {
+const clearFilter = () => {
     filter.key = '';
     filter.value = '';
     filter.and = false;
@@ -84,9 +67,9 @@ const resetFilter = () => {
         });
     }
 
-    document.getElementById('search-input').value = '';
-    document.getElementById('search-btn').classList.replace('text-danger', 'text-warning');
-    document.getElementById('reset-search-btn').style.display = 'none';
+    document.getElementById('filter-input').value = '';
+    document.getElementById('filter-btn').classList.replace('text-danger', 'text-warning');
+    document.getElementById('clear-filter-btn').style.display = 'none';
 };
 
 const getListGroupElement = (topic) => {
@@ -363,5 +346,5 @@ export {
     resetConsumers,
     updateCardBadge,
     applyFilter,
-    resetFilter,
+    clearFilter,
 };
