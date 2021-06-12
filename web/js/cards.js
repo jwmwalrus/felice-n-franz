@@ -20,9 +20,6 @@ import {
 
 const tracker = new Map();
 
-const FILTER_TYPE_KEY = 1;
-const FILTER_TYPE_RE = 2;
-
 const filter = {
     ignoreCase: false,
     value: '',
@@ -274,14 +271,8 @@ const addMessageToCardList = async (m, l) => {
     l.appendChild(node);
     l.appendChild(details);
 
-    const maxTailOffset = getActiveEnv();
     const msgs = tracker.get(m.topic);
     msgs.push(m);
-    while (msgs.length > maxTailOffset) {
-        const e = msgs.shift();
-        await removeElement(getActionId(e));
-        await removeElement(`details-${getActionId(e)}`);
-    }
     tracker.set(m.topic, msgs);
     updateCardBadge(m.topic);
 };

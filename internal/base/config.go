@@ -19,11 +19,10 @@ const (
 
 // Config Application's configuration
 type Config struct {
-	Version       int           `json:"version"`
-	FirstRun      bool          `json:"firstRun"`
-	Port          int           `json:"port"`
-	MaxTailOffset int           `json:"maxTailOffset"`
-	Envs          []Environment `json:"envs"`
+	Version  int           `json:"version"`
+	FirstRun bool          `json:"firstRun"`
+	Port     int           `json:"port"`
+	Envs     []Environment `json:"envs"`
 }
 
 func (c *Config) setDefaults() {
@@ -35,10 +34,6 @@ func (c *Config) setDefaults() {
 
 	if c.Port == 0 {
 		c.Port = DefaultPort
-	}
-
-	if c.MaxTailOffset == 0 {
-		c.MaxTailOffset = DefaultTailOffset
 	}
 
 	if len(c.Envs) < 1 {
