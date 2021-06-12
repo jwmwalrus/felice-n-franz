@@ -19,12 +19,11 @@ const (
 
 // Config Application's configuration
 type Config struct {
-	Version        int           `json:"version"`
-	FirstRun       bool          `json:"firstRun"`
-	Port           int           `json:"port"`
-	MaxTailOffset  int           `json:"maxTailOffset"`
-	ConsumeForward bool          `json:"consumeForward"`
-	Envs           []Environment `json:"envs"`
+	Version       int           `json:"version"`
+	FirstRun      bool          `json:"firstRun"`
+	Port          int           `json:"port"`
+	MaxTailOffset int           `json:"maxTailOffset"`
+	Envs          []Environment `json:"envs"`
 }
 
 func (c *Config) setDefaults() {
@@ -145,15 +144,16 @@ func (c *Config) validate() (err error) {
 
 // Environment Defines a topics environment
 type Environment struct {
-	Name          string          `json:"name"`
-	Active        bool            `json:"active"`
-	Configuration kafka.ConfigMap `json:"configuration"`
-	Vars          EnvVars         `json:"vars"`
-	HeaderPrefix  string          `json:"headerPrefix"`
-	TopicsFrom    string          `json:"inheritFrom"`
-	Schemas       EnvSchemas      `json:"schemas"`
-	Topics        []Topic         `json:"topics"`
-	Groups        []Group         `json:"groups"`
+	Name           string          `json:"name"`
+	Active         bool            `json:"active"`
+	AssignConsumer bool            `json:"assignConsumer"`
+	Configuration  kafka.ConfigMap `json:"configuration"`
+	Vars           EnvVars         `json:"vars"`
+	HeaderPrefix   string          `json:"headerPrefix"`
+	TopicsFrom     string          `json:"inheritFrom"`
+	Schemas        EnvSchemas      `json:"schemas"`
+	Topics         []Topic         `json:"topics"`
+	Groups         []Group         `json:"groups"`
 }
 
 // EnvVars defines the Environment Vars type
@@ -246,6 +246,8 @@ func (e *Environment) setup() {
 
 	if _, ok := e.Configuration["group.id"]; !ok {
 		e.Configuration["group.id"] = "${USER}.${HOSTNAME}"
+		e.Configuration["enable.auto.commit"] = false
+		e.Configuration["auto.offset.reset"] = "smallest"
 	}
 
 	for k, v := range e.Configuration {

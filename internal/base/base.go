@@ -177,7 +177,6 @@ func copyUserConfig() {
 	Conf.FirstRun = userConf.FirstRun
 	Conf.Port = userConf.Port
 	Conf.MaxTailOffset = userConf.MaxTailOffset
-	Conf.ConsumeForward = userConf.ConsumeForward
 	Conf.Envs = make([]Environment, len(userConf.Envs))
 	copy(Conf.Envs, userConf.Envs)
 

@@ -1,6 +1,7 @@
 package kafkian
 
 import (
+	"errors"
 	"time"
 
 	"github.com/jwmwalrus/bnp"
@@ -9,8 +10,8 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-// CreateConsumer creates a consumer for the given environment topics
-func CreateConsumer(env base.Environment, topics []string) (err error) {
+// SubscribeConsumer creates a consumer for the given environment topics
+func SubscribeConsumer(env base.Environment, topics []string) (err error) {
 	var c *kafka.Consumer
 
 	uncovered := []string{}
@@ -53,7 +54,7 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 
 			switch e := ev.(type) {
 			case *kafka.Message:
-				if base.Conf.ConsumeForward && e.Timestamp.Unix() <= cct.Unix() {
+				if e.Timestamp.Unix() <= cct.Unix() {
 					continue
 				}
 				log.Infof("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
@@ -63,7 +64,7 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 				sendKafkaMessage(e)
 			case kafka.Error:
 				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				sendToast(toastMsg{ToastType: "error", Title: "Consumer Error " + e.Code().String(), Message: e.String()})
+				sendError(errors.New(e.String()), "Consumer Error")
 				if e.Code() == kafka.ErrAllBrokersDown {
 					break
 				}
@@ -72,5 +73,88 @@ func CreateConsumer(env base.Environment, topics []string) (err error) {
 			}
 		}
 	}()
+	return
+}
+
+// AssignConsumer creates a consumer for the given environment topic
+func AssignConsumer(env base.Environment, topic string) (err error) {
+	var c *kafka.Consumer
+
+	if assoc := getConsumerForTopic(topic); assoc != nil {
+		return
+	}
+
+	cct := time.Now()
+	config := cloneConfiguration(env.Configuration)
+	config["group.id"] = topic
+	c, err = kafka.NewConsumer(&config)
+	if err != nil {
+		return
+	}
+
+	var meta *kafka.Metadata
+	meta, err = c.GetMetadata(&topic, false, 10000)
+	if err != nil {
+		return
+	}
+
+	if len((*meta).Topics[topic].Partitions) == 0 {
+		err = errors.New("There are no available partitions for topic " + topic)
+		return
+	}
+
+	register(c, []string{topic})
+
+	go func() {
+		defer c.Close()
+
+		for _, pm := range (*meta).Topics[topic].Partitions {
+			tp := kafka.TopicPartition{Topic: &topic, Partition: pm.ID}
+			err := c.IncrementalAssign([]kafka.TopicPartition{tp})
+			bnp.LogOnError(err)
+		}
+
+		for {
+			ev := c.Poll(100)
+			if !isRegistered(c) {
+				log.Info("Consumer is not registered anymore!")
+				err := c.Unsubscribe()
+				bnp.WarnOnError(err)
+				break
+			}
+
+			if ev == nil {
+				continue
+			}
+
+			switch e := ev.(type) {
+			case *kafka.Message:
+				if e.Timestamp.Unix() <= cct.Unix() {
+					continue
+				}
+				log.Infof("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+				if e.Headers != nil {
+					log.Infof("%% Headers: %v\n", e.Headers)
+				}
+				sendKafkaMessage(e)
+			case kafka.Error:
+				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
+				sendError(errors.New(e.String()), "Consumer Error")
+				if e.Code() == kafka.ErrAllBrokersDown {
+					break
+				}
+			default:
+				log.Infof("Ignored %v\n", e)
+			}
+		}
+	}()
+	return
+}
+
+func cloneConfiguration(in kafka.ConfigMap) (out kafka.ConfigMap) {
+	out = kafka.ConfigMap{}
+	for k, v := range in {
+		out[k] = v
+	}
 	return
 }

@@ -80,8 +80,20 @@ func (c connection) processMessages() {
 		case "consume":
 			env := base.Conf.GetEnvConfig(res.Env)
 			topics, _ := env.FindTopicValues(res.Payload)
-			err := CreateConsumer(env, topics)
-			bnp.LogOnError(err)
+
+			if env.AssignConsumer {
+				for _, t := range topics {
+					if err := AssignConsumer(env, t); err != nil {
+						log.Error(err)
+						sendError(err, "Consumer Error")
+					}
+				}
+			} else {
+				if err := SubscribeConsumer(env, topics); err != nil {
+					log.Error(err)
+					sendError(err, "Consumer Error")
+				}
+			}
 
 		case "produce":
 			env := base.Conf.GetEnvConfig(res.Env)
@@ -95,8 +107,10 @@ func (c connection) processMessages() {
 			if len(res.Headers) > 0 {
 				msg.Headers = headerB2K(res.Headers)
 			}
-			err := ProduceMessage(env, &msg)
-			bnp.LogOnError(err)
+			if err := ProduceMessage(env, &msg); err != nil {
+				bnp.LogOnError(err)
+				sendError(err, "Producer Error")
+			}
 
 		case "unsubscribe":
 			for _, t := range res.Payload {
@@ -107,6 +121,14 @@ func (c connection) processMessages() {
 		default:
 		}
 	}
+}
+
+func sendError(err error, title string) {
+	sendToast(toastMsg{
+		ToastType: "error",
+		Title:     title,
+		Message:   err.Error(),
+	})
 }
 
 func sendKafkaMessage(m *kafka.Message) {
