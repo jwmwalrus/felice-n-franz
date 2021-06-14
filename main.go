@@ -15,6 +15,9 @@ import (
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
 )
 
+//go:embed version.json
+var version []byte
+
 //go:embed web/html/index.html
 var indexHTML string
 
@@ -22,7 +25,7 @@ var indexHTML string
 var staticContent embed.FS
 
 func main() {
-	base.Load()
+	base.Load(version)
 	cfg := base.Conf
 
 	gin.DefaultWriter = bnp.NewDefaultWriter()
@@ -59,6 +62,7 @@ func index(c *gin.Context) {
 		"index.html",
 		gin.H{
 			"title":              base.AppName,
+			"version":            base.AppVersion.String(),
 			"envs":               base.Conf.GetEnvsList(),
 			"headerPlaceholder":  `e.g.: [{"key": "Content-Type","value": "application/json"}]`,
 			"payloadPlaceholder": `e.g.: {"year": 1984, "enemy": "Eastasia"}`,

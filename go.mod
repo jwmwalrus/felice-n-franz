@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.7.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/jwmwalrus/bnp v1.1.0
+	github.com/jwmwalrus/bumpy-ride v0.10.0 // indirect
 	github.com/nightlyone/lockfile v1.0.0
 	github.com/pborman/getopt/v2 v2.1.0
 	github.com/sirupsen/logrus v1.8.1

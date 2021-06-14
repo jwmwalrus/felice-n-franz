@@ -9,6 +9,7 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/jwmwalrus/bnp"
+	"github.com/jwmwalrus/bumpy-ride/pkg/version"
 	"github.com/nightlyone/lockfile"
 	"github.com/pborman/getopt/v2"
 	log "github.com/sirupsen/logrus"
@@ -49,6 +50,9 @@ var (
 	// OS Operating system's name
 	OS string
 
+	// AppVersion application's version
+	AppVersion version.Version
+
 	// CacheDir Home directory for cache
 	CacheDir string
 
@@ -75,7 +79,7 @@ var (
 var Conf, userConf Config
 
 // Load Loads application's configuration
-func Load() (args []string) {
+func Load(version []byte) (args []string) {
 	args = bnp.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
 
 	if flagHelp {
@@ -83,10 +87,13 @@ func Load() (args []string) {
 		os.Exit(0)
 	}
 
+	err := AppVersion.Read(version)
+	bnp.PanicOnError(err)
+
 	configFile = filepath.Join(ConfigDir, configFilename)
 	lockFile = filepath.Join(RuntimeDir, lockFilename)
 
-	err := bnp.SetEnvDirs(
+	err = bnp.SetEnvDirs(
 		configFile,
 		lockFile,
 		CacheDir,
