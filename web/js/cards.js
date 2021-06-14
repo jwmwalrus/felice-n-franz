@@ -71,7 +71,7 @@ const clearFilter = () => {
 
 const getListGroupElement = (topic) => {
     try {
-        return document.querySelector(`#${getTopicId(topic)} .card-body .list-group`);
+        return document.querySelector(`#${getTopicId(topic)} > div.card-body > div.list-group`);
     } catch (e) {
         return null;
     }

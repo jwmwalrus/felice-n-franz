@@ -2,6 +2,7 @@ package kafkian
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/jwmwalrus/bnp"
@@ -64,7 +65,9 @@ func SubscribeConsumer(env base.Environment, topics []string) (err error) {
 				sendKafkaMessage(e)
 			case kafka.Error:
 				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				sendError(errors.New(e.String()), "Consumer Error")
+				if !errorCanBeIgnored(e) {
+					sendError(errors.New(e.String()), "Consumer Error")
+				}
 				if e.Code() == kafka.ErrAllBrokersDown {
 					break
 				}
@@ -139,7 +142,9 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 				sendKafkaMessage(e)
 			case kafka.Error:
 				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				sendError(errors.New(e.String()), "Consumer Error")
+				if !errorCanBeIgnored(e) {
+					sendError(errors.New(e.String()), "Consumer Error")
+				}
 				if e.Code() == kafka.ErrAllBrokersDown {
 					break
 				}
@@ -157,4 +162,8 @@ func cloneConfiguration(in kafka.ConfigMap) (out kafka.ConfigMap) {
 		out[k] = v
 	}
 	return
+}
+
+func errorCanBeIgnored(e kafka.Error) bool {
+	return strings.HasPrefix(e.String(), "FindCoordinator") || strings.Contains(e.Code().String(), "Timed out")
 }

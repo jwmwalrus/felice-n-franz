@@ -112,7 +112,7 @@ window.onload = () => {
     loadSocket({
         open: () => console.info('Web socket started!'),
         close: () => console.info('Web socket closed!'),
-        error: () => console.info('Web socket error!'),
+        error: () => console.error('Web socket error!'),
         message: async (event) => {
             const messages = event.data.split('\n').map((s) => JSON.parse(s));
             const pp = document.getElementById('playpause-btn');
@@ -121,11 +121,10 @@ window.onload = () => {
             }
             for await (const m of messages) {
                 if ('toastType' in m) {
-                    if (getListGroupElement(m.topic) !== null) {
-                        showToast(m);
-                    }
+                    showToast(m);
                 } else if ('topic' in m) {
                     const l = getListGroupElement(m.topic);
+                    console.log(l);
                     if (l !== null) {
                         await addMessageToCardList(m, l);
                     }
