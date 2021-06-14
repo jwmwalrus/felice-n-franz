@@ -46,6 +46,7 @@ const applyFilter = () => {
                 e.classList.remove('is-visible');
             }
         });
+        updateCardBadges(k);
     }
 
     document.getElementById('filter-btn').classList.replace('text-warning', 'text-danger');
@@ -53,15 +54,14 @@ const applyFilter = () => {
 };
 
 const clearFilter = () => {
-    filter.key = '';
     filter.value = '';
-    filter.and = false;
 
     for (const k of tracker.keys()) {
         tracker.get(k).forEach((m) => {
             const e = document.getElementById(getActionId(m));
             e.classList.add('is-visible');
         });
+        updateCardBadges(k);
     }
 
     document.getElementById('filter-input').value = '';
@@ -77,13 +77,21 @@ const getListGroupElement = (topic) => {
     }
 };
 
-const updateCardBadge = (topic) => {
+const updateCardBadges = (topic) => {
     if (!tracker.has(topic)) {
         return;
     }
     const cardId = getTopicId(topic);
-    const badge = document.querySelector(`#${cardId} .card-title span.badge`);
+    const badge = document.querySelector(`#${cardId} .card-title > span.badge`);
     badge.innerText = tracker.get(topic).length.toString();
+
+    if (filter.value) {
+        document.querySelector(`#${cardId} .card-title span.filter-badge`).classList.add('active-filter');
+        const badge = document.querySelector(`#${cardId} .card-title span.filter-badge > span.badge`);
+        badge.innerText = document.querySelectorAll(`#${cardId} > div.card-body > div.list-group .list-group-item.list-group-item-node.is-visible`).length;
+    } else {
+        document.querySelector(`#${cardId} .card-title span.filter-badge`).classList.remove('active-filter');
+    }
 };
 
 const clearCard = (topic) => {
@@ -97,7 +105,7 @@ const clearCard = (topic) => {
     }
 
     tracker.set(topic, []);
-    updateCardBadge(topic);
+    updateCardBadges(topic);
 };
 
 const addConsumerCard = async (t) => {
@@ -110,7 +118,7 @@ const addConsumerCard = async (t) => {
 
     const title = document.createElement('h5');
     title.classList.add('card-title', 'mr-auto');
-    title.innerHTML = `${t.name}&nbsp;&nbsp;<span class="badge badge-secondary">0</span>`;
+    title.innerHTML = `${t.name}<br><span class="filter-badge toggle-content"><span class="badge badge-danger">0</span> &#47; </span><span class="badge badge-secondary">0</span>`;
 
     const subtitle = document.createElement('h6');
     subtitle.classList.add('card-subtitle');
@@ -193,7 +201,7 @@ const createMessageNode = async (m) => {
 
     const node = document.createElement('div');
     node.setAttribute('id', getActionId(m));
-    node.classList.add('list-group-item', 'toggle-content', 'is-visible');
+    node.classList.add('list-group-item', 'list-group-item-node', 'toggle-content', 'is-visible');
     node.appendChild(flex);
 
     if (!messageMatchesFilter(m)) {
@@ -274,7 +282,7 @@ const addMessageToCardList = async (m, l) => {
     const msgs = tracker.get(m.topic);
     msgs.push(m);
     tracker.set(m.topic, msgs);
-    updateCardBadge(m.topic);
+    updateCardBadges(m.topic);
 };
 
 const clearAllCards = () => {
@@ -335,7 +343,7 @@ export {
     removeAllCards,
     removeCard,
     resetConsumers,
-    updateCardBadge,
+    updateCardBadges,
     applyFilter,
     clearFilter,
 };

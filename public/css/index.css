@@ -428,6 +428,10 @@ li.nav-item {
 	display: block;
 }
 
+.toggle-content.active-filter {
+	display: inline;
+}
+
 /*
  * Footer
  **/
