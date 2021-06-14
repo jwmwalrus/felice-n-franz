@@ -44,6 +44,8 @@ var (
 	logFile     *lumberjack.Logger
 	logFilename = "app.log"
 
+	flagHelp bool
+
 	// OS Operating system's name
 	OS string
 
@@ -67,9 +69,6 @@ var (
 
 	// FlagEchoLogging Echo logs to stderr
 	FlagEchoLogging bool
-
-	// Log Application's log
-	Log = log.New()
 )
 
 // Conf Application's global configuration
@@ -78,6 +77,11 @@ var Conf, userConf Config
 // Load Loads application's configuration
 func Load() (args []string) {
 	args = bnp.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
+
+	if flagHelp {
+		getopt.Usage()
+		os.Exit(0)
+	}
 
 	configFile = filepath.Join(ConfigDir, configFilename)
 	lockFile = filepath.Join(RuntimeDir, lockFilename)
@@ -163,7 +167,7 @@ func SetDefaults() {
 
 // Unload Cleans up application before exit
 func Unload() {
-	Log.Info("Unloading application")
+	log.Info("Unloading application")
 	if userConf.FirstRun {
 		userConf.FirstRun = false
 
@@ -200,11 +204,12 @@ func init() {
 	RuntimeDir = filepath.Join(xdg.RuntimeDir, AppDirName)
 
 	// Define global flags
+	getopt.FlagLong(&flagHelp, "help", 'h', "Display this help")
 	getopt.FlagLong(&FlagVerbose, "verbose", 'v', "Bump logging severity")
 	getopt.FlagLong(&FlagSeverity, "severity", 0, "Logging severity")
 	getopt.FlagLong(&FlagEchoLogging, "echo-logging", 'e', "Echo logs to stderr")
 
-	// Log-related
+	// log-related
 	logFilename = filepath.Base(os.Args[0]) + ".log"
 	logFilePath := filepath.Join(DataDir, logFilename)
 	logFile = &lumberjack.Logger{
