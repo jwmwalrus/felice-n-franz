@@ -25,6 +25,8 @@ To install, open a terminal and execute the following
 go get -u github.com/jwmwalrus/felice-n-franz
 ```
 
+The same command can be used for subsequent updates.
+
 ## Usage
 
 Assuming `$GOBIN` is in your PATH, open a terminal and execute the following
@@ -99,19 +101,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dd><code>100</code></dd>
             <dt>required/optional</dt>
             <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>consumeForward</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>bool</dd>
-            <dt>description</dt>
-            <dd>Ignore messages sent by the broker, if timestamp is older than consumer's creation</dd>
-            <dt>default</dt>
-            <dd><code>false</code></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
         </dl>
     </dd>
     <dt>envs</dt>
@@ -399,6 +388,7 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
 - [ ] Improve headers handling for the producer.
 - [ ] Add a way of reordering consumer cards.
 - [x] Improve global filter.
-- [ ] Implement search by key.
-- [ ] Implement search by regex.
+- [ ] ~~Implement search by key.~~
+- [ ] ~~Implement search by regex.~~
+
 

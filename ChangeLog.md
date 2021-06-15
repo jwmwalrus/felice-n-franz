@@ -4,7 +4,30 @@ ChangeLog
 All noticeable changes in the project  are documented in this file.
 
 Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
 This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
+
+## [0.53.0] 2021-06-14
+
+New features, fixes and improvements
+
+### Fixed
+
+* Toast not displaying properly
+
+### Added
+
+* AssignConsumer
+- Filter badge
+
+### Modified
+
+* Rename Search to Filter
+* Assets now have version suffix
+
+### Removed
+
+* Messages limit for cards
 
 ## [0.52.0] 2021-05-20
 
