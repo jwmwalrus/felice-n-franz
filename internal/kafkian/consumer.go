@@ -90,6 +90,8 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 	cct := time.Now()
 	config := cloneConfiguration(env.Configuration)
 	config["group.id"] = topic
+	config["enable.auto.commit"] = false
+	config["auto.offset.reset"] = "smallest"
 	c, err = kafka.NewConsumer(&config)
 	if err != nil {
 		return

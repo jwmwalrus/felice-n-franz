@@ -241,8 +241,6 @@ func (e *Environment) setup() {
 
 	if _, ok := e.Configuration["group.id"]; !ok {
 		e.Configuration["group.id"] = "${USER}.${HOSTNAME}"
-		e.Configuration["enable.auto.commit"] = false
-		e.Configuration["auto.offset.reset"] = "smallest"
 	}
 
 	for k, v := range e.Configuration {
