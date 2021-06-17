@@ -7,6 +7,14 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
+## [0.53.1] 2021-06-16
+
+Quick fix.
+
+### Fixed
+
+* Subscriber skipping messages
+
 ## [0.53.0] 2021-06-14
 
 New features, fixes and improvements
