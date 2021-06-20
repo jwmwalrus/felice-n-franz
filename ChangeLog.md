@@ -7,6 +7,18 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
+## [0.53.2] 2021-06-20
+
+Minor changes
+
+### Updated
+
+* Imports
+
+### Added
+
+* Tag-related tasks
+
 ## [0.53.1] 2021-06-16
 
 Quick fix.
