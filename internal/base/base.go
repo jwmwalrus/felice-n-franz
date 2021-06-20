@@ -9,7 +9,7 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/jwmwalrus/bnp"
-	"github.com/jwmwalrus/bumpy-ride/pkg/version"
+	"github.com/jwmwalrus/bumpy-ride/version"
 	"github.com/nightlyone/lockfile"
 	"github.com/pborman/getopt/v2"
 	log "github.com/sirupsen/logrus"
