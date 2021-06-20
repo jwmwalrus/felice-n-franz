@@ -62,6 +62,26 @@ tasks:
       - rm -rf web/node_modules
       - npm --prefix ./web/ install
 
+  bump-min:
+    cmds:
+      - task: bump-minor
+
+  bump-p:
+    cmds:
+      - task: bump-patch
+
+  bump-minor:
+    cmds:
+      - bumpy-ride bump --minor --npm-prefix web
+
+  bump-patch:
+    cmds:
+      - bumpy-ride bump --patch --npm-prefix web
+
+  tag:
+    cmds:
+      - bumpy-ride tag
+
   # test-cli:
     # cmds:
       # - ./testfixtures -d sqlite -c testdb.sqlite3 -D testdata/fixtures
