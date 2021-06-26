@@ -107,6 +107,18 @@ window.onload = () => {
     document.getElementById('filter-btn').onclick = applyFilter;
     document.getElementById('clear-filter-btn').onclick = clearFilter;
 
+
+    window.addEventListener('keydown',(e) => {
+        if(e.keyIdentifier == 'U+000A'
+            || e.keyIdentifier=='Enter'
+            || e.keyCode == 13) {
+            if(e.target.nodeName == 'INPUT' && e.target.type == 'text') {
+                e.preventDefault();
+                return false;
+            }
+        }
+    }, true);
+
     setAutoCompleteTopic();
 
     loadSocket({
