@@ -7,6 +7,14 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.53.3] 2021-06-27
+
+### Modified
+
+* Disabled the Enter key for input
+
 ## [0.53.2] 2021-06-20
 
 Minor changes
