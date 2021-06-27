@@ -6,8 +6,6 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jwmwalrus/bnp"
@@ -34,12 +32,8 @@ func main() {
 	r.Use(gin.Recovery())
 
 	route(r)
-	fmt.Println("\n  Running", base.AppName, "on", cfg.GetURL())
+	fmt.Printf("\n  Running %v on %v\n", base.AppName, cfg.GetURL())
 	r.Run(cfg.GetPort())
-
-	base.Unload()
-
-	fmt.Println("Bye", base.OS, "from", filepath.Base(os.Args[0]))
 }
 
 func route(r *gin.Engine) *gin.Engine {
