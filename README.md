@@ -3,10 +3,11 @@ Felice & Franz
 
 A generic, web-based producer and consumer for Apache Kafka.
 
-## Table of Contents
+## Contents
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Usage](#usage)
+    * [Logging Flags](#logging-flags)
 * [Configuration](#configuration)
 * [TODO](#todo)
 
@@ -390,5 +391,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
 - [x] Improve global filter.
 - [ ] ~~Implement search by key.~~
 - [ ] ~~Implement search by regex.~~
+- [ ] Allow searching for older messages in a topic.
 
 
