@@ -116,9 +116,35 @@ const addConsumerCard = async (t) => {
 
     const parent = document.getElementById('consumer-cards');
 
+    const dangerBadge = document.createElement('span');
+    dangerBadge.classList.add('badge', 'badge-danger');
+    dangerBadge.appendChild(
+        document.createTextNode('0'),
+    );
+
+    const filterBadge = document.createElement('span');
+    filterBadge.classList.add('filter-badge', 'toggle-content');
+    filterBadge.appendChild(dangerBadge);
+    filterBadge.appendChild(
+        document.createTextNode('\u002F'), // Solidus, HTML code &#47;
+    );
+
+    const badge = document.createElement('span');
+    badge.classList.add('badge', 'badge-secondary');
+    badge.appendChild(
+        document.createTextNode('0'),
+    );
+
     const title = document.createElement('h5');
     title.classList.add('card-title', 'mr-auto');
-    title.innerHTML = `${t.name}<br><span class="filter-badge toggle-content"><span class="badge badge-danger">0</span> &#47; </span><span class="badge badge-secondary">0</span>`;
+    title.appendChild(
+        document.createTextNode(`${t.name}`),
+    );
+    title.appendChild(
+        document.createElement('br'),
+    );
+    title.appendChild(filterBadge);
+    title.appendChild(badge);
 
     const subtitle = document.createElement('h6');
     subtitle.classList.add('card-subtitle');
@@ -166,16 +192,33 @@ const addConsumerCard = async (t) => {
 const createMessageNode = async (m) => {
     const truncate = (s) => _.truncate(s, { length: 40 });
 
-    let small = `offset: ${m.offset}`;
+    const text = document.createElement('div');
+
+    const offset = document.createElement('p');
+    offset.appendChild(
+        document.createTextNode(`offset: ${m.offset}`),
+    );
+
+    const type = document.createElement('p');
     const h = getOutstandingHeader(m);
     if (h) {
-        small += `<br>type: ${truncate(h)}`;
+        type.appendChild(
+            document.createTextNode(`type: ${truncate(h)}`),
+        );
     } else {
-        small += `<br>key: ${m.key ? truncate(m.key) : '0'}`;
+        type.appendChild(
+            document.createTextNode(`key: ${m.key ? truncate(m.key) : '0'}`),
+        );
     }
-    small += `<br>ts: ${m.timestamp}`;
-    const text = document.createElement('div');
-    text.innerHTML = `<p>${small}</p>`;
+
+    const ts = document.createElement('p');
+    ts.appendChild(
+        document.createTextNode(`ts: ${m.timestamp}`),
+    );
+
+    text.appendChild(offset);
+    text.appendChild(type);
+    text.appendChild(ts);
 
     const btnGroup = await createBtnGroupSm([
         {
