@@ -23,7 +23,12 @@ import {
     setAutoCompleteTopic,
 } from './produce-modal.js';
 import { resetBag } from './bag-modal.js';
-import { pauseIcon, playIcon } from './icons.js';
+import {
+    barsIcon,
+    pauseIcon,
+    playIcon,
+    thIcon,
+} from './icons.js';
 
 import '../css/index.css';
 
@@ -71,7 +76,7 @@ const togglePlayPause = () => {
         e.classList.replace('play', 'pause');
         e.innerHTML = playIcon;
     } else {
-        e.classList.remove('pause', 'play');
+        e.classList.replace('pause', 'play');
         e.innerHTML = pauseIcon;
     }
 };
