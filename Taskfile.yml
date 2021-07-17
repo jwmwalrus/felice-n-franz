@@ -82,6 +82,10 @@ tasks:
     cmds:
       - bumpy-ride tag
 
+  eslint:
+    cmds:
+      - npm --prefix ./web/ run eslint
+
   # test-cli:
     # cmds:
       # - ./testfixtures -d sqlite -c testdb.sqlite3 -D testdata/fixtures
