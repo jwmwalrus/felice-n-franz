@@ -38,7 +38,7 @@ func ProduceMessage(env base.Environment, msg *kafka.Message) (err error) {
 					toast.ToastType = "error"
 					toast.Message = "Delivery failed"
 				}
-				sendToast(toast)
+				toast.send()
 			}
 		}
 	}()

@@ -22,28 +22,6 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-type connection struct {
-	ws *websocket.Conn
-}
-
-type receivedMsg struct {
-	MsgType string        `json:"type"`
-	Env     string        `json:"env"`
-	Topic   string        `json:"topic"`
-	Key     string        `json:"key"`
-	Payload []string      `json:"payload"`
-	Headers []base.Header `json:"headers"`
-}
-
-type toastMsg struct {
-	ToastType string       `json:"toastType"`
-	Title     string       `json:"title"`
-	Message   string       `json:"message"`
-	Topic     string       `json:"topic"`
-	Partition int32        `json:"partition"`
-	Offset    kafka.Offset `json:"offset"`
-}
-
 // HandleWS handles web socket messages
 func HandleWS(w http.ResponseWriter, r *http.Request) {
 	var err error
@@ -55,6 +33,10 @@ func HandleWS(w http.ResponseWriter, r *http.Request) {
 
 	c := connection{ws: WS}
 	go c.processMessages()
+}
+
+type connection struct {
+	ws *websocket.Conn
 }
 
 func (c connection) processMessages() {
@@ -85,13 +67,21 @@ func (c connection) processMessages() {
 				for _, t := range topics {
 					if err := AssignConsumer(env, t); err != nil {
 						log.Error(err)
-						sendError(err, "Consumer Error")
+						toast := toastMsg{
+							Title:   "Consumer Error",
+							Message: err.Error(),
+						}
+						toast.send()
 					}
 				}
 			} else {
 				if err := SubscribeConsumer(env, topics); err != nil {
 					log.Error(err)
-					sendError(err, "Consumer Error")
+					toast := toastMsg{
+						Title:   "Consumer Error",
+						Message: err.Error(),
+					}
+					toast.send()
 				}
 			}
 
@@ -108,8 +98,12 @@ func (c connection) processMessages() {
 				msg.Headers = headerB2K(res.Headers)
 			}
 			if err := ProduceMessage(env, &msg); err != nil {
-				bnp.LogOnError(err)
-				sendError(err, "Producer Error")
+				log.Error(err)
+				toast := toastMsg{
+					Title:   "Producer Error",
+					Message: err.Error(),
+				}
+				toast.send()
 			}
 
 		case "unsubscribe":
@@ -123,12 +117,37 @@ func (c connection) processMessages() {
 	}
 }
 
-func sendError(err error, title string) {
-	sendToast(toastMsg{
-		ToastType: "error",
-		Title:     title,
-		Message:   err.Error(),
-	})
+type receivedMsg struct {
+	MsgType string        `json:"type"`
+	Env     string        `json:"env"`
+	Topic   string        `json:"topic"`
+	Key     string        `json:"key"`
+	Payload []string      `json:"payload"`
+	Headers []base.Header `json:"headers"`
+}
+
+type toastMsg struct {
+	ToastType    string       `json:"toastType"`
+	Title        string       `json:"title"`
+	Message      string       `json:"message"`
+	Topic        string       `json:"topic"`
+	Partition    int32        `json:"partition"`
+	Offset       kafka.Offset `json:"offset"`
+	CanBeIgnored bool         `json:"canBeIgnored"`
+	SentAt       int64        `json:"sentAt"`
+}
+
+func (t toastMsg) send() {
+	t.SentAt = time.Now().Unix()
+	payload, err := json.Marshal(t)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	socketGuard <- struct{}{}
+	go writeToSocket(payload)
+	return
 }
 
 func sendKafkaMessage(m *kafka.Message) {
@@ -156,18 +175,6 @@ func sendKafkaMessage(m *kafka.Message) {
 		headers,
 	}
 	payload, err := json.Marshal(flat)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-
-	socketGuard <- struct{}{}
-	go writeToSocket(payload)
-	return
-}
-
-func sendToast(t toastMsg) {
-	payload, err := json.Marshal(t)
 	if err != nil {
 		log.Error(err)
 		return

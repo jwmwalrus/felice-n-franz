@@ -65,9 +65,13 @@ func SubscribeConsumer(env base.Environment, topics []string) (err error) {
 				sendKafkaMessage(e)
 			case kafka.Error:
 				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				if !errorCanBeIgnored(e) {
-					sendError(errors.New(e.String()), "Consumer Error")
+				toast := toastMsg{
+					Title:        "Consumer Error",
+					Message:      e.String(),
+					ToastType:    "error",
+					CanBeIgnored: errorCanBeIgnored(e),
 				}
+				toast.send()
 				if e.Code() == kafka.ErrAllBrokersDown {
 					break
 				}
@@ -144,9 +148,13 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 				sendKafkaMessage(e)
 			case kafka.Error:
 				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				if !errorCanBeIgnored(e) {
-					sendError(errors.New(e.String()), "Consumer Error")
+				toast := toastMsg{
+					Title:        "Consumer Error",
+					Message:      e.String(),
+					ToastType:    "error",
+					CanBeIgnored: errorCanBeIgnored(e),
 				}
+				toast.send()
 				if e.Code() == kafka.ErrAllBrokersDown {
 					break
 				}
