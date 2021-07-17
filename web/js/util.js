@@ -46,6 +46,11 @@ const createBtnGroupSm = async (list = []) => {
     return btnGroup;
 };
 
+const createParagraph = (text) => document.createElement('p')
+    .appendChild(
+        document.createTextNode(text),
+    );
+
 const copyToClipboard = (id) => {
     try {
         const e = document.getElementById(id);
@@ -86,6 +91,7 @@ export {
     copyToClipboard,
     createBtnSm,
     createBtnGroupSm,
+    createParagraph,
     getTopicId,
     getActionId,
     removeElement,

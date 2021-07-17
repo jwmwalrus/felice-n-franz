@@ -2,6 +2,7 @@ import * as _ from 'lodash/lodash.js';
 import {
     copyStringToClipboard,
     createBtnGroupSm,
+    createParagraph,
     getActionId,
     getTopicId,
     removeElement,
@@ -26,6 +27,39 @@ const filter = {
 };
 
 const messageMatchesFilter = (m) => m.value.includes(filter.value);
+
+const updateCardBadges = (topic) => {
+    if (!tracker.has(topic)) {
+        return;
+    }
+    const cardId = getTopicId(topic);
+    const badge = document.querySelector(`#${cardId} .card-title > span.badge`);
+    badge.innerText = tracker.get(topic).length.toString();
+
+    if (filter.value) {
+        document.querySelector(`#${cardId} .card-title span.filter-badge`).classList.add('active-filter');
+        const badge = document.querySelector(`#${cardId} .card-title span.filter-badge > span.badge`);
+        badge.innerText = document.querySelectorAll(`#${cardId} > div.card-body > div.list-group .list-group-item.list-group-item-node.is-visible`).length;
+    } else {
+        document.querySelector(`#${cardId} .card-title span.filter-badge`).classList.remove('active-filter');
+    }
+};
+
+const clearFilter = () => {
+    filter.value = '';
+
+    for (const k of tracker.keys()) {
+        tracker.get(k).forEach((m) => {
+            const e = document.getElementById(getActionId(m));
+            e.classList.add('is-visible');
+        });
+        updateCardBadges(k);
+    }
+
+    document.getElementById('filter-input').value = '';
+    document.getElementById('filter-btn').classList.replace('text-danger', 'text-warning');
+    document.getElementById('clear-filter-btn').style.display = 'none';
+};
 
 const applyFilter = () => {
     filter.value = document.getElementById('filter-input').value.trim();
@@ -53,44 +87,11 @@ const applyFilter = () => {
     document.getElementById('clear-filter-btn').style.display = 'block';
 };
 
-const clearFilter = () => {
-    filter.value = '';
-
-    for (const k of tracker.keys()) {
-        tracker.get(k).forEach((m) => {
-            const e = document.getElementById(getActionId(m));
-            e.classList.add('is-visible');
-        });
-        updateCardBadges(k);
-    }
-
-    document.getElementById('filter-input').value = '';
-    document.getElementById('filter-btn').classList.replace('text-danger', 'text-warning');
-    document.getElementById('clear-filter-btn').style.display = 'none';
-};
-
 const getListGroupElement = (topic) => {
     try {
         return document.querySelector(`#${getTopicId(topic)} > div.card-body > div.list-group`);
     } catch (e) {
         return null;
-    }
-};
-
-const updateCardBadges = (topic) => {
-    if (!tracker.has(topic)) {
-        return;
-    }
-    const cardId = getTopicId(topic);
-    const badge = document.querySelector(`#${cardId} .card-title > span.badge`);
-    badge.innerText = tracker.get(topic).length.toString();
-
-    if (filter.value) {
-        document.querySelector(`#${cardId} .card-title span.filter-badge`).classList.add('active-filter');
-        const badge = document.querySelector(`#${cardId} .card-title span.filter-badge > span.badge`);
-        badge.innerText = document.querySelectorAll(`#${cardId} > div.card-body > div.list-group .list-group-item.list-group-item-node.is-visible`).length;
-    } else {
-        document.querySelector(`#${cardId} .card-title span.filter-badge`).classList.remove('active-filter');
     }
 };
 
@@ -116,16 +117,16 @@ const addConsumerCard = async (t) => {
 
     const parent = document.getElementById('consumer-cards');
 
-    const dangerBadge = document.createElement('span');
-    dangerBadge.classList.add('badge', 'badge-danger');
-    dangerBadge.appendChild(
+    const filterBadge = document.createElement('span');
+    filterBadge.classList.add('badge', 'badge-danger');
+    filterBadge.appendChild(
         document.createTextNode('0'),
     );
 
-    const filterBadge = document.createElement('span');
-    filterBadge.classList.add('filter-badge', 'toggle-content');
-    filterBadge.appendChild(dangerBadge);
-    filterBadge.appendChild(
+    const filterSpan = document.createElement('span');
+    filterSpan.classList.add('filter-badge', 'toggle-content');
+    filterSpan.appendChild(filterBadge);
+    filterSpan.appendChild(
         document.createTextNode('\u002F'), // Solidus, HTML code &#47;
     );
 
@@ -143,12 +144,14 @@ const addConsumerCard = async (t) => {
     title.appendChild(
         document.createElement('br'),
     );
-    title.appendChild(filterBadge);
+    title.appendChild(filterSpan);
     title.appendChild(badge);
 
     const subtitle = document.createElement('h6');
     subtitle.classList.add('card-subtitle');
-    subtitle.innerText = t.value;
+    subtitle.appendChild(
+        document.createTextNode(t.value),
+    );
 
     const btnGroup = await createBtnGroupSm([
         {
@@ -194,27 +197,17 @@ const createMessageNode = async (m) => {
 
     const text = document.createElement('div');
 
-    const offset = document.createElement('p');
-    offset.appendChild(
-        document.createTextNode(`offset: ${m.offset}`),
-    );
+    const offset = await createParagraph(`offset: ${m.offset}`);
 
-    const type = document.createElement('p');
     const h = getOutstandingHeader(m);
+    let type;
     if (h) {
-        type.appendChild(
-            document.createTextNode(`type: ${truncate(h)}`),
-        );
+        type = createParagraph(`type: ${truncate(h)}`);
     } else {
-        type.appendChild(
-            document.createTextNode(`key: ${m.key ? truncate(m.key) : '0'}`),
-        );
+        type = createParagraph(`key: ${m.key ? truncate(m.key) : '0'}`);
     }
 
-    const ts = document.createElement('p');
-    ts.appendChild(
-        document.createTextNode(`ts: ${m.timestamp}`),
-    );
+    const ts = createParagraph(`ts: ${m.timestamp}`);
 
     text.appendChild(offset);
     text.appendChild(type);

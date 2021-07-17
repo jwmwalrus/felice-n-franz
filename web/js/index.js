@@ -1,6 +1,5 @@
 import { copyToClipboard, toggleCompactBtn } from './util.js';
 import { setActiveEnv } from './env.js';
-import { showToast } from './toasts.js';
 import { loadSocket } from './socket.js';
 import {
     populateAvailable,
@@ -22,12 +21,16 @@ import {
     produceMessage,
     setAutoCompleteTopic,
 } from './produce-modal.js';
-import { resetBag } from './bag-modal.js';
 import {
-    barsIcon,
+    addToBag,
+    clearBagToasts,
+    clearBagMessages,
+    resetBag,
+    updateMessageSignature,
+} from './bag-modal.js';
+import {
     pauseIcon,
     playIcon,
-    thIcon,
 } from './icons.js';
 
 import '../css/index.css';
@@ -98,6 +101,7 @@ window.onload = () => {
     document.getElementById('bag-copy-raw-btn').onclick = () => {};
     document.getElementById('bag-remove-msg-btn').onclick = () => {};
 
+    document.getElementById('bag-label').onblur = () => updateMessageSignature();
     document.getElementById('bag-topic-btn').onclick = () => copyToClipboard('bag-topic');
     document.getElementById('bag-partition-btn').onclick = () => copyToClipboard('bag-partition');
     document.getElementById('bag-key-btn').onclick = () => copyToClipboard('bag-key');
@@ -107,21 +111,23 @@ window.onload = () => {
     document.getElementById('bag-headers-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-headers');
     document.getElementById('bag-payload-btn').onclick = () => copyToClipboard('bag-payload');
     document.getElementById('bag-payload-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-payload');
+    document.getElementById('bag-clear-messages-btn').onclick = () => clearBagMessages;
+    document.getElementById('bag-clear-toasts-btn').onclick = () => clearBagToasts;
     document.getElementById('reset-bag-btn').onclick = resetBag;
 
     document.getElementById('filter-btn').onclick = applyFilter;
     document.getElementById('clear-filter-btn').onclick = clearFilter;
 
-
-    window.addEventListener('keydown',(e) => {
-        if(e.keyIdentifier == 'U+000A'
-            || e.keyIdentifier=='Enter'
-            || e.keyCode == 13) {
-            if(e.target.nodeName == 'INPUT' && e.target.type == 'text') {
+    window.addEventListener('keydown', (e) => {
+        if (e.keyIdentifier === 'U+000A'
+            || e.keyIdentifier === 'Enter'
+            || e.keyCode === 13) {
+            if (e.target.nodeName === 'INPUT' && e.target.type === 'text') {
                 e.preventDefault();
                 return false;
             }
         }
+        return true;
     }, true);
 
     setAutoCompleteTopic();
@@ -138,10 +144,9 @@ window.onload = () => {
             }
             for await (const m of messages) {
                 if ('toastType' in m) {
-                    showToast(m);
+                    addToBag(m);
                 } else if ('topic' in m) {
                     const l = getListGroupElement(m.topic);
-                    console.log(l);
                     if (l !== null) {
                         await addMessageToCardList(m, l);
                     }

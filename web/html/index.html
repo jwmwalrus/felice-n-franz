@@ -257,7 +257,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
           <div class="modal-content bg-dark">
             <div class="modal-header">
-              <h5 class="modal-title" id="bagModal">Bag of saved Messages</h5>
+              <h5 class="modal-title" id="bagModal">Bag of Persistent Items</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -265,82 +265,131 @@
             <div class="modal-body">
               <div class="container-fluid">
                 <div class="row">
-                  <div class="col-4">
-                    <div class="list-group" id="bag-list"></div>
-                  </div>
-                  <div class="col-8">
-                    <div class="row">
-                      <div class="bag-top-buttons">
-                        <div class="btn-group btn-group-sm ml-auto mb-3">
-                          <button class="btn btn-sm btn-secondary text-warning" id="bag-copy-raw-btn" title="Copy raw message"><i class="fas fa-copy"></i></button>
-                          <button class="btn btn-sm btn-secondary text-danger" id="bag-remove-msg-btn" title="Remove from bag"><i class="fas fa-times-circle"></i></button>
-                        </div>
-                      </div>
+                  <div class="col-2">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                      <a class="nav-link active" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="true">Messages<span class="badge badge-primary">0</span></a>
+                      <a class="nav-link" id="v-pills-toasts-tab" data-toggle="pill" href="#v-pills-toasts" role="tab" aria-controls="v-pills-toasts" aria-selected="false">Toasts<span class="badge badge-primary">0</span></a>
+                      <!-- <a class="nav-link" id="v-pills-lookup-tab" data-toggle="pill" href="#v-pills-lookup" role="tab" aria-controls="v-pills-lookup" aria-selected="false">Lookup</a> -->
                     </div>
-                    <form id="bag-form">
-                      <div class="row">
-                        <div class="col-12">
-                          <div class="input-group">
-                            <span class="input-group-text small">topic:</span>
-                            <input type="text" class="form-control" id="bag-topic" aria-label="Message topic" readonly>
-                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-topic-btn" title="Copy topicv"><i class="fas fa-copy"></i></button>
+                  </div>
+                  <div class="col-10">
+                    <div class="tab-content" id="v-pills-tabContent">
+                      <div class="tab-pane fade show active" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
+                        <div class="row">
+                          <div class="col-4">
+                              <div class="btn-group btn-group-sm mb-3">
+                                <button class="btn btn-sm btn-danger text-warning" id="bag-clear-messages-btn" title="Clear messages"><i class="fas fa-broom"></i>Clear</button>
+                              </div>
+                          </div>
+                          <div class="col-8">
+                          </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                          <div class="col-4">
+                            <div class="list-group" id="bag-message-list"></div>
+                          </div>
+                          <div class="col-8">
+                            <div class="row">
+                              <div class="bag-top-buttons ml-auto">
+                                <div class="btn-group btn-group-sm ml-auto mb-3">
+                                  <button class="btn btn-sm btn-secondary text-warning" id="bag-copy-raw-btn" title="Copy raw message"><i class="fas fa-copy"></i></button>
+                                  <button class="btn btn-sm btn-secondary text-danger" id="bag-remove-msg-btn" title="Remove from bag"><i class="fas fa-times-circle"></i></button>
+                                </div>
+                              </div>
+                            </div>
+                            <form id="bag-message-form">
+                              <div class="row">
+                                <div class="col-12">
+                                  <div class="input-group">
+                                    <span class="input-group-text small">label:</span>
+                                    <input type="text" class="form-control" id="bag-label" aria-label="Message label" readonly>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-12">
+                                  <div class="input-group">
+                                    <span class="input-group-text small">topic:</span>
+                                    <input type="text" class="form-control" id="bag-topic" aria-label="Message topic" readonly>
+                                    <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-topic-btn" title="Copy topicv"><i class="fas fa-copy"></i></button>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-6">
+                                  <div class="input-group">
+                                    <span class="input-group-text">partition:</span>
+                                    <input type="text" class="form-control" id="bag-partition" aria-label="Message partition" readonly>
+                                    <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-partition-btn" title="Copy partition"><i class="fas fa-copy"></i></button>
+                                  </div>
+                                </div>
+                                <div class="col-6">
+                                  <div class="input-group">
+                                    <span class="input-group-text">key:</span>
+                                    <input type="text" class="form-control" id="bag-key" aria-label="Message key" readonly>
+                                    <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-key-btn" title="Copy key"><i class="fas fa-copy"></i></button>
+                                  </div>
+                                </div>
+                                <div class="col-6">
+                                  <div class="input-group">
+                                    <span class="input-group-text">offset:</span>
+                                    <input type="text" class="form-control" id="bag-offset" aria-label="Message offset" readonly>
+                                    <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-offset-btn" title="Copy offset"><i class="fas fa-copy"></i></button>
+                                  </div>
+                                </div>
+                                <div class="col-6">
+                                  <div class="input-group">
+                                    <span class="input-group-text">ts:</span>
+                                    <input type="text" class="form-control input-sm" id="bag-timestamp" aria-label="Message timestamp" readonly>
+                                    <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-help-btn" title="Timestamp help"><i class="fas fa-question"></i></button>
+                                    <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-btn" title="Copy timestamp"><i class="fas fa-copy"></i></button>
+                                  </div>
+                                </div>
+                                <div class="col-12">
+                                  <div class="input-group">
+                                    <span class="input-group-text">headers:</span>
+                                    <textarea class="form-control" id="bag-headers" rows="3" readonly></textarea>
+                                    <div class="btn-group-vertical btn-group-sm">
+                                      <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-btn" title="Copy headers"><i class="fas fa-copy"></i></button>
+                                      <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-toggle-compact-btn" title="Toogle compact headers"><i class="fas fa-crop"></i></button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-12">
+                                  <div class="input-group">
+                                    <span class="input-group-text">payload:</span>
+                                    <textarea class="form-control" id="bag-payload" rows="8" readonly></textarea>
+                                    <div class="btn-group-vertical btn-group-sm">
+                                      <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-btn" title="Copy payload"><i class="fas fa-copy"></i></button>
+                                      <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-toggle-compact-btn" title="Toogle compact payload"><i class="fas fa-crop"></i></button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
                           </div>
                         </div>
                       </div>
-                      <div class="row">
-                        <div class="col-6">
-                          <div class="input-group">
-                            <span class="input-group-text">partition:</span>
-                            <input type="text" class="form-control" id="bag-partition" aria-label="Message partition" readonly>
-                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-partition-btn" title="Copy partition"><i class="fas fa-copy"></i></button>
-                          </div>
-                        </div>
-                        <div class="col-6">
-                          <div class="input-group">
-                            <span class="input-group-text">key:</span>
-                            <input type="text" class="form-control" id="bag-key" aria-label="Message key" readonly>
-                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-key-btn" title="Copy key"><i class="fas fa-copy"></i></button>
-                          </div>
-                        </div>
-                        <div class="col-6">
-                          <div class="input-group">
-                            <span class="input-group-text">offset:</span>
-                            <input type="text" class="form-control" id="bag-offset" aria-label="Message offset" readonly>
-                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-offset-btn" title="Copy offset"><i class="fas fa-copy"></i></button>
-                          </div>
-                        </div>
-                        <div class="col-6">
-                          <div class="input-group">
-                            <span class="input-group-text">ts:</span>
-                            <input type="text" class="form-control input-sm" id="bag-timestamp" aria-label="Message timestamp" readonly>
-                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-help-btn" title="Timestamp help"><i class="fas fa-question"></i></button>
-                            <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-timestamp-btn" title="Copy timestamp"><i class="fas fa-copy"></i></button>
-                          </div>
-                        </div>
-                        <div class="col-12">
-                          <div class="input-group">
-                            <span class="input-group-text">headers:</span>
-                            <textarea class="form-control" id="bag-headers" rows="3" readonly></textarea>
-                            <div class="btn-group-vertical btn-group-sm">
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-btn" title="Copy headers"><i class="fas fa-copy"></i></button>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-headers-toggle-compact-btn" title="Toogle compact headers"><i class="fas fa-crop"></i></button>
+                      <div class="tab-pane fade" id="v-pills-toasts" role="tabpanel" aria-labelledby="v-pills-toasts-tab">
+                        <div class="row">
+                          <div class="bag-top-buttons">
+                            <div class="btn-group btn-group-sm ml-auto mb-3">
+                              <button class="btn btn-sm btn-danger text-warning" id="bag-clear-toasts-btn" title="Clear toasts"><i class="fas fa-broom"></i>Clear</button>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-12">
-                          <div class="input-group">
-                            <span class="input-group-text">payload:</span>
-                            <textarea class="form-control" id="bag-payload" rows="8" readonly></textarea>
-                            <div class="btn-group-vertical btn-group-sm">
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-btn" title="Copy payload"><i class="fas fa-copy"></i></button>
-                              <button type="button" class="btn btn-sm bg-transparent text-warning" id="bag-payload-toggle-compact-btn" title="Toogle compact payload"><i class="fas fa-crop"></i></button>
-                            </div>
-                          </div>
+                        <hr>
+                        <div class="row">
+                          <div class="list-group" id="bag-toast-list"></div>
                         </div>
                       </div>
-                    </form>
+                      <!-- <div class="tab-pane fade" id="v-pills-lookup" role="tabpanel" aria-labelledby="v-pills-lookup-tab"> -->
+                      <!--     <div class="row"></div> -->
+                      <!-- </div> -->
+                    </div>
                   </div>
                 </div>
               </div>
