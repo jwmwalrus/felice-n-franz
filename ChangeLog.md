@@ -9,6 +9,21 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.54.0] 2021-07-19
+
+Features and improvements
+
+### Added
+
+* Options to refresh and reset registry
+* Toasts in bag
+* Filter available topics
+* Group ID per topic
+
+### Modified
+
+* Review toasts backend
+
 ## [0.53.3] 2021-06-27
 
 ### Modified
