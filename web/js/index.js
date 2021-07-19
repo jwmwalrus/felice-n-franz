@@ -5,6 +5,7 @@ import {
     populateAvailable,
     clearTopicsAndGroups,
     filterGroups,
+    filterTopics,
 } from './consume-modal.js';
 import {
     addSelectedCards,
@@ -90,6 +91,7 @@ window.onload = () => {
     document.getElementById('clear-contents-btn').onclick = clearAllCards;
 
     document.getElementById('group-categories').onchange = filterGroups;
+    document.getElementById('filter-topics').oninput = filterTopics;
     document.getElementById('reset-consumers-btn').onclick = resetConsumers;
     document.getElementById('add-selected-cards-btn').onclick = addSelectedCards;
 

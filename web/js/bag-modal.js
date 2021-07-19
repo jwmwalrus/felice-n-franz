@@ -181,7 +181,7 @@ const addToBag = (x) => {
 const clearBagMessages = (withBadges = false) => {
     const e = document.getElementById('bag-message-list');
     e.innerHTML = '';
-    bag.messages.size = 0;
+    bag.messages.clear();
     document.getElementById('bag-message-form').reset();
 
     if (withBadges) {
@@ -191,7 +191,7 @@ const clearBagMessages = (withBadges = false) => {
 const clearBagToasts = (withBadges = false) => {
     const e = document.getElementById('bag-toast-list');
     e.innerHTML = '';
-    bag.toasts.size = 0;
+    bag.toasts.clear();
 
     if (withBadges) {
         updateBagBadges();

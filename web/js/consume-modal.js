@@ -22,7 +22,7 @@ const addTopicToList = (t, l, cb) => {
     if (t.description) {
         node.setAttribute('title', t.description);
     }
-    node.classList.add('list-group-item', 'list-group-item-action');
+    node.classList.add('list-group-item', 'list-group-item-action', 'toggle-content', 'is-visible');
     node.ondblclick = cb;
 
     const textnode = document.createTextNode(t.value);
@@ -55,6 +55,24 @@ const filterGroups = (sel) => {
         });
     } else {
         groups.forEach((g) => document.getElementById(g.id).classList.add('is-visible'));
+    }
+};
+
+const filterTopics = (input) => {
+    const { value } = input.target;
+    const { topics } = getActiveEnv();
+
+    if (value !== '') {
+        topics.forEach((t) => {
+            const e = document.getElementById(t.key);
+            if (t.value.includes(value)) {
+                e.classList.add('is-visible');
+            } else {
+                e.classList.remove('is-visible');
+            }
+        });
+    } else {
+        topics.forEach((t) => document.getElementById(t.key).classList.add('is-visible'));
     }
 };
 
@@ -144,6 +162,7 @@ export {
     addTopicToList,
     clearTopicsAndGroups,
     filterGroups,
+    filterTopics,
     populateAvailable,
     selectGroup,
     selectTopic,
