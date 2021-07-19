@@ -197,21 +197,21 @@ const createMessageNode = async (m) => {
 
     const text = document.createElement('div');
 
-    const offset = await createParagraph(`offset: ${m.offset}`);
+    const lines = [];
+    lines.push(`offset: ${m.offset}`);
 
     const h = getOutstandingHeader(m);
-    let type;
     if (h) {
-        type = createParagraph(`type: ${truncate(h)}`);
+        lines.push(`type: ${truncate(h)}`);
     } else {
-        type = createParagraph(`key: ${m.key ? truncate(m.key) : '0'}`);
+        lines.push(`key: ${m.key ? truncate(m.key) : '0'}`);
     }
 
-    const ts = createParagraph(`ts: ${m.timestamp}`);
+    lines.push(`ts: ${m.timestamp}`);
 
-    text.appendChild(offset);
-    text.appendChild(type);
-    text.appendChild(ts);
+    text.appendChild(
+        createParagraph(lines),
+    );
 
     const btnGroup = await createBtnGroupSm([
         {

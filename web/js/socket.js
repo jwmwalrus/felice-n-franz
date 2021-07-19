@@ -37,6 +37,20 @@ const produce = (topic, payload, key = '', headers = []) => {
     conn.send(JSON.stringify(msg));
 };
 
+const refreshSubscriptions = () => {
+    const msg = {
+        type: 'refresh',
+    };
+    conn.send(JSON.stringify(msg));
+};
+
+const resetSubscriptions = () => {
+    const msg = {
+        type: 'reset',
+    };
+    conn.send(JSON.stringify(msg));
+};
+
 const subscribe = (topicKeys) => {
     const { name } = getActiveEnv();
     const msg = {
@@ -61,6 +75,8 @@ const unsubscribe = (topics) => {
 export {
     loadSocket,
     produce,
+    refreshSubscriptions,
+    resetSubscriptions,
     subscribe,
     unsubscribe,
 };

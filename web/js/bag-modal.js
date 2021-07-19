@@ -11,24 +11,33 @@ import { getTopicName } from './env.js';
 let activeMsgId = '';
 const bag = {
     messages: new Map(),
-    toats: new Map(),
+    toasts: new Map(),
 };
 
 const updateBagBadges = () => {
     const badge = document.querySelector('#bag-btn span.badge');
-    let text = bag.messages.length.toString();
-    if (bag.toasts.filter((t) => t.toastType === ERROR && !t.canBeIgnored).length > 0) {
+    const msgBadge = document.querySelector('#v-pills-messages-tab span.badge');
+    const toastBadge = document.querySelector('#v-pills-toasts-tab span.badge');
+
+    let text = bag.messages.size.toString();
+    if (Array.from(bag.toasts.values())
+        .filter((t) => t.toastType === ERROR && !t.canBeIgnored)
+        .length > 0) {
         text += ' (*)';
     }
     badge.innerText = text;
+
+    msgBadge.innerText = bag.messages.size.toString();
+    toastBadge.innerText = bag.toasts.size.toString();
 };
 
 const removeFromBag = (id) => {
-    if (bag.messages.contains(id)) {
-        bag.messages.remove(id);
+    if (bag.messages.has(id)) {
+        bag.messages.delete(id);
     }
 
     removeElement(`bag-msg-${id}`);
+    document.getElementById('bag-message-form').reset();
     updateBagBadges();
 };
 
@@ -70,22 +79,21 @@ const createMessageSignature = (m) => {
 
     if (m.label !== '') {
         text.appendChild(
-            createParagraph(`${m.label}`),
+            createParagraph([`${m.label}`]),
         );
         return text;
     }
 
+    const lines = [];
     const name = getTopicName(m);
     if (name) {
-        text.appendChild(
-            createParagraph(`${name}`),
-        );
+        lines.push(`${name}`);
     }
+    lines.push(`offset: ${m.offset}`);
+    lines.push(`ts: ${m.timestamp}`);
+
     text.appendChild(
-        createParagraph(`offset: ${m.offset}`),
-    );
-    text.appendChild(
-        createParagraph(`ts: ${m.timestamp}`),
+        createParagraph(lines),
     );
 
     return text;
@@ -99,7 +107,7 @@ const addMessageToBag = async (m) => {
     const node = document.createElement('div');
     node.setAttribute('id', `bag-msg-${id}`);
     node.classList.add('list-group-item', 'list-group-item-action');
-    if (bag.messages.length === 1) {
+    if (bag.messages.size === 1) {
         node.classList.add('active');
     }
     node.onclick = () => {
@@ -128,41 +136,33 @@ const addToastToBag = (t) => {
 
     const node = document.createElement('div');
     node.setAttribute('id', `toast-${id}`);
-    node.classList.add('list-group-item', 'list-group-item-action');
-    if (bag.toasts.length === 1) {
-        node.classList.add('active');
-    }
+    node.classList.add('list-group-item');
 
-    const truncate = (s) => _.truncate(s, { length: 30 });
+    const truncate = (s) => _.truncate(s, { length: 50 });
 
     const text = document.createElement('div');
-    text.appendChild(
-        createParagraph(`${t.title}`),
-    );
-    text.appendChild(
-        createParagraph(`type: ${t.type}`),
-    );
-    text.appendChild(
-        createParagraph(`message: ${t.message}`),
-    );
+
+    const lines = [];
+    lines.push(`${t.title}`);
+    lines.push('---');
+    lines.push(`type: ${t.toastType}`);
+    lines.push(`message: ${t.message}`);
     if (t.topic !== '') {
-        text.appendChild(
-            createParagraph(`topic: ${truncate(t.topic)}`),
-        );
+        lines.push(`topic: ${truncate(t.topic)}`);
     }
     if (t.partition) {
-        text.appendChild(
-            createParagraph(`partition: ${t.partition}`),
-        );
+        lines.push(`partition: ${t.partition}`);
     }
     if (t.offset) {
-        text.appendChild(
-            createParagraph(`offset: ${t.offset}`),
-        );
+        lines.push(`offset: ${t.offset}`);
     }
+    const sentAt = new Date(t.sentAt * 1000);
+    lines.push(`sent at: ${sentAt.toLocaleString()}`);
+
     text.appendChild(
-        createParagraph(`sent at: ${t.sentAt}`),
+        createParagraph(lines),
     );
+
     node.appendChild(text);
 
     document.getElementById('bag-toast-list').appendChild(node);
@@ -181,7 +181,7 @@ const addToBag = (x) => {
 const clearBagMessages = (withBadges = false) => {
     const e = document.getElementById('bag-message-list');
     e.innerHTML = '';
-    bag.messages.length = 0;
+    bag.messages.size = 0;
     document.getElementById('bag-message-form').reset();
 
     if (withBadges) {
@@ -191,7 +191,7 @@ const clearBagMessages = (withBadges = false) => {
 const clearBagToasts = (withBadges = false) => {
     const e = document.getElementById('bag-toast-list');
     e.innerHTML = '';
-    bag.toasts.length = 0;
+    bag.toasts.size = 0;
 
     if (withBadges) {
         updateBagBadges();
@@ -205,7 +205,7 @@ const resetBag = () => {
 };
 
 const updateMessageSignature = () => {
-    const label = document.getElementById('bag-label');
+    const label = document.getElementById('bag-label').value;
 
     const id = activeMsgId !== '' ? activeMsgId : document.querySelector('#bag-message-list .active').id.substr(8);
 

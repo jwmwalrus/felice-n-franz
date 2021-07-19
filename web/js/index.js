@@ -1,6 +1,6 @@
 import { copyToClipboard, toggleCompactBtn } from './util.js';
 import { setActiveEnv } from './env.js';
-import { loadSocket } from './socket.js';
+import { loadSocket, refreshSubscriptions } from './socket.js';
 import {
     populateAvailable,
     clearTopicsAndGroups,
@@ -111,9 +111,10 @@ window.onload = () => {
     document.getElementById('bag-headers-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-headers');
     document.getElementById('bag-payload-btn').onclick = () => copyToClipboard('bag-payload');
     document.getElementById('bag-payload-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-payload');
-    document.getElementById('bag-clear-messages-btn').onclick = () => clearBagMessages;
-    document.getElementById('bag-clear-toasts-btn').onclick = () => clearBagToasts;
+    document.getElementById('bag-clear-messages-btn').onclick = () => clearBagMessages(true);
+    document.getElementById('bag-clear-toasts-btn').onclick = () => clearBagToasts(true);
     document.getElementById('reset-bag-btn').onclick = resetBag;
+    document.getElementById('bag-refresh-consumers-btn').onclick = () => refreshSubscriptions();
 
     document.getElementById('filter-btn').onclick = applyFilter;
     document.getElementById('clear-filter-btn').onclick = clearFilter;
@@ -133,7 +134,9 @@ window.onload = () => {
     setAutoCompleteTopic();
 
     loadSocket({
-        open: () => console.info('Web socket started!'),
+        open: () => {
+            console.info('Web socket started!');
+        },
         close: () => console.info('Web socket closed!'),
         error: () => console.error('Web socket error!'),
         message: async (event) => {

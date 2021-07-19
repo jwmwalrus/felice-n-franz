@@ -267,8 +267,8 @@
                 <div class="row">
                   <div class="col-2">
                     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                      <a class="nav-link active" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="true">Messages<span class="badge badge-primary">0</span></a>
-                      <a class="nav-link" id="v-pills-toasts-tab" data-toggle="pill" href="#v-pills-toasts" role="tab" aria-controls="v-pills-toasts" aria-selected="false">Toasts<span class="badge badge-primary">0</span></a>
+                      <a class="nav-link active" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="true">Messages<br><span class="badge badge-primary">0</span></a>
+                      <a class="nav-link" id="v-pills-toasts-tab" data-toggle="pill" href="#v-pills-toasts" role="tab" aria-controls="v-pills-toasts" aria-selected="false">Toasts<br><span class="badge badge-primary">0</span></a>
                       <!-- <a class="nav-link" id="v-pills-lookup-tab" data-toggle="pill" href="#v-pills-lookup" role="tab" aria-controls="v-pills-lookup" aria-selected="false">Lookup</a> -->
                     </div>
                   </div>
@@ -291,22 +291,19 @@
                           </div>
                           <div class="col-8">
                             <div class="row">
-                              <div class="bag-top-buttons ml-auto">
-                                <div class="btn-group btn-group-sm ml-auto mb-3">
-                                  <button class="btn btn-sm btn-secondary text-warning" id="bag-copy-raw-btn" title="Copy raw message"><i class="fas fa-copy"></i></button>
-                                  <button class="btn btn-sm btn-secondary text-danger" id="bag-remove-msg-btn" title="Remove from bag"><i class="fas fa-times-circle"></i></button>
+                              <div class="col-6">
+                                  <input type="text" id="bag-label" placeholder="Set message label" aria-label="Message label">
+                              </div>
+                              <div class="col-6">
+                                <div class="bag-top-buttons ml-auto">
+                                  <div class="btn-group btn-group-sm ml-auto mb-3">
+                                    <button class="btn btn-sm btn-secondary text-warning" id="bag-copy-raw-btn" title="Copy raw message"><i class="fas fa-copy"></i></button>
+                                    <button class="btn btn-sm btn-secondary text-danger" id="bag-remove-msg-btn" title="Remove from bag"><i class="fas fa-times-circle"></i></button>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                             <form id="bag-message-form">
-                              <div class="row">
-                                <div class="col-12">
-                                  <div class="input-group">
-                                    <span class="input-group-text small">label:</span>
-                                    <input type="text" class="form-control" id="bag-label" aria-label="Message label" readonly>
-                                  </div>
-                                </div>
-                              </div>
                               <div class="row">
                                 <div class="col-12">
                                   <div class="input-group">
@@ -377,13 +374,16 @@
                         <div class="row">
                           <div class="bag-top-buttons">
                             <div class="btn-group btn-group-sm ml-auto mb-3">
-                              <button class="btn btn-sm btn-danger text-warning" id="bag-clear-toasts-btn" title="Clear toasts"><i class="fas fa-broom"></i>Clear</button>
+                              <button class="btn btn-sm btn-secondary text-warning" id="bag-refresh-consumers-btn" title="Refresh consumers"><i class="fas fa-sync"></i>Refresh Consumers</button>
+                              <button class="btn btn-sm btn-danger text-warning" id="bag-clear-toasts-btn" title="Clear toasts"><i class="fas fa-broom"></i>Clear Toasts</button>
                             </div>
                           </div>
                         </div>
                         <hr>
                         <div class="row">
-                          <div class="list-group" id="bag-toast-list"></div>
+                          <div class="col-12">
+                            <div class="list-group" id="bag-toast-list"></div>
+                          </div>
                         </div>
                       </div>
                       <!-- <div class="tab-pane fade" id="v-pills-lookup" role="tabpanel" aria-labelledby="v-pills-lookup-tab"> -->

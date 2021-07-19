@@ -46,10 +46,20 @@ const createBtnGroupSm = async (list = []) => {
     return btnGroup;
 };
 
-const createParagraph = (text) => document.createElement('p')
-    .appendChild(
-        document.createTextNode(text),
-    );
+const createParagraph = (lines) => {
+    const p = document.createElement('p');
+    for (let i = 0; i < lines.length; i += 1) {
+        if (i > 0) {
+            p.appendChild(
+                document.createElement('br'),
+            );
+        }
+        p.appendChild(
+            document.createTextNode(lines[i]),
+        );
+    }
+    return p;
+};
 
 const copyToClipboard = (id) => {
     try {

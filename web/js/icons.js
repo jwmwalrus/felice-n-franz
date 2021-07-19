@@ -14,6 +14,7 @@ import {
     faRss,
     faSearch,
     faShoppingBag,
+    faSync,
     faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -32,6 +33,7 @@ library.add(
     faRss,
     faSearch,
     faShoppingBag,
+    faSync,
     faTimesCircle,
 );
 
