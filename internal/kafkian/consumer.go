@@ -20,7 +20,8 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 	}
 
 	cct := time.Now()
-	c, err = kafka.NewConsumer(&env.Configuration)
+	config := cloneConfiguration(env, topic)
+	c, err = kafka.NewConsumer(&config)
 	if err != nil {
 		return
 	}
@@ -86,7 +87,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 	}
 
 	cct := time.Now()
-	config := cloneConfiguration(env.Configuration)
+	config := cloneConfiguration(env, topic)
 	config["group.id"] = topic
 	config["enable.auto.commit"] = false
 	config["auto.offset.reset"] = "smallest"
@@ -160,10 +161,15 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 	return
 }
 
-func cloneConfiguration(in kafka.ConfigMap) (out kafka.ConfigMap) {
+func cloneConfiguration(env base.Environment, topic string) (out kafka.ConfigMap) {
 	out = kafka.ConfigMap{}
-	for k, v := range in {
+	for k, v := range env.Configuration {
 		out[k] = v
+	}
+	if t, err := env.GetTopic(topic); err == nil {
+		if t.GroupID != "" {
+			out["group-id"] = t.GroupID
+		}
 	}
 	return
 }

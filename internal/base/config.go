@@ -202,6 +202,21 @@ func (e *Environment) FindTopicValues(keys []string) (values []string, err error
 	return
 }
 
+// GetTopic returns the topic matching the given value
+func (e *Environment) GetTopic(value string) (v Topic, err error) {
+	for _, t := range e.Topics {
+		if value == t.Value {
+			v = t
+			break
+		}
+	}
+
+	if v.Key == "" {
+		err = errors.New("Value not found")
+	}
+	return
+}
+
 func (e *Environment) setDefaults() {
 	log.Info("Setting env defaults")
 
@@ -340,6 +355,7 @@ type Topic struct {
 	Description string      `json:"description"`
 	Key         string      `json:"key"`
 	Value       string      `json:"value"`
+	GroupID     string      `json:"groupId"`
 	Headers     []Header    `json:"headers"`
 	Schema      TopicSchema `json:"schema"`
 }
