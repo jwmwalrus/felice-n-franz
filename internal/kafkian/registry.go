@@ -1,6 +1,7 @@
 package kafkian
 
 import (
+	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
@@ -9,36 +10,16 @@ var reg []record
 
 type record struct {
 	consumer *kafka.Consumer
-	topics   []string
-}
-
-func detachTopicFromConsumer(topic string, c *kafka.Consumer) {
-	for _, r := range reg {
-		if r.consumer != c {
-			continue
-		}
-		for k, v := range r.topics {
-			if v == topic {
-				r.topics[k] = r.topics[len(r.topics)-1]
-				r.topics = r.topics[:len(r.topics)-1]
-				log.Info("Detaching topic", v)
-				if len(r.topics) == 0 {
-					unregister(r.consumer)
-				}
-				return
-			}
-		}
-	}
+	env      string
+	topic    string
 }
 
 func getConsumerForTopic(topic string) (c *kafka.Consumer) {
 	for _, r := range reg {
-		for _, t := range r.topics {
-			if t == topic {
-				log.Info("Consumer found for topic " + topic)
-				c = r.consumer
-				return
-			}
+		if r.topic == topic {
+			log.Info("Consumer found for topic " + topic)
+			c = r.consumer
+			return
 		}
 	}
 	return
@@ -54,13 +35,39 @@ func isRegistered(c *kafka.Consumer) (ok bool) {
 	return
 }
 
-func register(c *kafka.Consumer, topics []string) {
+func register(c *kafka.Consumer, env string, topic string) {
 	if isRegistered(c) {
 		return
 	}
 	log.Info("Registering consumer")
 
-	reg = append(reg, record{c, topics})
+	reg = append(reg, record{c, env, topic})
+}
+
+func refreshRegistry() {
+	log.Info("Refreshing registry")
+	var reg0 []record
+	copy(reg0, reg)
+	for _, r := range reg0 {
+		unregister(r.consumer)
+	}
+
+	for _, r := range reg0 {
+		env := base.Conf.GetEnvConfig(r.env)
+		if err := SubscribeConsumer(env, r.topic); err != nil {
+			log.Error(err)
+			toast := toastMsg{
+				Title:   "Consumer Error",
+				Message: err.Error(),
+			}
+			toast.send()
+		}
+	}
+}
+
+func resetRegistry() {
+	log.Info("Resetting registry")
+	reg = []record{}
 }
 
 func unregister(c *kafka.Consumer) {

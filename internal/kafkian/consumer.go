@@ -12,18 +12,10 @@ import (
 )
 
 // SubscribeConsumer creates a consumer for the given environment topics
-func SubscribeConsumer(env base.Environment, topics []string) (err error) {
+func SubscribeConsumer(env base.Environment, topic string) (err error) {
 	var c *kafka.Consumer
 
-	uncovered := []string{}
-	for _, t := range topics {
-		if assoc := getConsumerForTopic(t); assoc != nil {
-			continue
-		}
-		uncovered = append(uncovered, t)
-	}
-
-	if len(uncovered) == 0 {
+	if assoc := getConsumerForTopic(topic); assoc != nil {
 		return
 	}
 
@@ -33,19 +25,21 @@ func SubscribeConsumer(env base.Environment, topics []string) (err error) {
 		return
 	}
 
-	register(c, uncovered)
+	register(c, env.Name, topic)
 
 	go func() {
 		defer c.Close()
 
-		c.SubscribeTopics(uncovered, nil)
+		c.Subscribe(topic, nil)
 
 		for {
 			ev := c.Poll(100)
 			if !isRegistered(c) {
 				log.Info("Consumer is not registered anymore!")
-				err := c.Unsubscribe()
-				bnp.WarnOnError(err)
+				if c != nil {
+					err := c.Unsubscribe()
+					bnp.WarnOnError(err)
+				}
 				break
 			}
 
@@ -112,7 +106,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 		return
 	}
 
-	register(c, []string{topic})
+	register(c, env.Name, topic)
 
 	go func() {
 		defer c.Close()

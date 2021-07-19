@@ -57,6 +57,7 @@ func (c connection) processMessages() {
 
 		res := receivedMsg{}
 		json.Unmarshal(msg, &res)
+		log.Infof("Received socked message: %v", res)
 
 		switch res.MsgType {
 		case "consume":
@@ -75,13 +76,15 @@ func (c connection) processMessages() {
 					}
 				}
 			} else {
-				if err := SubscribeConsumer(env, topics); err != nil {
-					log.Error(err)
-					toast := toastMsg{
-						Title:   "Consumer Error",
-						Message: err.Error(),
+				for _, t := range topics {
+					if err := SubscribeConsumer(env, t); err != nil {
+						log.Error(err)
+						toast := toastMsg{
+							Title:   "Consumer Error",
+							Message: err.Error(),
+						}
+						toast.send()
 					}
-					toast.send()
 				}
 			}
 
@@ -106,10 +109,14 @@ func (c connection) processMessages() {
 				toast.send()
 			}
 
+		case "refresh":
+			refreshRegistry()
+		case "reset":
+			resetRegistry()
 		case "unsubscribe":
 			for _, t := range res.Payload {
 				if c := getConsumerForTopic(t); c != nil {
-					detachTopicFromConsumer(t, c)
+					unregister(c)
 				}
 			}
 		default:
