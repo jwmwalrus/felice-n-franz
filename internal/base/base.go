@@ -20,10 +20,10 @@ const (
 	configFilename = "config.json"
 	lockFilename   = configFilename + ".lock"
 
-	// AppDirName Application's directory name
+	// AppDirName application's directory name
 	AppDirName = "felice-n-franz"
 
-	// AppName Application name
+	// AppName application name
 	AppName = "Felice & Franz"
 
 	// DefaultServerAPIVersion idem
@@ -32,10 +32,10 @@ const (
 	// DefaultCA Kafka Certificate's filename
 	DefaultCA = "kafkacert.pem"
 
-	// DefaultPort Application's default port
+	// DefaultPort application's default port
 	DefaultPort = 9191
 
-	// DefaultTailOffset Maximum number of messages to keep per topic
+	// DefaultTailOffset maximum number of messages to keep per topic
 	DefaultTailOffset = 100
 )
 
@@ -47,38 +47,40 @@ var (
 
 	flagHelp bool
 
-	// OS Operating system's name
+	// OS operating system's name
 	OS string
 
 	// AppVersion application's version
 	AppVersion version.Version
 
-	// CacheDir Home directory for cache
+	// CacheDir home directory for cache
 	CacheDir string
 
-	// ConfigDir Home directory for config
+	// ConfigDir home directory for config
 	ConfigDir string
 
-	// DataDir Home directory for data
+	// DataDir home directory for data
 	DataDir string
 
-	// RuntimeDir Run (volatile) directory
+	// RuntimeDir run (volatile) directory
 	RuntimeDir string
 
-	// FlagVerbose Logger severity on
+	// FlagVerbose logger severity on
 	FlagVerbose bool
 
-	// FlagSeverity Logger severity level
+	// FlagSeverity logger severity level
 	FlagSeverity string
 
-	// FlagEchoLogging Echo logs to stderr
+	// FlagEchoLogging echo logs to stderr
 	FlagEchoLogging bool
+
+	// Conf application's global configuration
+	Conf Config
+
+	userConf Config
 )
 
-// Conf Application's global configuration
-var Conf, userConf Config
-
-// Load Loads application's configuration
+// Load loads application's configuration
 func Load(version []byte) (args []string) {
 	args = bnp.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
 
@@ -111,7 +113,6 @@ func Load(version []byte) (args []string) {
 		bnp.PanicOnError(err)
 	}
 
-	// var jsonFile *os.File
 	jsonFile, err := os.Open(configFile)
 	bnp.PanicOnError(err)
 	defer jsonFile.Close()
@@ -136,7 +137,7 @@ func Load(version []byte) (args []string) {
 	return
 }
 
-// Save Saves application's configuration
+// Save saves application's configuration
 func Save() (err error) {
 	SetDefaults()
 
@@ -172,7 +173,7 @@ func SetDefaults() {
 	userConf.setDefaults()
 }
 
-// Unload Cleans up application before exit
+// Unload cleans up application before exit
 func Unload() {
 	log.Info("Unloading application")
 	if userConf.FirstRun {

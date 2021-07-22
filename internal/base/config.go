@@ -17,7 +17,7 @@ const (
 	CurrentConfigFileVersion = 1
 )
 
-// Config Application's configuration
+// Config application's configuration
 type Config struct {
 	Version  int           `json:"version"`
 	FirstRun bool          `json:"firstRun"`
@@ -42,12 +42,12 @@ func (c *Config) setDefaults() {
 	}
 }
 
-// GetPort Returns port as a string
+// GetPort returns port as a string
 func (c *Config) GetPort() string {
 	return ":" + strconv.Itoa(c.Port)
 }
 
-// GetURL Returns application's base URL
+// GetURL returns application's base URL
 func (c *Config) GetURL() string {
 	return "http://localhost" + c.GetPort()
 }
@@ -137,7 +137,7 @@ func (c *Config) validate() (err error) {
 	return
 }
 
-// Environment Defines a topics environment
+// Environment defines a topics environment
 type Environment struct {
 	Name           string          `json:"name"`
 	Active         bool            `json:"active"`
@@ -349,7 +349,7 @@ func (g *EnvVars) setDefaults() {
 	*g = EnvVars{"myVar": "some-value"}
 }
 
-// Topic Defines a key-value pair
+// Topic defines a topic structure
 type Topic struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
