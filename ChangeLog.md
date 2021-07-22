@@ -9,6 +9,14 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.54.2] 2021-07-21
+
+Fix
+
+### Fixed
+
+* Typo in map key
+
 ## [0.54.1] 2021-07-21
 
 Fix
