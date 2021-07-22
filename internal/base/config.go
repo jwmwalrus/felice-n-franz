@@ -366,6 +366,9 @@ type TopicSchema map[string]interface{}
 func (t *Topic) expandVars(vars EnvVars) {
 	for k, v := range vars {
 		t.Value = strings.ReplaceAll(t.Value, "{{"+k+"}}", v)
+		if t.GroupID != "" {
+			t.GroupID = strings.ReplaceAll(t.GroupID, "{{"+k+"}}", v)
+		}
 	}
 }
 
