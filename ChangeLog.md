@@ -9,6 +9,14 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.54.1] 2021-07-21
+
+Fix
+
+### Fixed
+
+* groupId vars expansion for topics
+
 ## [0.54.0] 2021-07-19
 
 Features and improvements
