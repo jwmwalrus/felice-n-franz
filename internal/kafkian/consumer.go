@@ -168,7 +168,7 @@ func cloneConfiguration(env base.Environment, topic string) (out kafka.ConfigMap
 	}
 	if t, err := env.GetTopic(topic); err == nil {
 		if t.GroupID != "" {
-			out["group-id"] = t.GroupID
+			out["group.id"] = t.GroupID
 		}
 	}
 	return
