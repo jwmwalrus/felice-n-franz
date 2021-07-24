@@ -34,9 +34,6 @@ const (
 
 	// DefaultPort application's default port
 	DefaultPort = 9191
-
-	// DefaultTailOffset maximum number of messages to keep per topic
-	DefaultTailOffset = 100
 )
 
 var (

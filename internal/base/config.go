@@ -138,6 +138,7 @@ func (c *Config) validate() (err error) {
 }
 
 // Environment defines a topics environment
+// FIXME: DEPRECATE AssignConsumer
 type Environment struct {
 	Name           string          `json:"name"`
 	Active         bool            `json:"active"`
