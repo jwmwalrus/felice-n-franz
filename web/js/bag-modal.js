@@ -1,5 +1,8 @@
+import AutoComplete from '@tarekraafat/autocomplete.js';
+import { DateTime } from 'luxon';
 import * as _ from 'lodash/lodash.js';
 import { v4 as uuidv4 } from 'uuid';
+
 import { ERROR, showToast } from './toasts.js';
 import {
     copyStringToClipboard,
@@ -7,17 +10,24 @@ import {
     removeElement,
 } from './util.js';
 import { getTopicName } from './env.js';
+import { lookup } from './socket.js';
 
-let activeMsgId = '';
+const REPLAY_FROM_BEGINNING = 'beginning';
+const REPLAY_FROM_TIMESTAMP = 'timestamp';
+
 const bag = {
+    activeMsgId: '',
+    lookupEnv: '',
+    replayType: '',
     messages: new Map(),
     toasts: new Map(),
 };
+let acTopic = null;
 
 const updateBagBadges = () => {
     const badge = document.querySelector('#bag-btn span.badge');
-    const msgBadge = document.querySelector('#v-pills-messages-tab span.badge');
-    const toastBadge = document.querySelector('#v-pills-toasts-tab span.badge');
+    const msgBadge = document.querySelector('#pills-messages-tab span.badge');
+    const toastBadge = document.getElementById('toasts-badge');
 
     let text = bag.messages.size.toString();
     if (Array.from(bag.toasts.values())
@@ -42,7 +52,7 @@ const removeFromBag = (id) => {
 };
 
 const showBagMessage = (id) => {
-    activeMsgId = id;
+    bag.activeMsgId = id;
     const m = bag.messages.get(id);
 
     document.getElementById('bag-copy-raw-btn').onclick = () => copyStringToClipboard(JSON.stringify(m));
@@ -127,6 +137,18 @@ const addMessageToBag = async (m) => {
     updateBagBadges();
 };
 
+const addSearchResult = (m) => {
+    if (m.searchId !== bag.searchId) {
+        return;
+    }
+
+    const node = document.createElement('div');
+
+    // TODO: populate node with bag button
+
+    document.getElementById('bag-lookup-list').appendChild(node);
+};
+
 const addToastToBag = (t) => {
     const id = uuidv4();
     bag.toasts.set(id, t);
@@ -188,6 +210,7 @@ const clearBagMessages = (withBadges = false) => {
         updateBagBadges();
     }
 };
+
 const clearBagToasts = (withBadges = false) => {
     const e = document.getElementById('bag-toast-list');
     e.innerHTML = '';
@@ -198,16 +221,85 @@ const clearBagToasts = (withBadges = false) => {
     }
 };
 
-const resetBag = () => {
-    clearBagMessages(false);
-    clearBagToasts(false);
-    updateBagBadges();
+const enableLookupGo = async () => {
+    if (bag.lookupEnv !== ''
+        && bag.replayType !== ''
+        && document.getElementById('bag-lookup-topic').value !== ''
+        && document.getElementById('bag-lookup-offset').value !== ''
+        && document.getElementById('bag-lookup-pattern').value !== ''
+    ) {
+        document.getElementById('bag-lookup-go-btn').removeAttribute('disabled');
+        return;
+    }
+
+    document.getElementById('bag-lookup-go-btn').setAttribute('disabled', 'disabled');
+};
+
+const fireLookup = async () => {
+    const payload = {
+        type: bag.replayType,
+        offset: document.getElementById('bag-lookup-offset').value,
+        pattern: document.getElementById('bag-lookup-pattern').value,
+    };
+    lookup(
+        bag.lookupEnv,
+        document.getElementById('bag-lookup-topic').value,
+        [JSON.stringify(payload)],
+    );
+};
+
+const setAutoCompleteTopicForLookup = () => {
+    acTopic = new AutoComplete({
+        selector: '#bag-lookup-topic',
+        placeHolder: 'Start typing and select...',
+        data: {
+            src: async () => {
+                if (!bag.lookupEnv) {
+                    return [];
+                }
+                const apiUrl = window.location.origin;
+                const res = await fetch(`${apiUrl}/envs/${bag.lookupEnv}`);
+                const payload = await res.json();
+                return payload.topics ?? [];
+            },
+            key: ['value'],
+        },
+        threshold: 2,
+        onSelection: (feedback) => {
+            document.getElementById('bag-lookup-topic').value = feedback.selection.value[feedback.selection.key];
+        },
+    });
+};
+
+const setLookupEnvironment = async (sel) => {
+    bag.lookupEnv = sel?.target.value ?? '';
+};
+
+const setLookupType = async (sel) => {
+    bag.replayType = sel?.target.value ?? '';
+    switch (bag.replayType) {
+        case REPLAY_FROM_BEGINNING:
+            document.getElementById('bag-lookup-offset').value = '0';
+            break;
+        case REPLAY_FROM_TIMESTAMP:
+            document.getElementById('bag-lookup-offset').value = DateTime.local().toISO();
+            break;
+        default:
+            document.getElementById('bag-lookup-offset').value = '';
+    }
+    await enableLookupGo();
+};
+
+const resetLookup = async (e) => {
+    document.getElementById('bag-lookup-form').reset();
+    await setLookupEnvironment();
+    await setLookupType();
 };
 
 const updateMessageSignature = () => {
     const label = document.getElementById('bag-label').value;
 
-    const id = activeMsgId !== '' ? activeMsgId : document.querySelector('#bag-message-list .active').id.substr(8);
+    const id = bag.activeMsgId !== '' ? bag.activeMsgId : document.querySelector('#bag-message-list .active').id.substr(8);
 
     if (!id) {
         return;
@@ -225,9 +317,15 @@ const updateMessageSignature = () => {
 };
 
 export {
+    addSearchResult,
     addToBag,
     clearBagMessages,
     clearBagToasts,
-    resetBag,
+    enableLookupGo,
+    fireLookup,
+    resetLookup,
+    setAutoCompleteTopicForLookup,
+    setLookupEnvironment,
+    setLookupType,
     updateMessageSignature,
 };

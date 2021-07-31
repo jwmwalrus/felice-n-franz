@@ -20,13 +20,19 @@ import {
     resetProducer,
     validateProducerPayload,
     produceMessage,
-    setAutoCompleteTopic,
+    setAutoCompleteTopicForProducer,
 } from './produce-modal.js';
 import {
     addToBag,
+    addSearchResult,
     clearBagToasts,
     clearBagMessages,
-    resetBag,
+    enableLookupGo,
+    fireLookup,
+    resetLookup,
+    setAutoCompleteTopicForLookup,
+    setLookupEnvironment,
+    setLookupType,
     updateMessageSignature,
 } from './bag-modal.js';
 import {
@@ -113,9 +119,17 @@ window.onload = () => {
     document.getElementById('bag-headers-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-headers');
     document.getElementById('bag-payload-btn').onclick = () => copyToClipboard('bag-payload');
     document.getElementById('bag-payload-toggle-compact-btn').onclick = () => toggleCompactBtn('bag-payload');
+
+    document.getElementById('bag-lookup-type').onchange = setLookupType;
+    document.getElementById('bag-lookup-env').onchange = setLookupEnvironment;
+    document.getElementById('bag-lookup-topic').oninput = enableLookupGo;
+    document.getElementById('bag-lookup-offset').oninput = enableLookupGo;
+    document.getElementById('bag-lookup-pattern').oninput = enableLookupGo;
+    document.getElementById('bag-lookup-reset-btn').onclick = resetLookup;
+    document.getElementById('bag-lookup-go-btn').onclick = fireLookup;
+
     document.getElementById('bag-clear-messages-btn').onclick = () => clearBagMessages(true);
     document.getElementById('bag-clear-toasts-btn').onclick = () => clearBagToasts(true);
-    document.getElementById('reset-bag-btn').onclick = resetBag;
     document.getElementById('bag-refresh-consumers-btn').onclick = () => refreshSubscriptions();
 
     document.getElementById('filter-btn').onclick = applyFilter;
@@ -133,12 +147,11 @@ window.onload = () => {
         return true;
     }, true);
 
-    setAutoCompleteTopic();
+    setAutoCompleteTopicForProducer();
+    setAutoCompleteTopicForLookup();
 
     loadSocket({
-        open: () => {
-            console.info('Web socket started!');
-        },
+        open: () => console.info('Web socket started!'),
         close: () => console.info('Web socket closed!'),
         error: () => console.error('Web socket error!'),
         message: async (event) => {
@@ -150,6 +163,8 @@ window.onload = () => {
             for await (const m of messages) {
                 if ('toastType' in m) {
                     addToBag(m);
+                } else if ('searchId' in m && m.searchId !== '') {
+                    addSearchResult(m);
                 } else if ('topic' in m) {
                     const l = getListGroupElement(m.topic);
                     if (l !== null) {

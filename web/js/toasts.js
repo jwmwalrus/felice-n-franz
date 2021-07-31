@@ -24,11 +24,11 @@ const showToast = (t) => {
     };
     switch (t.toastType) {
         case ERROR:
-            options.duration = -1;
+            // options.duration = -1;
             Toastify(options).showToast();
             break;
         case WARNING:
-            options.duration = 10000;
+            // options.duration = 10000;
             Toastify(options).showToast();
             break;
         default:

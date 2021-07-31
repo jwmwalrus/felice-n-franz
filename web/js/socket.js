@@ -24,6 +24,16 @@ const loadSocket = ({
     }
 };
 
+const lookup = (env, topic, payload) => {
+    const msg = {
+        type: 'lookup',
+        env,
+        topic,
+        payload,
+    };
+    conn.send(JSON.stringify(msg));
+};
+
 const produce = (topic, payload, key = '', headers = []) => {
     const { name } = getActiveEnv();
     const msg = {
@@ -74,6 +84,7 @@ const unsubscribe = (topics) => {
 
 export {
     loadSocket,
+    lookup,
     produce,
     refreshSubscriptions,
     resetSubscriptions,

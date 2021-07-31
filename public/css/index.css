@@ -470,7 +470,9 @@ footer.footer {
 .bag-top-buttons {
   margin-left: 200px;
 }
-#bag-message-list, #bag-toast-list {
+#bag-message-list,
+#bag-lookup-list,
+#bag-toast-list {
   height: 400px; overflow-y: scroll;
 }
 

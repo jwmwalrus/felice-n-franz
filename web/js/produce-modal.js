@@ -40,7 +40,7 @@ const produceMessage = () => {
     produce(topic, payload, key, headers);
 };
 
-const setAutoCompleteTopic = () => {
+const setAutoCompleteTopicForProducer = () => {
     acTopic = new AutoComplete({
         selector: '#produce-topic',
         placeHolder: 'Start typing and select...',
@@ -59,5 +59,5 @@ export {
     resetProducer,
     validateProducerPayload,
     produceMessage,
-    setAutoCompleteTopic,
+    setAutoCompleteTopicForProducer,
 };
