@@ -5,6 +5,7 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
+// ProduceMessage produces the given message, using the given environment configuration
 func ProduceMessage(env base.Environment, msg *kafka.Message) (err error) {
 	var p *kafka.Producer
 	ec := kafka.ConfigMap{}
@@ -27,7 +28,7 @@ func ProduceMessage(env base.Environment, msg *kafka.Message) (err error) {
 			switch ev := e.(type) {
 			case *kafka.Message:
 				toast := toastMsg{
-					ToastType: "info",
+					ToastType: toastInfo,
 					Title:     "From Producer",
 					Message:   "Message delivered",
 					Topic:     *ev.TopicPartition.Topic,

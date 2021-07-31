@@ -58,6 +58,7 @@ func index(c *gin.Context) {
 			"title":              base.AppName,
 			"version":            base.AppVersion.String(),
 			"envs":               base.Conf.GetEnvsList(),
+			"replayTypes":        kafkian.GetReplayTypesList(),
 			"headerPlaceholder":  `e.g.: [{"key": "Content-Type","value": "application/json"}]`,
 			"payloadPlaceholder": `e.g.: {"year": 1984, "enemy": "Eastasia"}`,
 		},

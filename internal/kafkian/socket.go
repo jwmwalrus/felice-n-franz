@@ -60,7 +60,7 @@ func (c connection) processMessages() {
 		log.Infof("Received socked message: %v", res)
 
 		switch res.MsgType {
-		case "consume":
+		case consumeTopicsMsg:
 			env := base.Conf.GetEnvConfig(res.Env)
 			topics, _ := env.FindTopicValues(res.Payload)
 
@@ -69,6 +69,7 @@ func (c connection) processMessages() {
 					if err := AssignConsumer(env, t); err != nil {
 						log.Error(err)
 						toast := toastMsg{
+
 							Title:   "Consumer Error",
 							Message: err.Error(),
 						}
@@ -80,15 +81,16 @@ func (c connection) processMessages() {
 					if err := SubscribeConsumer(env, t); err != nil {
 						log.Error(err)
 						toast := toastMsg{
-							Title:   "Consumer Error",
-							Message: err.Error(),
+							ToastType: toastError,
+							Title:     "Consumer Error",
+							Message:   err.Error(),
 						}
 						toast.send()
 					}
 				}
 			}
 
-		case "produce":
+		case produceMsg:
 			env := base.Conf.GetEnvConfig(res.Env)
 			msg := kafka.Message{
 				TopicPartition: kafka.TopicPartition{Topic: &res.Topic},
@@ -103,17 +105,29 @@ func (c connection) processMessages() {
 			if err := ProduceMessage(env, &msg); err != nil {
 				log.Error(err)
 				toast := toastMsg{
-					Title:   "Producer Error",
-					Message: err.Error(),
+					ToastType: toastError,
+					Title:     "Producer Error",
+					Message:   err.Error(),
 				}
 				toast.send()
 			}
 
-		case "refresh":
+		case lookupTopicsMsg:
+			env := base.Conf.GetEnvConfig(res.Env)
+			if err := LookupTopic(env, res.Topic, res.Payload[0]); err != nil {
+				log.Error(err)
+				toast := toastMsg{
+					ToastType: toastError,
+					Title:     "Lookup Error",
+					Message:   err.Error(),
+				}
+				toast.send()
+			}
+		case refreshRegistryMsg:
 			refreshRegistry()
-		case "reset":
+		case resetRegistryMsg:
 			resetRegistry()
-		case "unsubscribe":
+		case unsubscribeTopicsMsg:
 			for _, t := range res.Payload {
 				if c := getConsumerForTopic(t); c != nil {
 					unregister(c)
@@ -125,7 +139,7 @@ func (c connection) processMessages() {
 }
 
 type receivedMsg struct {
-	MsgType string        `json:"type"`
+	MsgType msgType       `json:"type"`
 	Env     string        `json:"env"`
 	Topic   string        `json:"topic"`
 	Key     string        `json:"key"`
@@ -133,8 +147,19 @@ type receivedMsg struct {
 	Headers []base.Header `json:"headers"`
 }
 
+type msgType string
+
+const (
+	consumeTopicsMsg     msgType = "consume"
+	produceMsg           msgType = "produce"
+	lookupTopicsMsg      msgType = "lookup"
+	refreshRegistryMsg   msgType = "refresh"
+	resetRegistryMsg     msgType = "reset"
+	unsubscribeTopicsMsg msgType = "unsubscribe"
+)
+
 type toastMsg struct {
-	ToastType    string       `json:"toastType"`
+	ToastType    toastType    `json:"toastType"`
 	Title        string       `json:"title"`
 	Message      string       `json:"message"`
 	Topic        string       `json:"topic"`
@@ -143,6 +168,14 @@ type toastMsg struct {
 	CanBeIgnored bool         `json:"canBeIgnored"`
 	SentAt       int64        `json:"sentAt"`
 }
+
+type toastType string
+
+const (
+	toastError   toastType = "error"
+	toastWarning toastType = "warning"
+	toastInfo    toastType = "info"
+)
 
 func (t toastMsg) send() {
 	t.SentAt = time.Now().Unix()
@@ -157,7 +190,7 @@ func (t toastMsg) send() {
 	return
 }
 
-func sendKafkaMessage(m *kafka.Message) {
+func sendKafkaMessage(m *kafka.Message, searchID string) {
 	headers := headerK2B(m.Headers)
 
 	flat := struct {
@@ -170,6 +203,7 @@ func sendKafkaMessage(m *kafka.Message) {
 		TimestampType       kafka.TimestampType `json:"timestampType"`
 		TimestampTypeString string              `json:"timestampTypeString"`
 		Headers             []base.Header       `json:"headers"`
+		SearchID            string              `json:"searchId"`
 	}{
 		*m.TopicPartition.Topic,
 		m.TopicPartition.Partition,
@@ -180,6 +214,7 @@ func sendKafkaMessage(m *kafka.Message) {
 		m.TimestampType,
 		m.TimestampType.String(),
 		headers,
+		searchID,
 	}
 	payload, err := json.Marshal(flat)
 	if err != nil {
