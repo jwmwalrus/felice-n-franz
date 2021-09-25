@@ -8,10 +8,6 @@ tasks:
     cmds:
       - task: wpdev
       - task: gobuild
-  dev16:
-    cmds:
-      - task: wpdev
-      - task: gobuild16
   prod:
     cmds:
       - task: build
@@ -20,12 +16,6 @@ tasks:
       - task: clean
       - task: wpbuild
       - task: gobuild
-
-  build16:
-    cmds:
-      - task: clean
-      - task: wpbuild
-      - task: gobuild16
 
   clean:
       - rm -rf public/css
@@ -40,10 +30,6 @@ tasks:
   gobuild:
     cmds:
       - go build -v -o ./felice-n-franz{{exeExt}} .
-
-  gobuild16:
-    cmds:
-      - /usr/lib/go-1.16/bin/go  build -v -o ./felice-n-franz{{exeExt}} .
 
   wpbuild:
     cmds:
