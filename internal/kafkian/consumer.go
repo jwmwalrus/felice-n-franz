@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jwmwalrus/bnp"
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
@@ -41,7 +41,7 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 				log.Info("Consumer is not registered anymore!")
 				if c != nil {
 					err := c.Unsubscribe()
-					bnp.WarnOnError(err)
+					onerror.Warn(err)
 				}
 				break
 			}
@@ -117,7 +117,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 		for _, pm := range (*meta).Topics[topic].Partitions {
 			tp := kafka.TopicPartition{Topic: &topic, Partition: pm.ID}
 			err := c.IncrementalAssign([]kafka.TopicPartition{tp})
-			bnp.LogOnError(err)
+			onerror.Log(err)
 		}
 
 		for {
@@ -125,7 +125,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 			if !isRegistered(c) {
 				log.Info("Consumer is not registered anymore!")
 				err := c.Unsubscribe()
-				bnp.WarnOnError(err)
+				onerror.Warn(err)
 				break
 			}
 

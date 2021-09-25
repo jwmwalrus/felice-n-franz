@@ -8,7 +8,8 @@ import (
 	"runtime"
 
 	"github.com/adrg/xdg"
-	"github.com/jwmwalrus/bnp"
+	"github.com/jwmwalrus/bnp/env"
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/bumpy-ride/version"
 	"github.com/nightlyone/lockfile"
 	"github.com/pborman/getopt/v2"
@@ -79,7 +80,7 @@ var (
 
 // Load loads application's configuration
 func Load(version []byte) (args []string) {
-	args = bnp.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
+	args = env.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
 
 	if flagHelp {
 		getopt.Usage()
@@ -87,12 +88,12 @@ func Load(version []byte) (args []string) {
 	}
 
 	err := AppVersion.Read(version)
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 
 	configFile = filepath.Join(ConfigDir, configFilename)
 	lockFile = filepath.Join(RuntimeDir, lockFilename)
 
-	err = bnp.SetEnvDirs(
+	err = env.SetDirs(
 		configFile,
 		lockFile,
 		CacheDir,
@@ -100,33 +101,33 @@ func Load(version []byte) (args []string) {
 		DataDir,
 		RuntimeDir,
 	)
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 
 	_, err = os.Stat(configFile)
 	if os.IsNotExist(err) {
 		log.Info(configFilename + " was not found. Generating one")
 		userConf.FirstRun = true
 		err := Save()
-		bnp.PanicOnError(err)
+		onerror.Panic(err)
 	}
 
 	jsonFile, err := os.Open(configFile)
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 	defer jsonFile.Close()
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 
 	err = json.Unmarshal(byteValue, &userConf)
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 
 	err = userConf.validate()
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 
 	if userConf.FirstRun {
 		userConf.FirstRun = false
 		err := Save()
-		bnp.PanicOnError(err)
+		onerror.Panic(err)
 	}
 
 	copyUserConfig()

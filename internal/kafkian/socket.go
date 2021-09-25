@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/jwmwalrus/bnp"
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
@@ -229,7 +229,7 @@ func sendKafkaMessage(m *kafka.Message, searchID string) {
 
 func writeToSocket(payload []byte) {
 	err := WS.WriteMessage(websocket.TextMessage, payload)
-	bnp.LogOnError(err)
+	onerror.Log(err)
 	<-socketGuard
 }
 

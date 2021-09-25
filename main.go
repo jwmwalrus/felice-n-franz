@@ -8,7 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jwmwalrus/bnp"
+	"github.com/jwmwalrus/bnp/logger"
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
 )
@@ -26,9 +27,9 @@ func main() {
 	base.Load(version)
 	cfg := base.Conf
 
-	gin.DefaultWriter = bnp.NewDefaultWriter()
+	gin.DefaultWriter = logger.NewDefaultWriter()
 	r := gin.Default()
-	r.Use(bnp.LoggerToFile())
+	r.Use(logger.ToFile())
 	r.Use(gin.Recovery())
 
 	route(r)
@@ -38,7 +39,7 @@ func main() {
 
 func route(r *gin.Engine) *gin.Engine {
 	sc, err := fs.Sub(staticContent, "public")
-	bnp.PanicOnError(err)
+	onerror.Panic(err)
 	r.StaticFS("/static", http.FS(sc))
 
 	t, err := template.New("index.html").Parse(indexHTML)
