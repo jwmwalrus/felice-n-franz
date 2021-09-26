@@ -385,12 +385,8 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
 
 ## TODO
 
-- [x] Add Consumer Group filters/categories.
-- [ ] Improve headers handling for the producer.
+- [ ] Improve lookup of topic messages.
 - [ ] Add a way of reordering consumer cards.
-- [x] Improve global filter.
-- [ ] ~~Implement search by key.~~
-- [ ] ~~Implement search by regex.~~
-- [ ] Allow searching for older messages in a topic.
+- [ ] Add topic schema validation.
 
 
