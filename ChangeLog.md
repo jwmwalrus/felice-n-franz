@@ -9,6 +9,26 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.55.0] 2021-09-26
+
+Features and improvements
+
+### Added
+
+* Lookup topic messages
+
+### Modified
+
+* Reset/Refresh/Clear handling in bag
+
+### Removed
+
+* Layout footer
+
+### Updated
+
+* Dependencies
+
 ## [0.54.2] 2021-07-21
 
 Fix
