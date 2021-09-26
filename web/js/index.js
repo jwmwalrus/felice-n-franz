@@ -30,6 +30,8 @@ import {
     enableLookupGo,
     fireLookup,
     resetLookup,
+    stopLookup,
+    clearLookup,
     setAutoCompleteTopicForLookup,
     setLookupEnvironment,
     setLookupType,
@@ -127,6 +129,8 @@ window.onload = () => {
     document.getElementById('bag-lookup-pattern').oninput = enableLookupGo;
     document.getElementById('bag-lookup-reset-btn').onclick = resetLookup;
     document.getElementById('bag-lookup-go-btn').onclick = fireLookup;
+    document.getElementById('bag-lookup-stop-btn').onclick = stopLookup;
+    document.getElementById('bag-lookup-clear-btn').onclick = clearLookup;
 
     document.getElementById('bag-clear-messages-btn').onclick = () => clearBagMessages(true);
     document.getElementById('bag-clear-toasts-btn').onclick = () => clearBagToasts(true);
@@ -162,9 +166,9 @@ window.onload = () => {
             }
             for await (const m of messages) {
                 if ('toastType' in m) {
-                    addToBag(m);
+                    await addToBag(m);
                 } else if ('searchId' in m && m.searchId !== '') {
-                    addSearchResult(m);
+                    await addSearchResult(m);
                 } else if ('topic' in m) {
                     const l = getListGroupElement(m.topic);
                     if (l !== null) {

@@ -3,11 +3,18 @@ import * as _ from 'lodash/lodash.js';
 const EXCEPT = ['application/json'];
 
 let activeEnv = {};
+let lookupEnv = {};
 
 const getActiveEnv = () => activeEnv;
 
 const setActiveEnv = (val) => {
     activeEnv = val;
+};
+
+const getActiveLookup = () => lookupEnv;
+
+const setActiveLookup = (val) => {
+    lookupEnv = val;
 };
 
 const getOutstandingHeader = (m) => {
@@ -45,9 +52,16 @@ const getTopicName = (m) => {
     const h = getOutstandingHeader(m);
 
     if (!h) {
-        return activeEnv
-            .topics
-            .find((t) => t.value === m.topic)?.name ?? '';
+        if (!_.isEmpty(activeEnv)) {
+            return activeEnv
+                .topics
+                .find((t) => t.value === m.topic)?.name ?? '';
+        }
+        if (!_.isEmpty(lookupEnv)) {
+            return lookupEnv
+                .topics
+                .find((t) => t.value === m.topic)?.name ?? '';
+        }
     }
 
     return h;
@@ -56,6 +70,8 @@ const getTopicName = (m) => {
 export {
     getActiveEnv,
     setActiveEnv,
+    getActiveLookup,
+    setActiveLookup,
     getOutstandingHeader,
     getTopicName,
 };

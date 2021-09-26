@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/jwmwalrus/bnp/onerror"
+	"github.com/jwmwalrus/bnp/slice"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
@@ -177,6 +179,10 @@ const (
 	replayFromTimestamp replayType = "timestamp"
 )
 
+func replayTypeStrings() []replayType {
+	return []replayType{replayFromBeginning, replayFromTimestamp}
+}
+
 // GetReplayTypesList returns the supported replay types
 func GetReplayTypesList() []string {
 	return []string{
@@ -194,8 +200,18 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 		return
 	}
 
-	if r.Type == "" || r.Pattern == "" || r.SearchID == "" {
-		err = fmt.Errorf("Invalid replay parameters: %v", r)
+	if r.SearchID == "" {
+		err = fmt.Errorf("SearchID parameter must not be empty")
+		return
+	}
+
+	if !slice.Contains(replayTypeStrings(), r.Type) {
+		err = fmt.Errorf("Unsupported Type parameter: %v", r.Type)
+		return
+	}
+
+	var rx *regexp.Regexp
+	if rx, err = regexp.Compile(r.Pattern); err != nil {
 		return
 	}
 
@@ -215,14 +231,16 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 
 		c.Subscribe(topic, nil)
 
+	replayLoop:
 		for {
-			for ev := range c.Events() {
+			select {
+			case ev := <-c.Events():
 				switch e := ev.(type) {
 				case kafka.AssignedPartitions:
 					partitions := e.Partitions
 					if len(partitions) == 0 {
 						log.Info("No partitions assigned")
-						continue
+						continue replayLoop
 					}
 
 					switch r.Type {
@@ -256,9 +274,8 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 					c.Assign(partitions)
 				case kafka.RevokedPartitions:
 					c.Unassign()
-					break
 				case *kafka.Message:
-					if strings.Contains(string(e.Value), r.Pattern) {
+					if rx.MatchString(string(e.Value)) {
 						log.Infof("Lookup Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
 						if e.Headers != nil {
 							log.Infof("Lookup Headers: %v\n", e.Headers)
@@ -267,7 +284,7 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 					}
 				case kafka.PartitionEOF:
 					log.Info("Reached EOF")
-					break
+					break replayLoop
 				case kafka.Error:
 					log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
 					toast := toastMsg{
@@ -277,14 +294,18 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 						CanBeIgnored: errorCanBeIgnored(e),
 					}
 					toast.send()
-					if e.Code() == kafka.ErrAllBrokersDown {
-						break
+					if e.Code() == kafka.ErrAllBrokersDown ||
+						e.Code() == kafka.ErrTimedOut {
+						log.Infof("Exiting loop due to error code %v", e.Code())
+						break replayLoop
 					}
-					break
+				default:
+					log.Warnf("Uncaught event: %v", e)
 				}
 			}
 		}
 		c.Unsubscribe()
+		log.Infof("Unsubscribed consumer for loop %v", r.SearchID)
 	}()
 
 	return

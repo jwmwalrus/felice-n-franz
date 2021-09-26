@@ -8,17 +8,28 @@ import {
     copyStringToClipboard,
     createParagraph,
     removeElement,
+    createBtnSm,
 } from './util.js';
-import { getTopicName } from './env.js';
+import {
+    getActiveLookup,
+    getTopicName,
+    setActiveLookup,
+} from './env.js';
 import { lookup } from './socket.js';
+import { shoppingBagIcon } from './icons.js';
 
 const REPLAY_FROM_BEGINNING = 'beginning';
 const REPLAY_FROM_TIMESTAMP = 'timestamp';
 
+const apiUrl = window.location.origin;
+
 const bag = {
     activeMsgId: '',
-    lookupEnv: '',
-    replayType: '',
+    lookup: {
+        env: '',
+        replayType: '',
+        searchId: '',
+    },
     messages: new Map(),
     toasts: new Map(),
 };
@@ -137,14 +148,23 @@ const addMessageToBag = async (m) => {
     updateBagBadges();
 };
 
-const addSearchResult = (m) => {
-    if (m.searchId !== bag.searchId) {
+const addSearchResult = async (m) => {
+    if (m.searchId !== bag.lookup.searchId) {
         return;
     }
 
     const node = document.createElement('div');
-
-    // TODO: populate node with bag button
+    node.classList.add('d-flex');
+    node.appendChild(
+        await createBtnSm({
+            icon: shoppingBagIcon,
+            title: 'Add message to bag',
+            onclick: async () => addMessageToBag(m),
+        }),
+    );
+    node.appendChild(
+        createParagraph([JSON.stringify(m)]),
+    );
 
     document.getElementById('bag-lookup-list').appendChild(node);
 };
@@ -191,13 +211,13 @@ const addToastToBag = (t) => {
     updateBagBadges();
 };
 
-const addToBag = (x) => {
+const addToBag = async (x) => {
     if ('toastType' in x) {
         addToastToBag(x);
         return;
     }
 
-    addMessageToBag(x);
+    await addMessageToBag(x);
 };
 
 const clearBagMessages = (withBadges = false) => {
@@ -221,9 +241,13 @@ const clearBagToasts = (withBadges = false) => {
     }
 };
 
+const clearLookup = async () => {
+    document.getElementById('bag-lookup-list').innerHTML = '';
+};
+
 const enableLookupGo = async () => {
-    if (bag.lookupEnv !== ''
-        && bag.replayType !== ''
+    if (bag.lookup.env !== ''
+        && bag.lookup.replayType !== ''
         && document.getElementById('bag-lookup-topic').value !== ''
         && document.getElementById('bag-lookup-offset').value !== ''
         && document.getElementById('bag-lookup-pattern').value !== ''
@@ -236,13 +260,15 @@ const enableLookupGo = async () => {
 };
 
 const fireLookup = async () => {
+    bag.lookup.searchId = uuidv4();
     const payload = {
-        type: bag.replayType,
+        type: bag.lookup.replayType,
         offset: document.getElementById('bag-lookup-offset').value,
         pattern: document.getElementById('bag-lookup-pattern').value,
+        searchId: bag.lookup.searchId,
     };
     lookup(
-        bag.lookupEnv,
+        bag.lookup.env,
         document.getElementById('bag-lookup-topic').value,
         [JSON.stringify(payload)],
     );
@@ -253,15 +279,7 @@ const setAutoCompleteTopicForLookup = () => {
         selector: '#bag-lookup-topic',
         placeHolder: 'Start typing and select...',
         data: {
-            src: async () => {
-                if (!bag.lookupEnv) {
-                    return [];
-                }
-                const apiUrl = window.location.origin;
-                const res = await fetch(`${apiUrl}/envs/${bag.lookupEnv}`);
-                const payload = await res.json();
-                return payload.topics ?? [];
-            },
+            src: async () => getActiveLookup().topics ?? [],
             key: ['value'],
         },
         threshold: 2,
@@ -272,12 +290,23 @@ const setAutoCompleteTopicForLookup = () => {
 };
 
 const setLookupEnvironment = async (sel) => {
-    bag.lookupEnv = sel?.target.value ?? '';
+    bag.lookup.env = sel?.target.value ?? '';
+    if (!bag.lookup.env) {
+        setActiveLookup({});
+        return;
+    }
+    try {
+        const res = await fetch(`${apiUrl}/envs/${bag.lookup.env}`);
+        const payload = await res.json();
+        setActiveLookup(payload);
+    } catch (e) {
+        console.error(e)
+    }
 };
 
 const setLookupType = async (sel) => {
-    bag.replayType = sel?.target.value ?? '';
-    switch (bag.replayType) {
+    bag.lookup.replayType = sel?.target.value ?? '';
+    switch (bag.lookup.replayType) {
         case REPLAY_FROM_BEGINNING:
             document.getElementById('bag-lookup-offset').value = '0';
             break;
@@ -290,10 +319,15 @@ const setLookupType = async (sel) => {
     await enableLookupGo();
 };
 
-const resetLookup = async (e) => {
+const resetLookup = async () => {
     document.getElementById('bag-lookup-form').reset();
     await setLookupEnvironment();
     await setLookupType();
+};
+
+const stopLookup = async () => {
+    bag.lookup.searchId = "";
+    // TODO: explicitly send stop signal
 };
 
 const updateMessageSignature = () => {
@@ -324,6 +358,8 @@ export {
     enableLookupGo,
     fireLookup,
     resetLookup,
+    stopLookup,
+    clearLookup,
     setAutoCompleteTopicForLookup,
     setLookupEnvironment,
     setLookupType,
