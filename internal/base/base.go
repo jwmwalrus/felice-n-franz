@@ -75,6 +75,9 @@ var (
 	// Conf application's global configuration
 	Conf Config
 
+	// FlagUseConfig user-provided configuration file
+	FlagUseConfig string
+
 	userConf Config
 )
 
@@ -90,12 +93,14 @@ func Load(version []byte) (args []string) {
 	err := AppVersion.Read(version)
 	onerror.Panic(err)
 
-	configFile = filepath.Join(ConfigDir, configFilename)
+	if FlagUseConfig != "" {
+		configFile = FlagUseConfig
+	} else {
+		configFile = filepath.Join(ConfigDir, configFilename)
+	}
 	lockFile = filepath.Join(RuntimeDir, lockFilename)
 
 	err = env.SetDirs(
-		configFile,
-		lockFile,
 		CacheDir,
 		ConfigDir,
 		DataDir,
@@ -105,6 +110,11 @@ func Load(version []byte) (args []string) {
 
 	_, err = os.Stat(configFile)
 	if os.IsNotExist(err) {
+		if FlagUseConfig != "" {
+			log.WithFields(log.Fields{
+				"--config": FlagUseConfig,
+			}).Fatal("No user-provided configuration file was found")
+		}
 		log.Info(configFilename + " was not found. Generating one")
 		userConf.FirstRun = true
 		err := Save()
@@ -124,6 +134,7 @@ func Load(version []byte) (args []string) {
 	err = userConf.validate()
 	onerror.Panic(err)
 
+	configFile = filepath.Join(ConfigDir, configFilename)
 	if userConf.FirstRun {
 		userConf.FirstRun = false
 		err := Save()
@@ -214,6 +225,7 @@ func init() {
 	getopt.FlagLong(&FlagVerbose, "verbose", 'v', "Bump logging severity")
 	getopt.FlagLong(&FlagSeverity, "severity", 0, "Logging severity")
 	getopt.FlagLong(&FlagEchoLogging, "echo-logging", 'e', "Echo logs to stderr")
+	getopt.FlagLong(&FlagUseConfig, "config", 'c', "Use provided config file")
 
 	// log-related
 	logFilename = filepath.Base(os.Args[0]) + ".log"

@@ -71,7 +71,7 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
             <dt>type</dt>
             <dd>bool</dd>
             <dt>description</dt>
-            <dd>If true, overwrite the <code>config.json</code> file upon reading its contents</dd>
+            <dd>If true, overwrite the <code>${XDG_CONFIG_HOME}/felice-n-franz/config.json</code> file with in-memory values</dd>
             <dt>default</dt>
             <dd><code>false</code></dd>
             <dt>required/optional</dt>
