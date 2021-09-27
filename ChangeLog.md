@@ -9,6 +9,16 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+stop lookup
+track subscriptions
+show defined headers
+load config
+save config
+
+## [0.55.1] 2021-09-27
+
+WIP
+
 ## [0.55.0] 2021-09-26
 
 Features and improvements
