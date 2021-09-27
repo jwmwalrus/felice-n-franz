@@ -237,6 +237,19 @@
                         <textarea class="form-control" id="produce-headers" rows="3" placeholder="{{.headerPlaceholder}}"></textarea>
                       </div>
                     </div>
+                    <div class="col-10">
+                      <div class="input-group input-group-sm mb-0">
+                        <select id="produce-predef-headers" class="form-control mb-3" title="Select headers to add/remove">
+                          <option value="" selected>Predefined Headers...</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-2">
+                      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                        <button type="button" class="btn btn-sm btn-secondary text-warning" id="produce-add-header-btn" title="Add header" disabled><i class="fas fa-plus"></i></button>
+                        <button type="button" class="btn btn-sm btn-secondary text-danger ml-auto" id="produce-remove-header-btn" title="Remove header"><i class="fas fa-minus"></i></button>
+                      </div>
+                    </div>
                   </div>
                   <div class="row">
                     <div class="col-12">

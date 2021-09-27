@@ -13,6 +13,12 @@ const resetProducer = () => document.getElementById('producer-form').reset();
 
 const validateProducerPayload = () => {};
 
+const addHeader = () => {
+};
+
+const addHeaderToList = (h) => {
+};
+
 const produceMessage = () => {
     const topic = document.getElementById('produce-topic').value;
     const payload = document.getElementById('produce-payload').value;
@@ -40,6 +46,32 @@ const produceMessage = () => {
     produce(topic, payload, key, headers);
 };
 
+const removeHeader = () => {
+};
+
+const removeHeaderFromList = (h) => {
+};
+
+const setPredefinedHeaders = () => {
+    const sel = document.getElementById('produce-predef-headers');
+    sel.innerHTML = '<option value="" selected>Predefined headers...</option>';
+
+    const topic = document.getElementById('produce-topic').value;
+    const headers = getActiveEnv().topics?.find((t) => t.value === topic)?.headers;
+
+    if (headers) {
+        headers.forEach((h) => {
+            const o = document.createElement('option');
+            o.value = JSON.stringify(h);
+            o.innerText = `${h.key} -> ${h.value}`;
+            sel.appendChild(o);
+            if (h.key === 'Content-Type' && h.value === 'application/json') {
+                addHeaderToList(h);
+            }
+        });
+    }
+};
+
 const setAutoCompleteTopicForProducer = () => {
     acTopic = new AutoComplete({
         selector: '#produce-topic',
@@ -51,13 +83,16 @@ const setAutoCompleteTopicForProducer = () => {
         threshold: 2,
         onSelection: (feedback) => {
             document.getElementById('produce-topic').value = feedback.selection.value[feedback.selection.key];
+            setPredefinedHeaders();
         },
     });
 };
 
 export {
+    addHeader,
     resetProducer,
     validateProducerPayload,
     produceMessage,
+    removeHeader,
     setAutoCompleteTopicForProducer,
 };

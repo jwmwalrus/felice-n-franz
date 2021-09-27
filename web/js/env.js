@@ -34,10 +34,9 @@ const getOutstandingHeader = (m) => {
             for (const j of mh) {
                 if (!(EXCEPT.includes(i.value))
                    && i.key === j.key
-                   && (i.value === j.value
-                       || activeEnv.headerPrefix + i.value === j.value)
+                   && (i.value === j.value)
                 ) {
-                    oh = i.value;
+                    oh = i.value.replace(new RegExp('^' + activeEnv.headerPrefix), '');
                     break;
                 }
             }
@@ -53,14 +52,16 @@ const getTopicName = (m) => {
 
     if (!h) {
         if (!_.isEmpty(activeEnv)) {
-            return activeEnv
-                .topics
-                .find((t) => t.value === m.topic)?.name ?? '';
+            const name = activeEnv.topics.find((t) => t.value === m.topic)?.name ?? '';
+            if (name) {
+                return name;
+            }
         }
         if (!_.isEmpty(lookupEnv)) {
-            return lookupEnv
-                .topics
-                .find((t) => t.value === m.topic)?.name ?? '';
+            const name = lookupEnv.topics.find((t) => t.value === m.topic)?.name ?? '';
+            if (name) {
+                return name;
+            }
         }
     }
 

@@ -17,9 +17,11 @@ import {
     clearFilter,
 } from './cards';
 import {
+    addHeader,
     resetProducer,
     validateProducerPayload,
     produceMessage,
+    removeHeader,
     setAutoCompleteTopicForProducer,
 } from './produce-modal.js';
 import {
@@ -106,6 +108,8 @@ window.onload = () => {
     document.getElementById('produce-payload-toggle-compact-btn').onclick = () => toggleCompactBtn('produce-payload');
     document.getElementById('reset-producer-btn').onclick = resetProducer;
     document.getElementById('validate-producer-payload-btn').onclick = validateProducerPayload;
+    document.getElementById('produce-add-header-btn').onclick = addHeader;
+    document.getElementById('produce-remove-header-btn').onclick = removeHeader;
     document.getElementById('produce-message-btn').onclick = produceMessage;
 
     document.getElementById('bag-copy-raw-btn').onclick = () => {};
