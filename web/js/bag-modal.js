@@ -300,7 +300,7 @@ const setLookupEnvironment = async (sel) => {
         const payload = await res.json();
         setActiveLookup(payload);
     } catch (e) {
-        console.error(e)
+        console.error(e);
     }
 };
 
@@ -326,7 +326,7 @@ const resetLookup = async () => {
 };
 
 const stopLookup = async () => {
-    bag.lookup.searchId = "";
+    bag.lookup.searchId = '';
     // TODO: explicitly send stop signal
 };
 

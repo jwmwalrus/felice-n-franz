@@ -25,9 +25,18 @@ const tracker = new Map();
 const filter = {
     ignoreCase: false,
     value: '',
+    rx: null,
 };
 
-const messageMatchesFilter = (m) => m.value.includes(filter.value);
+const messageMatchesFilter = (m) => {
+    if (filter.value === '') {
+        return true;
+    }
+    if (filter.rx) {
+        return filter.rx.test(m.value);
+    }
+    return false;
+};
 
 const updateCardBadges = (topic) => {
     if (!tracker.has(topic)) {
@@ -48,6 +57,7 @@ const updateCardBadges = (topic) => {
 
 const clearFilter = () => {
     filter.value = '';
+    filter.rx = null;
 
     for (const k of tracker.keys()) {
         tracker.get(k).forEach((m) => {
@@ -69,6 +79,8 @@ const applyFilter = () => {
         clearFilter();
         return;
     }
+
+    filter.rx = new RegExp(filter.value);
 
     for (const k of tracker.keys()) {
         tracker.get(k).forEach((m) => {
