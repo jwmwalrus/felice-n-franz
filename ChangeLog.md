@@ -10,10 +10,19 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 stop lookup
-track subscriptions
-show defined headers
-load config
-save config
+
+## [0.56.0] 2021-09-27
+
+New features
+
+### Added
+
+* Predefined headers selector
+* Accept user-provided config.json
+
+### Modified
+
+* Use RegExp in filter
 
 ## [0.55.1] 2021-09-27
 
