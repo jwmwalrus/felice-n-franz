@@ -13,10 +13,34 @@ const resetProducer = () => document.getElementById('producer-form').reset();
 
 const validateProducerPayload = () => {};
 
-const addHeader = () => {
+const addHeaderToList = (h) => {
+    let { value } = document.getElementById('produce-headers');
+    if (!value) {
+        value = '[]';
+    }
+
+    const headers = JSON.parse(value);
+
+    for (const x of headers) {
+        if (x.key === h.key && x.value === h.value) {
+            return;
+        }
+    }
+
+    headers.push(h);
+    const out = JSON.stringify(headers, null, 2);
+    document.getElementById('produce-headers').value = out;
 };
 
-const addHeaderToList = (h) => {
+const addHeader = () => {
+    const e = document.getElementById('produce-predef-headers');
+    const { value } = e.options[e.selectedIndex];
+
+    if (!value) {
+        return;
+    }
+
+    addHeaderToList(JSON.parse(value));
 };
 
 const produceMessage = () => {
@@ -46,13 +70,31 @@ const produceMessage = () => {
     produce(topic, payload, key, headers);
 };
 
-const removeHeader = () => {
+const removeHeaderFromList = (h) => {
+    const { value } = document.getElementById('produce-headers');
+    if (!value) {
+        return;
+    }
+
+    const list = JSON.parse(value).filter((x) => x.key !== h.key || x.value !== h.value);
+
+    const out = JSON.stringify(list, null, 2);
+    document.getElementById('produce-headers').value = out;
 };
 
-const removeHeaderFromList = (h) => {
+const removeHeader = () => {
+    const e = document.getElementById('produce-predef-headers');
+    const { value } = e.options[e.selectedIndex];
+
+    if (!value) {
+        return;
+    }
+
+    removeHeaderFromList(JSON.parse(value));
 };
 
 const setPredefinedHeaders = () => {
+    console.log('setting predefined headers');
     const sel = document.getElementById('produce-predef-headers');
     sel.innerHTML = '<option value="" selected>Predefined headers...</option>';
 
@@ -82,8 +124,14 @@ const setAutoCompleteTopicForProducer = () => {
         },
         threshold: 2,
         onSelection: (feedback) => {
-            document.getElementById('produce-topic').value = feedback.selection.value[feedback.selection.key];
-            setPredefinedHeaders();
+            Promise.resolve('success')
+                .then(() => {
+                    document.getElementById('produce-topic').value = feedback.selection.value[feedback.selection.key];
+                })
+                .then(() => {
+                    document.getElementById('produce-headers').value = '[]';
+                })
+                .then(() => setPredefinedHeaders());
         },
     });
 };
