@@ -5,7 +5,7 @@ import { produce, subscribe } from './socket.js';
 import { ERROR, showToast } from './toasts.js';
 import { addConsumerCard } from './cards.js';
 
-import '@tarekraafat/autocomplete.js/dist/css/autoComplete.css';
+import '@tarekraafat/autocomplete.js/dist/css/autoComplete.02.css';
 
 let acTopic = null;
 
@@ -94,9 +94,9 @@ const removeHeader = () => {
 };
 
 const setPredefinedHeaders = () => {
-    console.log('setting predefined headers');
     const sel = document.getElementById('produce-predef-headers');
     sel.innerHTML = '<option value="" selected>Predefined headers...</option>';
+    document.getElementById('produce-headers').value = '[]';
 
     const topic = document.getElementById('produce-topic').value;
     const headers = getActiveEnv().topics?.find((t) => t.value === topic)?.headers;
@@ -120,20 +120,30 @@ const setAutoCompleteTopicForProducer = () => {
         placeHolder: 'Start typing and select...',
         data: {
             src: async () => getActiveEnv().topics ?? [],
-            key: ['value'],
+            keys: ['value'],
         },
         threshold: 2,
-        onSelection: (feedback) => {
-            Promise.resolve('success')
-                .then(() => {
-                    document.getElementById('produce-topic').value = feedback.selection.value[feedback.selection.key];
-                })
-                .then(() => {
-                    document.getElementById('produce-headers').value = '[]';
-                })
-                .then(() => setPredefinedHeaders());
+        resultsList: {
+            maxResults: 10,
+            noResults: true,
+        },
+        resultItem: {
+            highlight: true,
         },
     });
+
+    document.querySelector('#produce-topic').addEventListener(
+        'selection',
+        (event) => {
+            const { selection } = event.detail;
+            document.getElementById('produce-topic').value = selection.value[selection.key];
+        },
+    );
+
+    document.querySelector('#produce-topic').addEventListener(
+        'close',
+        () => setPredefinedHeaders(),
+    );
 };
 
 export {

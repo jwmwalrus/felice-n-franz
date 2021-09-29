@@ -291,3 +291,11 @@ footer.footer {
   min-width: 100%;
   padding: 0;
 }
+
+.autoComplete_wrapper > input {
+  min-width: 100%;
+}
+
+.autoComplete_wrapper > ul {
+  min-width: 500px;
+}

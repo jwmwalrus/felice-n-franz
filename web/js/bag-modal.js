@@ -280,13 +280,25 @@ const setAutoCompleteTopicForLookup = () => {
         placeHolder: 'Start typing and select...',
         data: {
             src: async () => getActiveLookup().topics ?? [],
-            key: ['value'],
+            keys: ['value'],
         },
         threshold: 2,
-        onSelection: (feedback) => {
-            document.getElementById('bag-lookup-topic').value = feedback.selection.value[feedback.selection.key];
+        resultsList: {
+            maxResults: 10,
+            noResults: true,
+        },
+        resultItem: {
+            highlight: true,
         },
     });
+
+    document.querySelector('#bag-lookup-topic').addEventListener(
+        'selection',
+        (event) => {
+            const { selection } = event.detail;
+            document.getElementById('bag-lookup-topic').value = selection.value[selection.key];
+        },
+    );
 };
 
 const setLookupEnvironment = async (sel) => {
