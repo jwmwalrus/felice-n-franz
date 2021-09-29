@@ -11,6 +11,18 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 stop lookup
 
+## [0.57.0] 2021-09-28
+
+Update dependencies
+
+### Updated
+
+* package.json's dependencies
+
+### Modified
+
+* autoComplete.js's configuration to account for breaking changes.
+
 ## [0.56.0] 2021-09-27
 
 New features
