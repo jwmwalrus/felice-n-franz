@@ -9,15 +9,19 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.58.1] 2021-09-30
+
+Cleanup
+
 ## [0.58.0] 2021-09-30
 
 Reimplement quit mechanism
 
-## Added
+### Added
 
 * Fully functional stop button for lookup
 
-## Modified
+### Modified
 
 * Unregistering mechanism for topic consumers
 
