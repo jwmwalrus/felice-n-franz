@@ -69,9 +69,9 @@ func (c connection) processMessages() {
 					if err := AssignConsumer(env, t); err != nil {
 						log.Error(err)
 						toast := toastMsg{
-
-							Title:   "Consumer Error",
-							Message: err.Error(),
+							ToastType: toastError,
+							Title:     "Consumer Error",
+							Message:   err.Error(),
 						}
 						toast.send()
 					}
@@ -112,7 +112,7 @@ func (c connection) processMessages() {
 				toast.send()
 			}
 
-		case lookupTopicsMsg:
+		case lookupTopicMsg:
 			env := base.Conf.GetEnvConfig(res.Env)
 			if err := LookupTopic(env, res.Topic, res.Payload[0]); err != nil {
 				log.Error(err)
@@ -122,6 +122,12 @@ func (c connection) processMessages() {
 					Message:   err.Error(),
 				}
 				toast.send()
+			}
+		case stopLookupMsg:
+			for _, s := range res.Payload {
+				if c := getConsumerForSearchSearchID(s); c != nil {
+					unregister(c)
+				}
 			}
 		case refreshRegistryMsg:
 			refreshRegistry()
@@ -152,7 +158,8 @@ type msgType string
 const (
 	consumeTopicsMsg     msgType = "consume"
 	produceMsg           msgType = "produce"
-	lookupTopicsMsg      msgType = "lookup"
+	lookupTopicMsg       msgType = "lookup"
+	stopLookupMsg        msgType = "stopLookup"
 	refreshRegistryMsg   msgType = "refresh"
 	resetRegistryMsg     msgType = "reset"
 	unsubscribeTopicsMsg msgType = "unsubscribe"

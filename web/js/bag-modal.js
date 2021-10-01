@@ -15,7 +15,7 @@ import {
     getTopicName,
     setActiveLookup,
 } from './env.js';
-import { lookup } from './socket.js';
+import { lookup, stopAllLookup } from './socket.js';
 import { shoppingBagIcon } from './icons.js';
 
 const REPLAY_FROM_BEGINNING = 'beginning';
@@ -28,7 +28,7 @@ const bag = {
     lookup: {
         env: '',
         replayType: '',
-        searchId: '',
+        searchIds: [],
     },
     messages: new Map(),
     toasts: new Map(),
@@ -149,7 +149,7 @@ const addMessageToBag = async (m) => {
 };
 
 const addSearchResult = async (m) => {
-    if (m.searchId !== bag.lookup.searchId) {
+    if (!bag.lookup.searchIds.includes(m.searchId)) {
         return;
     }
 
@@ -260,13 +260,27 @@ const enableLookupGo = async () => {
 };
 
 const fireLookup = async () => {
-    bag.lookup.searchId = uuidv4();
+    const searchId = uuidv4();
+    bag.lookup.searchIds.push(searchId);
+
+    const offset = document.getElementById('bag-lookup-offset').value;
+    const parsed = Date.parse(offset);
+    if (parsed === 0 || Number.isNaN(parsed)) {
+        showToast({
+            toastType: ERROR,
+            title: 'Invalid DateTime',
+            message: 'Unable to parse the provided offset as a DateTime',
+        });
+        return;
+    }
+
     const payload = {
         type: bag.lookup.replayType,
-        offset: document.getElementById('bag-lookup-offset').value,
         pattern: document.getElementById('bag-lookup-pattern').value,
-        searchId: bag.lookup.searchId,
+        offset,
+        searchId,
     };
+
     lookup(
         bag.lookup.env,
         document.getElementById('bag-lookup-topic').value,
@@ -338,8 +352,8 @@ const resetLookup = async () => {
 };
 
 const stopLookup = async () => {
-    bag.lookup.searchId = '';
-    // TODO: explicitly send stop signal
+    stopAllLookup(bag.lookup.searchIds);
+    bag.lookup.searchIds = [];
 };
 
 const updateMessageSignature = () => {

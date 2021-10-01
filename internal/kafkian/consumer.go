@@ -30,52 +30,52 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 		return
 	}
 
-	register(c, env.Name, topic)
+	reg := register(c, env.Name, topic, "")
 
 	go func() {
 		defer c.Close()
 
 		c.Subscribe(topic, nil)
 
+	subscribeLoop:
 		for {
-			ev := c.Poll(100)
-			if !isRegistered(c) {
+			select {
+			case <-reg.quit:
 				log.Info("Consumer is not registered anymore!")
 				if c != nil {
 					err := c.Unsubscribe()
 					onerror.Warn(err)
 				}
-				break
-			}
-
-			if ev == nil {
-				continue
-			}
-
-			switch e := ev.(type) {
-			case *kafka.Message:
-				if e.Timestamp.Unix() <= cct.Unix() {
-					continue
-				}
-				log.Infof("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
-				if e.Headers != nil {
-					log.Infof("%% Headers: %v\n", e.Headers)
-				}
-				sendKafkaMessage(e, "")
-			case kafka.Error:
-				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				toast := toastMsg{
-					Title:        "Consumer Error",
-					Message:      e.String(),
-					ToastType:    toastError,
-					CanBeIgnored: errorCanBeIgnored(e),
-				}
-				toast.send()
-				if e.Code() == kafka.ErrAllBrokersDown {
-					break
-				}
+				break subscribeLoop
 			default:
-				log.Infof("Ignored %v\n", e)
+				ev := c.Poll(100)
+
+				switch e := ev.(type) {
+				case *kafka.Message:
+					if e.Timestamp.Unix() <= cct.Unix() {
+						continue
+					}
+					log.Infof("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+					if e.Headers != nil {
+						log.Infof("%% Headers: %v\n", e.Headers)
+					}
+					sendKafkaMessage(e, "")
+				case kafka.Error:
+					log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
+					toast := toastMsg{
+						ToastType:    toastError,
+						Title:        "Consumer Error",
+						Message:      e.String(),
+						CanBeIgnored: errorCanBeIgnored(e),
+					}
+					toast.send()
+					if e.Code() == kafka.ErrAllBrokersDown {
+						break
+					}
+				case nil:
+				default:
+					log.Infof("Ignored %v\n", e)
+				}
 			}
 		}
 	}()
@@ -111,7 +111,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 		return
 	}
 
-	register(c, env.Name, topic)
+	reg := register(c, env.Name, topic, "")
 
 	go func() {
 		defer c.Close()
@@ -122,43 +122,43 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 			onerror.Log(err)
 		}
 
+	assignLoop:
 		for {
-			ev := c.Poll(100)
-			if !isRegistered(c) {
+			select {
+			case <-reg.quit:
 				log.Info("Consumer is not registered anymore!")
 				err := c.Unsubscribe()
 				onerror.Warn(err)
-				break
-			}
-
-			if ev == nil {
-				continue
-			}
-
-			switch e := ev.(type) {
-			case *kafka.Message:
-				if e.Timestamp.Unix() <= cct.Unix() {
-					continue
-				}
-				log.Infof("Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
-				if e.Headers != nil {
-					log.Infof("Headers: %v\n", e.Headers)
-				}
-				sendKafkaMessage(e, "")
-			case kafka.Error:
-				log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
-				toast := toastMsg{
-					Title:        "Consumer Error",
-					Message:      e.String(),
-					ToastType:    toastError,
-					CanBeIgnored: errorCanBeIgnored(e),
-				}
-				toast.send()
-				if e.Code() == kafka.ErrAllBrokersDown {
-					break
-				}
+				break assignLoop
 			default:
-				log.Infof("Ignored %v\n", e)
+				ev := c.Poll(100)
+
+				switch e := ev.(type) {
+				case *kafka.Message:
+					if e.Timestamp.Unix() <= cct.Unix() {
+						continue
+					}
+					log.Infof("Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+					if e.Headers != nil {
+						log.Infof("Headers: %v\n", e.Headers)
+					}
+					sendKafkaMessage(e, "")
+				case kafka.Error:
+					log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
+					toast := toastMsg{
+						ToastType:    toastError,
+						Title:        "Consumer Error",
+						Message:      e.String(),
+						CanBeIgnored: errorCanBeIgnored(e),
+					}
+					toast.send()
+					if e.Code() == kafka.ErrAllBrokersDown {
+						break
+					}
+				case nil:
+				default:
+					log.Infof("Ignored %v\n", e)
+				}
 			}
 		}
 	}()
@@ -226,14 +226,34 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 		return
 	}
 
+	reg := register(c, env.Name, topic, r.SearchID)
+
 	go func() {
 		defer c.Close()
 
 		c.Subscribe(topic, nil)
 
+		toast := toastMsg{
+			ToastType: toastInfo,
+			Title:     "From Lookup",
+			Message:   "Replay started for searchId " + r.SearchID,
+		}
+		toast.send()
+
 	replayLoop:
 		for {
 			select {
+			case <-reg.quit:
+				log.Info("Consumer is not registered anymore!")
+				err := c.Unsubscribe()
+				onerror.Warn(err)
+				toast := toastMsg{
+					ToastType: toastInfo,
+					Title:     "From Lookup",
+					Message:   "Replay stopped for searchId " + r.SearchID,
+				}
+				toast.send()
+				break replayLoop
 			case ev := <-c.Events():
 				switch e := ev.(type) {
 				case kafka.AssignedPartitions:
@@ -288,9 +308,9 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 				case kafka.Error:
 					log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
 					toast := toastMsg{
+						ToastType:    toastError,
 						Title:        "Lookup Error",
 						Message:      e.String(),
-						ToastType:    toastError,
 						CanBeIgnored: errorCanBeIgnored(e),
 					}
 					toast.send()

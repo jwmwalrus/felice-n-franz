@@ -1,4 +1,4 @@
-import { getActiveEnv } from './env.js';
+import { getActiveEnv, getActiveLookup } from './env.js';
 
 const socketUrl = 'ws://' + document.location.host + '/ws';
 let conn;
@@ -61,6 +61,17 @@ const resetSubscriptions = () => {
     conn.send(JSON.stringify(msg));
 };
 
+const stopAllLookup = (searchIds) => {
+    const { name } = getActiveLookup();
+    const msg = {
+        type: 'stopLookup',
+        env: name,
+
+        payload: searchIds,
+    };
+    conn.send(JSON.stringify(msg));
+};
+
 const subscribe = (topicKeys) => {
     const { name } = getActiveEnv();
     const msg = {
@@ -88,6 +99,7 @@ export {
     produce,
     refreshSubscriptions,
     resetSubscriptions,
+    stopAllLookup,
     subscribe,
     unsubscribe,
 };

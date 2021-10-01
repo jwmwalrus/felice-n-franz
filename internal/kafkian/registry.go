@@ -12,6 +12,19 @@ type record struct {
 	consumer *kafka.Consumer
 	env      string
 	topic    string
+	searchID string
+	quit     chan struct{}
+}
+
+func getConsumerForSearchSearchID(searchID string) (c *kafka.Consumer) {
+	for _, r := range reg {
+		if r.searchID == searchID {
+			log.Info("Consumer found for searchID " + searchID)
+			c = r.consumer
+			return
+		}
+	}
+	return
 }
 
 func getConsumerForTopic(topic string) (c *kafka.Consumer) {
@@ -35,13 +48,16 @@ func isRegistered(c *kafka.Consumer) (ok bool) {
 	return
 }
 
-func register(c *kafka.Consumer, env string, topic string) {
+func register(c *kafka.Consumer, env, topic, searchID string) *record {
 	if isRegistered(c) {
-		return
+		return nil
 	}
 	log.Info("Registering consumer")
 
-	reg = append(reg, record{c, env, topic})
+	r := record{c, env, topic, searchID, make(chan struct{})}
+	reg = append(reg, r)
+
+	return &r
 }
 
 func refreshRegistry() {
@@ -49,19 +65,37 @@ func refreshRegistry() {
 	var reg0 []record
 	copy(reg0, reg)
 	for _, r := range reg0 {
+		if r.searchID != "" {
+			continue
+		}
 		unregister(r.consumer)
 	}
 
+	allSuccess := true
 	for _, r := range reg0 {
+		if r.searchID != "" {
+			continue
+		}
 		env := base.Conf.GetEnvConfig(r.env)
 		if err := SubscribeConsumer(env, r.topic); err != nil {
+			allSuccess = false
 			log.Error(err)
 			toast := toastMsg{
-				Title:   "Consumer Error",
-				Message: err.Error(),
+				ToastType: toastError,
+				Title:     "Refresh error",
+				Message:   err.Error(),
 			}
 			toast.send()
 		}
+	}
+
+	if allSuccess {
+		toast := toastMsg{
+			ToastType: toastInfo,
+			Title:     "From Refresh",
+			Message:   "All consumers successfully refreshed!",
+		}
+		toast.send()
 	}
 }
 
@@ -76,6 +110,7 @@ func unregister(c *kafka.Consumer) {
 			reg[k] = reg[len(reg)-1]
 			reg = reg[:len(reg)-1]
 			log.Info("Consumer unregistered")
+			v.quit <- struct{}{}
 			return
 		}
 	}

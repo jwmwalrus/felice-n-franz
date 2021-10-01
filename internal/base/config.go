@@ -326,7 +326,7 @@ func (e *Environment) validate() (err error) {
 	for _, t := range e.Topics {
 		n++
 		if u, ok := unique[t.Key]; ok {
-			err = fmt.Errorf("Key %v is already in use by topic/group (#%v)", t.Key, u, n)
+			err = fmt.Errorf("Key %v is already in use by topic/group (#%v)", t.Key, u)
 			return
 		}
 		unique[t.Key] = t.Name
@@ -337,7 +337,7 @@ func (e *Environment) validate() (err error) {
 	for _, g := range e.Groups {
 		n++
 		if u, ok := unique[g.ID]; ok {
-			err = fmt.Errorf("ID %v is already in use by topic/group (#%v)", g.ID, u, n)
+			err = fmt.Errorf("ID %v is already in use by topic/group (#%v)", g.ID, u)
 			return
 		}
 		unique[g.ID] = g.Name
