@@ -385,7 +385,6 @@ Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The ex
 
 ## TODO
 
-- [ ] Improve lookup of topic messages.
 - [ ] Add a way of reordering consumer cards.
 - [ ] Add topic schema validation.
 
