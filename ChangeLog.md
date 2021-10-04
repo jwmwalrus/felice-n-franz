@@ -9,6 +9,15 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.58.2] 2021-10-03
+
+Quick fixes
+
+### Fixed
+
+* False positives when getting consumer
+* White color on white background issue
+
 ## [0.58.1] 2021-09-30
 
 Cleanup
