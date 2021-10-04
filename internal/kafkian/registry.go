@@ -29,7 +29,7 @@ func getConsumerForSearchSearchID(searchID string) (c *kafka.Consumer) {
 
 func getConsumerForTopic(topic string) (c *kafka.Consumer) {
 	for _, r := range reg {
-		if r.topic == topic {
+		if r.topic == topic && r.searchID == "" {
 			log.Info("Consumer found for topic " + topic)
 			c = r.consumer
 			return
@@ -101,6 +101,9 @@ func refreshRegistry() {
 
 func resetRegistry() {
 	log.Info("Resetting registry")
+	for _, v := range reg {
+		v.quit <- struct{}{}
+	}
 	reg = []record{}
 }
 
