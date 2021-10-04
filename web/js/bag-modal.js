@@ -178,7 +178,7 @@ const addToastToBag = (t) => {
 
     const node = document.createElement('div');
     node.setAttribute('id', `toast-${id}`);
-    node.classList.add('list-group-item');
+    node.classList.add('list-group-item', 'list-group-item-noclick');
 
     const truncate = (s) => _.truncate(s, { length: 50 });
 

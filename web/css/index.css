@@ -265,6 +265,7 @@ footer.footer {
   padding: 0;
 }
 
+.modal .list-group-item.list-group-item-noclick,
 .modal .list-group-item.list-group-item-action {
   font-size: 12px;
   padding: 6px;
@@ -272,6 +273,7 @@ footer.footer {
   color: white;
 }
 
+.modal .list-group-item.list-group-item-noclick:nth-of-type(odd),
 .modal .list-group-item.list-group-item-action:nth-of-type(odd) {
   background-color: #000000;
   color: white;
