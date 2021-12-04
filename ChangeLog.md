@@ -9,6 +9,10 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.58.3] 2021-12-03
+
+Update bumpy-ride
+
 ## [0.58.2] 2021-10-03
 
 Quick fixes
