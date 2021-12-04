@@ -7,7 +7,7 @@ tasks:
   dev:
     cmds:
       - task: wpdev
-      - task: gobuild
+      - task: gorun
 
   prod:
     cmds:
@@ -33,6 +33,10 @@ tasks:
   gobuild:
     cmds:
       - go build -v -o ./felice-n-franz{{exeExt}} .
+
+  gorun:
+    cmds:
+      - go run main.go
 
   wpbuild:
     cmds:
