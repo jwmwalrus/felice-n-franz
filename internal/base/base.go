@@ -1,6 +1,7 @@
 package base
 
 import (
+	_ "embed" //required to import version.json
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -10,7 +11,7 @@ import (
 	"github.com/adrg/xdg"
 	"github.com/jwmwalrus/bnp/env"
 	"github.com/jwmwalrus/bnp/onerror"
-	"github.com/jwmwalrus/bumpy-ride/version"
+	"github.com/jwmwalrus/bumpy/pkg/version"
 	"github.com/nightlyone/lockfile"
 	"github.com/pborman/getopt/v2"
 	log "github.com/sirupsen/logrus"
@@ -48,6 +49,9 @@ var (
 	// OS operating system's name
 	OS string
 
+	//go:embed version.json
+	versionJSON []byte
+
 	// AppVersion application's version
 	AppVersion version.Version
 
@@ -82,7 +86,7 @@ var (
 )
 
 // Load loads application's configuration
-func Load(version []byte) (args []string) {
+func Load() (args []string) {
 	args = env.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
 
 	if flagHelp {
@@ -90,7 +94,7 @@ func Load(version []byte) (args []string) {
 		os.Exit(0)
 	}
 
-	err := AppVersion.Read(version)
+	err := AppVersion.Read(versionJSON)
 	onerror.Panic(err)
 
 	if FlagUseConfig != "" {

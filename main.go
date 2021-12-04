@@ -14,9 +14,6 @@ import (
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
 )
 
-//go:embed version.json
-var version []byte
-
 //go:embed web/html/index.html
 var indexHTML string
 
@@ -24,7 +21,7 @@ var indexHTML string
 var staticContent embed.FS
 
 func main() {
-	base.Load(version)
+	base.Load()
 	cfg := base.Conf
 
 	gin.DefaultWriter = logger.NewDefaultWriter()
