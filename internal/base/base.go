@@ -3,6 +3,7 @@ package base
 import (
 	_ "embed" //required to import version.json
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,8 +11,8 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/jwmwalrus/bnp/env"
-	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/bumpy/pkg/version"
+	"github.com/jwmwalrus/onerror"
 	"github.com/nightlyone/lockfile"
 	"github.com/pborman/getopt/v2"
 	log "github.com/sirupsen/logrus"
@@ -87,7 +88,7 @@ var (
 
 // Load loads application's configuration
 func Load() (args []string) {
-	args = env.ParseArgs(logFile, &FlagEchoLogging, &FlagVerbose, &FlagSeverity)
+	args = parseArgs()
 
 	if flagHelp {
 		getopt.Usage()
@@ -213,6 +214,46 @@ func copyUserConfig() {
 			Conf.Envs[i].Topics[j].expandVars(Conf.Envs[i].Vars)
 		}
 	}
+}
+
+func parseArgs() (args []string) {
+	getopt.Parse()
+	args = getopt.Args()
+	arg0 := []string{os.Args[0]}
+	args = append(arg0, args...)
+
+	resolveSeverity()
+
+	if FlagEchoLogging {
+		mw := io.MultiWriter(os.Stderr, logFile)
+		log.SetOutput(mw)
+	}
+
+	return
+}
+
+func resolveSeverity() {
+	givenSeverity := FlagSeverity
+
+	if givenSeverity == "" {
+		if FlagVerbose {
+			FlagSeverity = "info"
+		} else {
+			FlagSeverity = "error"
+		}
+	} else {
+		if _, err := log.ParseLevel(givenSeverity); err != nil {
+			FlagSeverity = "error"
+		} else {
+			FlagSeverity = givenSeverity
+		}
+	}
+
+	level, _ := log.ParseLevel(FlagSeverity)
+	log.SetLevel(level)
+	log.SetReportCaller(FlagSeverity == "debug")
+
+	return
 }
 
 func init() {

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
+	"github.com/jwmwalrus/onerror"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )

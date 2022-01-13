@@ -8,10 +8,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jwmwalrus/bnp/logger"
-	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
+	"github.com/jwmwalrus/onerror"
+	"github.com/jwmwalrus/walkie"
 )
 
 //go:embed web/html/index.html
@@ -24,9 +24,9 @@ func main() {
 	base.Load()
 	cfg := base.Conf
 
-	gin.DefaultWriter = logger.NewDefaultWriter()
+	gin.DefaultWriter = walkie.NewDefaultWriter()
 	r := gin.Default()
-	r.Use(logger.ToFile())
+	r.Use(walkie.ToFile())
 	r.Use(gin.Recovery())
 
 	route(r)

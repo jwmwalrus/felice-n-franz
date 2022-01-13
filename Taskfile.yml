@@ -6,14 +6,14 @@ version: '2'
 tasks:
   dev:
     cmds:
-      - task: wpdev
-      - task: gorun
+      - task: wp:dev
+      - task: go:run
 
   prod:
     cmds:
       - task: clean
-      - task: wpbuild
-      - task: gobuild
+      - task: wp:build
+      - task: go:build
 
   build:
     cmds:
@@ -30,50 +30,50 @@ tasks:
     cmds:
       - go test -v -p 1 ./...
 
-  gobuild:
+  go:build:
     cmds:
       - go build -v -o ./felice-n-franz{{exeExt}} .
 
-  gorun:
+  go:run:
     cmds:
       - go run main.go
 
-  wpbuild:
+  wp:build:
     cmds:
       - npm --prefix ./web/ run build
 
-  wpdev:
+  wp:dev:
     cmds:
       - npm --prefix ./web/ run dev
 
-  npmci:
+  npm:ci:
     cmds:
       - npm --prefix ./web/ ci
 
-  npmi:
+  npm:i:
     cmds:
       - rm -rf web/node_modules
       - npm --prefix ./web/ install
 
-  bump-min:
+  bump:min:
     cmds:
-      - task: bump-minor
+      - task: bump:minor
 
-  bump-p:
+  bump:p:
     cmds:
-      - task: bump-patch
+      - task: bump:patch
 
-  bump-minor:
+  bump:minor:
     cmds:
-      - bumpy-ride bump --minor --npm-prefix web
+      - bumpy bump --minor --npm-prefix web
 
-  bump-patch:
+  bump:patch:
     cmds:
-      - bumpy-ride bump --patch --npm-prefix web
+      - bumpy bump --patch --npm-prefix web
 
   tag:
     cmds:
-      - bumpy-ride tag
+      - bumpy tag
 
   eslint:
     cmds:

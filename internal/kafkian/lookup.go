@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/bnp/slice"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
+	"github.com/jwmwalrus/onerror"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
