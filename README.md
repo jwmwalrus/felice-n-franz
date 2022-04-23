@@ -23,7 +23,7 @@ For general instructions, go [here](https://golang.org/doc/install) --no pun int
 
 To install, open a terminal and execute the following
 ```bash
-go get -u github.com/jwmwalrus/felice-n-franz
+go install github.com/jwmwalrus/felice-n-franz@latest
 ```
 
 The same command can be used for subsequent updates.
@@ -51,337 +51,31 @@ In order to operate properly (or at all), a `config.json` file is required.
 
 Upon first run, one is generated at `${XDG_CONFIG_HOME}/felice-n-franz/`. The expected contents are as follows:
 
-<dl>
-    <dt>version</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>int</dd>
-            <dt>description</dt>
-            <dd>Configuration file version</dd>
-            <dt>default</dt>
-            <dd><code>1</code></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>firstRun</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>bool</dd>
-            <dt>description</dt>
-            <dd>If true, overwrite the <code>${XDG_CONFIG_HOME}/felice-n-franz/config.json</code> file with in-memory values</dd>
-            <dt>default</dt>
-            <dd><code>false</code></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>port</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>int</dd>
-            <dt>description</dt>
-            <dd>Application's port</dd>
-            <dt>default</dt>
-            <dd><code>9191</code></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>maxTailOffset</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>int</dd>
-            <dt>description</dt>
-            <dd>Keep only the last <code>n</code> messages per consumer, with <code>n</code> given by this value</dd>
-            <dt>default</dt>
-            <dd><code>100</code></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>envs</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>array</dd>
-            <dt>description</dt>
-            <dd>Configured environments</dd>
-            <dt>default</dt>
-            <dd><code>[]</code></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.name</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Environment's name</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.active</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>bool</dd>
-            <dt>description</dt>
-            <dd>If false, this environent's configuration will be ignored</dd>
-            <dt>default</dt>
-            <dd>false</dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.configuration</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>object</dd>
-            <dt>description</dt>
-            <dd>librdkafka configuration for this environment. See [here](https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md) for further details </dd>
-            <dt>default</dt>
-            <dd>{}</dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.vars</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>object</dd>
-            <dt>description</dt>
-            <dd>Environment variables used for topic values</dd>
-            <dt>example</dt>
-            <dd><code>{"env": ""}</code></dd>
-            <dt>default</dt>
-            <dd><code>{}</code></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.headerPrefix</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Common prefix for topic's headers</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.topicsFrom</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Copy <code>env.schemas</code>, <code>env.topics</code> and <code>env.groups</code> from the given environment</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.schemas</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>object</dd>
-            <dt>description</dt>
-            <dd>TBD</dd>
-            <dt>default</dt>
-            <dd>{}</dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.topics</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>array</dd>
-            <dt>description</dt>
-            <dd>Configured topics for this environment</dd>
-            <dt>default</dt>
-            <dd><code>[]</code></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.topic.name</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Topic name</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.topic.description</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Topic description</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.topic.key</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Topic key. Must be a unique identifier for this environment</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.topic.value</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Topic value. Actual topic definition. Shall be unique for this environment.</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.topic.headers</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>array</dd>
-            <dt>description</dt>
-            <dd>Array of key-value objects defining the headers associated to this topic</dd>
-            <dt>example</dt>
-            <dd><code>[{"key": "Content-Type","value": "application/json"}]</code></dd>
-            <dt>default</dt>
-            <dd><code>[]</code></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.topic.schema</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>object</dd>
-            <dt>description</dt>
-            <dd>TBD</dd>
-            <dt>default</dt>
-            <dd><code>{}</code></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.groups</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>array</dd>
-            <dt>description</dt>
-            <dd>Groups of topics</dd>
-            <dt>default</dt>
-            <dd><code>[]</code></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.group.name</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Group's display name</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.group.description</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>array</dd>
-            <dt>description</dt>
-            <dd>Group'ss description</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.group.category</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>TBD</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>optional</dd>
-        </dl>
-    </dd>
-    <dt>env.group.id</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>string</dd>
-            <dt>description</dt>
-            <dd>Group's identifier. Must be unique for this environment and not to collide with topic keys</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-    <dt>env.group.keys</dt>
-    <dd>
-        <dl>
-            <dt>type</dt>
-            <dd>array</dd>
-            <dt>description</dt>
-            <dd>List of topic keys that belong to this group. Must not be empty</dd>
-            <dt>default</dt>
-            <dd></dd>
-            <dt>required/optional</dt>
-            <dd>required</dd>
-        </dl>
-    </dd>
-</dl>
+| Path | Type | Description | Default | Required |
+| :--- | :--- | :---------- | :------ | :------- |
+| version | int | Configuration file version | 1 | required |
+| firstRun | bool | If true, overwrite the <code>${XDG_CONFIG_HOME}/felice-n-franz/config.json</code> file with in-memory values | <code>false</code> | optional |
+| port | int | Application's port | <code>9191</code> | required |
+| envs | array | Configured environments | <code>[]</code> | required |
+| env.name | string | Environment's name |  | required |
+| env.active | bool | If false, this environent's configuration will be ignored | false | optional |
+| env.configuration | object | librdkafka configuration for this environment. See [here](https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md) for further details  | {} | required |
+| env.vars | object | Environment variables used for topic values | <code>{"env": ""}</code> | <code>{}</code> | optional |
+| env.headerPrefix | string | Common prefix for topic's headers |  | optional |
+| env.topicsFrom | string | Copy <code>env.schemas</code>, <code>env.topics</code> and <code>env.groups</code> from the given environment |  | optional
+| env.schemas | object | TBD | {} | optional
+| env.topics | array | Configured topics for this environment | <code>[]</code> | required | env.topic.name | string | Topic name |  | optional |
+| env.topic.description | string | Topic description |  | optional |
+| env.topic.key | string | Topic key. Must be a unique identifier for this environment |  | required |
+| env.topic.value | string | Topic value. Actual topic definition. Shall be unique for this environment. |  | required |
+| env.topic.headers | array | Array of key-value objects defining the headers associated to this topic | <code>[{"key": "Content-Type","value": "application/json"}]</code> | <code>[]</code> | optional |
+| env.topic.schema | object | TBD | <code>{}</code> | optional |
+| env.groups | type | description | default | required/optional |
+| env.group.name | string | Group's display name |  | optional |
+| env.group.description | array | Group'ss description |  | optional |
+| env.group.category | string | Group's category |  | optional |
+| env.group.id | string | Group's identifier. Must be unique for this environment and not to collide with topic keys |  | required |
+| env.group.keys | array | List of topic keys that belong to this group. Must not be empty |  | required |
 
 ## TODO
 
