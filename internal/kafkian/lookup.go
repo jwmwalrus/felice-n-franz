@@ -6,10 +6,10 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/jwmwalrus/bnp/slice"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	"github.com/jwmwalrus/onerror"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/slices"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
@@ -53,7 +53,7 @@ func LookupTopic(env base.Environment, topic, params string) (err error) {
 		return
 	}
 
-	if !slice.Contains(replayTypeStrings(), r.Type) {
+	if !slices.Contains(replayTypeStrings(), r.Type) {
 		err = fmt.Errorf("Unsupported Type parameter: %v", r.Type)
 		return
 	}
