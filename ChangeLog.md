@@ -9,6 +9,10 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.58.5] 2022-04-22
+
+Update Go version and dependencies
+
 ## [0.58.4] 2022-01-12
 
 Update Go version and dependencies
