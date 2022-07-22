@@ -252,8 +252,6 @@ func resolveSeverity() {
 	level, _ := log.ParseLevel(FlagSeverity)
 	log.SetLevel(level)
 	log.SetReportCaller(FlagSeverity == "debug")
-
-	return
 }
 
 func init() {

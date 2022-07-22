@@ -182,8 +182,8 @@ func (e *Environment) FindTopic(key string) (v Topic, err error) {
 
 // FindTopics looks for all topics in the given keys list
 func (e *Environment) FindTopics(keys []string) (topics []Topic, err error) {
-	v := Topic{}
 	for _, k := range keys {
+		var v Topic
 		v, err = e.FindTopic(k)
 		if err != nil {
 			return
@@ -195,7 +195,7 @@ func (e *Environment) FindTopics(keys []string) (topics []Topic, err error) {
 
 // FindTopicValues looks for all topics in the given keys list
 func (e *Environment) FindTopicValues(keys []string) (values []string, err error) {
-	topics := []Topic{}
+	var topics []Topic
 	if topics, err = e.FindTopics(keys); err != nil {
 		return
 	}
@@ -396,13 +396,6 @@ func (t *Topic) validate() (err error) {
 
 	if t.Schema == nil {
 		t.Schema = TopicSchema{}
-	}
-	return
-}
-
-func getKeys(topics []Topic) (keys []string) {
-	for _, t := range topics {
-		keys = append(keys, t.Key)
 	}
 	return
 }

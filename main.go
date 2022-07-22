@@ -39,7 +39,7 @@ func route(r *gin.Engine) *gin.Engine {
 	onerror.Panic(err)
 	r.StaticFS("/static", http.FS(sc))
 
-	t, err := template.New("index.html").Parse(indexHTML)
+	t, _ := template.New("index.html").Parse(indexHTML)
 	r.SetHTMLTemplate(t)
 	r.GET("/", index)
 	r.GET("/envs/:envname", getEnv)

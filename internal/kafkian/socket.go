@@ -179,9 +179,9 @@ type toastMsg struct {
 type toastType string
 
 const (
-	toastError   toastType = "error"
-	toastWarning toastType = "warning"
-	toastInfo    toastType = "info"
+	toastError toastType = "error"
+	// toastWarning toastType = "warning"
+	toastInfo toastType = "info"
 )
 
 func (t toastMsg) send() {
@@ -194,7 +194,6 @@ func (t toastMsg) send() {
 
 	socketGuard <- struct{}{}
 	go writeToSocket(payload)
-	return
 }
 
 func sendKafkaMessage(m *kafka.Message, searchID string) {
@@ -231,7 +230,6 @@ func sendKafkaMessage(m *kafka.Message, searchID string) {
 
 	socketGuard <- struct{}{}
 	go writeToSocket(payload)
-	return
 }
 
 func writeToSocket(payload []byte) {
@@ -242,14 +240,14 @@ func writeToSocket(payload []byte) {
 
 func headerK2B(kh []kafka.Header) (h []base.Header) {
 	for _, v := range kh {
-		h = append(h, base.Header{v.Key, string(v.Value)})
+		h = append(h, base.Header{Key: v.Key, Value: string(v.Value)})
 	}
 	return
 }
 
 func headerB2K(h []base.Header) (kh []kafka.Header) {
 	for _, v := range h {
-		kh = append(kh, kafka.Header{v.Key, []byte(v.Value)})
+		kh = append(kh, kafka.Header{Key: v.Key, Value: []byte(v.Value)})
 	}
 	return
 }
