@@ -9,6 +9,19 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+
+## [0.59.0] 2022-07-23
+
+Docker option
+
+### Fixed
+
+* Linter-related issues
+
+### Added
+
+* Option to install with docker-compose
+
 ## [0.58.6] 2022-04-22
 
 Update README
