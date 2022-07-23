@@ -1,0 +1,16 @@
+*.db
+*.pem
+.editorconfig
+.git
+.gitignore
+.tags*
+ChangeLog.md
+Dockerfile
+LICENSE
+README.*
+Taskfile.yml
+config.json
+felice+franz
+felice-franz
+felice-n-franz
+kc

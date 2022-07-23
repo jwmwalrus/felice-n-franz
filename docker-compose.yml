@@ -1,0 +1,20 @@
+---
+version: "3.9"
+services:
+
+  felice-n-franz:
+    environment:
+      - HOME=/home/${USER}
+      - USER
+      - UID
+      - GID
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: felice-n-franz:latest
+    user: ${UID}:${GID}
+    volumes:
+      - ${HOME}:/home/${USER}
+      - ${XDG_RUNTIME_DIR}:/run/user/${UID}
+    ports:
+      - "9191:9191"

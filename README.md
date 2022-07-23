@@ -6,6 +6,7 @@ A generic, web-based producer and consumer for Apache Kafka.
 ## Contents
 * [Requirements](#requirements)
 * [Installation](#installation)
+    * [Docker](#docker)
 * [Usage](#usage)
     * [Logging Flags](#logging-flags)
 * [Configuration](#configuration)
@@ -27,6 +28,32 @@ go install github.com/jwmwalrus/felice-n-franz@latest
 ```
 
 The same command can be used for subsequent updates.
+
+### Docker
+
+If you prefer so, you can clone this repository and run `docker-compose`, passing `UID` and `GID` as environment variavles:
+```bash
+env UID=${UID} GID=$(id -g) docker-compose up -d
+```
+
+The `XDG_RUNTIME_DIR` variable must exist in your host's shell environment before running `docker-compose`.
+
+For Linux it is usually defined by your login session, but can otherwise be defined right before running the above command:
+```bash
+export XDG_RUNTIME_DIR=/run/user/${UID}
+env UID=${UID} GID=$(id -g) docker-compose up -d
+```
+
+Similarly, for macOS:
+```bash
+export XDG_RUNTIME_DIR="${HOME}/Library/Application Support"
+env UID=${UID} GID=$(id -g) docker-compose up -d
+```
+
+To stop the container, execute
+```bash
+docker-compose down
+```
 
 ## Usage
 
