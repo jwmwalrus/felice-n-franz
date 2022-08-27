@@ -1,45 +1,45 @@
 {
-    "name": "felice-n-franz",
-    "version": "0.58.2",
-    "description": "Felice & Franz ==================",
-    "main": "index.js",
-    "scripts": {
-        "build": "./node_modules/.bin/webpack --mode production",
-        "watch": "DEV_MODE=1 node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development --watch",
-        "dev": "DEV_MODE=1 node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "eslint": "./node_modules/.bin/eslint ./js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/jwmwalrus/felice-n-franz.git"
-    },
-    "author": "",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/jwmwalrus/felice-franz/issues"
-    },
-    "homepage": "https://github.com/jwmwalrus/felice-franz#readme",
-    "dependencies": {
-        "@fortawesome/fontawesome-svg-core": "^1.2.36",
-        "@fortawesome/free-solid-svg-icons": "^5.15.4",
-        "@tarekraafat/autocomplete.js": "^10.2.6",
-        "bootstrap": "^4.6.0",
-        "jquery": "^3.6.0",
-        "lodash": "^4.17.21",
-        "luxon": "^2.0.2",
-        "toastify-js": "^1.11.1",
-        "uuid": "^8.3.2"
-    },
-    "devDependencies": {
-        "copy-webpack-plugin": "^8.1.1",
-        "css-loader": "^5.2.1",
-        "eslint": "^7.32.0",
-        "eslint-config-airbnb-base": "^14.2.1",
-        "eslint-plugin-import": "^2.24.2",
-        "file-loader": "^6.2.0",
-        "mini-css-extract-plugin": "^1.4.1",
-        "webpack": "^5.31.2",
-        "webpack-cli": "^4.6.0"
-    }
+  "name": "felice-n-franz",
+  "version": "0.58.2",
+  "description": "Felice & Franz ==================",
+  "main": "index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/webpack --mode production",
+    "watch": "DEV_MODE=1 node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development --watch",
+    "dev": "DEV_MODE=1 node --max_old_space_size=2560 ./node_modules/.bin/webpack --mode development",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eslint": "./node_modules/.bin/eslint ./js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jwmwalrus/felice-n-franz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jwmwalrus/felice-franz/issues"
+  },
+  "homepage": "https://github.com/jwmwalrus/felice-franz#readme",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.2",
+    "@fortawesome/free-solid-svg-icons": "^6.1.2",
+    "@tarekraafat/autocomplete.js": "^10.2.6",
+    "bootstrap": "^4.6.0",
+    "jquery": "^3.6.0",
+    "lodash": "^4.17.21",
+    "luxon": "^3.0.1",
+    "toastify-js": "^1.11.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.1",
+    "eslint": "^8.23.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.24.2",
+    "file-loader": "^6.2.0",
+    "mini-css-extract-plugin": "^2.6.1",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.6.0"
+  }
 }

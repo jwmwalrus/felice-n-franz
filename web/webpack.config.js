@@ -14,7 +14,7 @@ module.exports = {
         filename: 'js/[name].js',
         // publicPath: 'static/',
     },
-    target: 'es2021',
+    target: 'web',
     cache: false,
     stats: 'minimal',
     parallelism: 2,
