@@ -9,6 +9,9 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.59.1] 2022-08-27
+
+Upgrade dependencies
 
 ## [0.59.0] 2022-07-23
 
