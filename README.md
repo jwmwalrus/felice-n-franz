@@ -14,9 +14,12 @@ A generic, web-based producer and consumer for Apache Kafka.
 
 ## Requirements
 
-* Go version 1.16 or higher. 
+* Go version 1.19 or higher. 
 You can probably install it through your system's package manager (`apt`, `brew`, etc.). 
 For general instructions, go [here](https://golang.org/doc/install) --no pun intended.
+
+* `librdkafka` v2.0.2 or higher.
+You can probably install it through your system's package manager (`apt`, `brew`, etc.). If you installed [`kcat`](https://github.com/edenhill/kcat) through your package manager, then you're already set. 
 
 * Any web browser with decent support for ES2020 (e.g., Mozilla Firefox or any Chromium-based browser).
 
