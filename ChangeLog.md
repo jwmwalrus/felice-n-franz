@@ -9,6 +9,10 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.59.3] 2023-04-01
+
+Use rtcycler
+
 ## [0.59.2] 2023-03-03
 
 Upgrade dependencies
