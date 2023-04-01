@@ -25,7 +25,18 @@ type Config struct {
 	Envs     []Environment `json:"envs"`
 }
 
-func (c *Config) setDefaults() {
+// GetFirstRun implements the rtc.Config interface
+func (c *Config) GetFirstRun() bool {
+	return c.FirstRun
+}
+
+// SetFirstRun implements the rtc.Config interface
+func (c *Config) SetFirstRun(v bool) {
+	c.FirstRun = v
+}
+
+// SetDefaults implements the rtc.Config interface
+func (c *Config) SetDefaults() {
 	log.Info("Setting config defaults")
 
 	if c.Version == 0 {

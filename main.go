@@ -11,6 +11,7 @@ import (
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
 	"github.com/jwmwalrus/onerror"
+	rtc "github.com/jwmwalrus/rtcycler"
 	"github.com/jwmwalrus/walkie"
 )
 
@@ -21,8 +22,13 @@ var indexHTML string
 var staticContent embed.FS
 
 func main() {
-	base.Load()
-	cfg := base.Conf
+
+	rtc.Load(rtc.RTCycler{
+		AppDirName: base.AppDirName,
+		AppName:    base.AppName,
+		Config:     &base.UserConf,
+	})
+	cfg := base.Validate()
 
 	gin.DefaultWriter = walkie.NewDefaultWriter()
 	r := gin.Default()
