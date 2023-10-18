@@ -9,6 +9,20 @@ This project uses [semantic versions](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.60.0] 2023-10-17
+
+Misc. changes
+
+### Modified
+
+* Switched to slog for logging
+* Adapt to walkie's changes
+* Updated dependencies
+
+### Removed
+
+* Rendundant (standalone) onerror dependency
+
 ## [0.59.3] 2023-04-01
 
 Use rtcycler
