@@ -9,15 +9,11 @@ tasks:
       - task: wp:dev
       - task: go:run
 
-  prod:
+  build:
     cmds:
       - task: clean
       - task: wp:build
       - task: go:build
-
-  build:
-    cmds:
-      - task: prod
 
   clean:
       - rm -rf public/css
@@ -28,15 +24,24 @@ tasks:
 
   test:
     cmds:
-      - go test -v -p 1 ./...
+      - cmd: go test -v -p 1 ./...
+        platforms: [linux/amd64, darwin/amd64]
+      - cmd: go test -v -p 1 -tags dynamic ./...
+        platforms: [linux/arm64, darwin/arm64]
 
   go:build:
     cmds:
-      - go build -v -o ./felice-n-franz{{exeExt}} .
+      - cmd: go build -v -o ./felice-n-franz{{exeExt}} .
+        platforms: [linux/amd64, darwin/amd64]
+      - cmd: go build -v -o ./felice-n-franz{{exeExt}} -tags dynamic .
+        platforms: [linux/arm64, darwin/arm64]
 
   go:run:
     cmds:
-      - go run main.go
+      - cmd: go run main.go
+        platforms: [linux/amd64, darwin/amd64]
+      - cmd: go run -tags dynamic main.go
+        platforms: [linux/arm64, darwin/arm64]
 
   wp:build:
     cmds:
@@ -54,26 +59,6 @@ tasks:
     cmds:
       - rm -rf web/node_modules
       - npm --prefix ./web/ install
-
-  bump:min:
-    cmds:
-      - task: bump:minor
-
-  bump:p:
-    cmds:
-      - task: bump:patch
-
-  bump:minor:
-    cmds:
-      - bumpy bump --minor --npm-prefix web
-
-  bump:patch:
-    cmds:
-      - bumpy bump --patch --npm-prefix web
-
-  tag:
-    cmds:
-      - bumpy tag
 
   eslint:
     cmds:

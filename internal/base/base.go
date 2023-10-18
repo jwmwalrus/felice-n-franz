@@ -4,25 +4,25 @@ import (
 	_ "embed" //required to import version.json
 	"path/filepath"
 
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/bumpy/pkg/version"
-	"github.com/jwmwalrus/onerror"
 	rtc "github.com/jwmwalrus/rtcycler"
 )
 
 const (
-	// AppDirName application's directory name
+	// AppDirName application's directory name.
 	AppDirName = "felice-n-franz"
 
-	// AppName application name
+	// AppName application name.
 	AppName = "Felice & Franz"
 
-	// DefaultServerAPIVersion idem
+	// DefaultServerAPIVersion idem.
 	DefaultServerAPIVersion = "/api/v1"
 
-	// DefaultCA Kafka Certificate's filename
+	// DefaultCA Kafka Certificate's filename.
 	DefaultCA = "kafkacert.pem"
 
-	// DefaultPort application's default port
+	// DefaultPort application's default port.
 	DefaultPort = 9191
 )
 
@@ -30,17 +30,17 @@ var (
 	//go:embed version.json
 	versionJSON []byte
 
-	// AppVersion application's version
+	// AppVersion application's version.
 	AppVersion version.Version
 
-	// Conf application's global configuration
+	// Conf application's global configuration.
 	Conf Config
 
-	// UserConf application's global configuration, read during load
+	// UserConf application's global configuration, read during load.
 	UserConf Config
 )
 
-// Validate validates application's configuration
+// Validate validates application's configuration.
 func Validate() *Config {
 	err := AppVersion.Read(versionJSON)
 	onerror.Panic(err)
@@ -60,7 +60,7 @@ func Validate() *Config {
 	return &Conf
 }
 
-// SetDefaults sets configuration defaults
+// SetDefaults sets configuration defaults.
 func SetDefaults() {
 	UserConf.SetDefaults()
 }

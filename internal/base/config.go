@@ -3,21 +3,22 @@ package base
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/nightlyone/lockfile"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
 const (
-	// CurrentConfigFileVersion current or default config file version
+	// CurrentConfigFileVersion current or default config file version.
 	CurrentConfigFileVersion = 1
 )
 
-// Config application's configuration
+// Config implements the rtc.Config interface.
 type Config struct {
 	Version  int           `json:"version"`
 	FirstRun bool          `json:"firstRun"`
@@ -25,19 +26,16 @@ type Config struct {
 	Envs     []Environment `json:"envs"`
 }
 
-// GetFirstRun implements the rtc.Config interface
 func (c *Config) GetFirstRun() bool {
 	return c.FirstRun
 }
 
-// SetFirstRun implements the rtc.Config interface
 func (c *Config) SetFirstRun(v bool) {
 	c.FirstRun = v
 }
 
-// SetDefaults implements the rtc.Config interface
 func (c *Config) SetDefaults() {
-	log.Info("Setting config defaults")
+	slog.Info("Setting config defaults")
 
 	if c.Version == 0 {
 		c.Version = CurrentConfigFileVersion
@@ -53,17 +51,19 @@ func (c *Config) SetDefaults() {
 	}
 }
 
-// GetPort returns port as a string
+func (c *Config) SetLockFile(_ lockfile.Lockfile) {}
+
+// GetPort returns port as a string.
 func (c *Config) GetPort() string {
 	return ":" + strconv.Itoa(c.Port)
 }
 
-// GetURL returns application's base URL
+// GetURL returns application's base URL.
 func (c *Config) GetURL() string {
 	return "http://localhost" + c.GetPort()
 }
 
-// GetEnvConfig returns the configuration for the given environment
+// GetEnvConfig returns the configuration for the given environment.
 func (c *Config) GetEnvConfig(envName string) (env Environment) {
 	for _, e := range c.Envs {
 		if !e.Active {
@@ -77,7 +77,7 @@ func (c *Config) GetEnvConfig(envName string) (env Environment) {
 	return
 }
 
-// GetEnvsList returns the list of availablr environments
+// GetEnvsList returns the list of availablr environments.
 func (c *Config) GetEnvsList() (list []string) {
 	for _, e := range c.Envs {
 		if !e.Active {
@@ -88,7 +88,7 @@ func (c *Config) GetEnvsList() (list []string) {
 	return
 }
 
-// GetEnvTopics returns the list of topics for the given environment`
+// GetEnvTopics returns the list of topics for the given environment.
 func (c *Config) GetEnvTopics(envName string) (topics []Topic) {
 	for _, e := range c.Envs {
 		if e.Name == envName {
@@ -99,7 +99,7 @@ func (c *Config) GetEnvTopics(envName string) (topics []Topic) {
 	return
 }
 
-// GetEnvGroups returns the list of groups in the given environment
+// GetEnvGroups returns the list of groups in the given environment.
 func (c *Config) GetEnvGroups(envName string) (groups []Group) {
 	for _, e := range c.Envs {
 		if e.Name == envName {
@@ -110,7 +110,7 @@ func (c *Config) GetEnvGroups(envName string) (groups []Group) {
 	return
 }
 
-// GetEnvGroupTopics returns the list of topics in a given group, for a given environment
+// GetEnvGroupTopics returns the list of topics in a given group, for a given environment.
 func (c *Config) GetEnvGroupTopics(envName, groupID string) (topics []Topic) {
 	for _, e := range c.Envs {
 		if e.Name != envName {
@@ -148,7 +148,7 @@ func (c *Config) validate() (err error) {
 	return
 }
 
-// Environment defines a topics environment
+// Environment defines a topics environment.
 // FIXME: DEPRECATE AssignConsumer
 type Environment struct {
 	Name           string          `json:"name"`
@@ -163,20 +163,20 @@ type Environment struct {
 	Groups         []Group         `json:"groups"`
 }
 
-// EnvVars defines the Environment Vars type
+// EnvVars defines the Environment Vars type.
 type EnvVars map[string]string
 
-// EnvSchemas defines common JSON schemas
+// EnvSchemas defines common JSON schemas.
 type EnvSchemas map[string]interface{}
 
-// AllTopicsExist check if all topics exist for the given keys
+// AllTopicsExist check if all topics exist for the given keys.
 func (e *Environment) AllTopicsExist(keys []string) (exist bool) {
 	_, err := e.FindTopics(keys)
 	exist = err == nil
 	return
 }
 
-// FindTopic looks for topic by key
+// FindTopic looks for topic by key.
 func (e *Environment) FindTopic(key string) (v Topic, err error) {
 	for _, t := range e.Topics {
 		if key == t.Key {
@@ -191,7 +191,7 @@ func (e *Environment) FindTopic(key string) (v Topic, err error) {
 	return
 }
 
-// FindTopics looks for all topics in the given keys list
+// FindTopics looks for all topics in the given keys list.
 func (e *Environment) FindTopics(keys []string) (topics []Topic, err error) {
 	for _, k := range keys {
 		var v Topic
@@ -204,7 +204,7 @@ func (e *Environment) FindTopics(keys []string) (topics []Topic, err error) {
 	return
 }
 
-// FindTopicValues looks for all topics in the given keys list
+// FindTopicValues looks for all topics in the given keys list.
 func (e *Environment) FindTopicValues(keys []string) (values []string, err error) {
 	var topics []Topic
 	if topics, err = e.FindTopics(keys); err != nil {
@@ -214,7 +214,7 @@ func (e *Environment) FindTopicValues(keys []string) (values []string, err error
 	return
 }
 
-// GetTopic returns the topic matching the given value
+// GetTopic returns the topic matching the given value.
 func (e *Environment) GetTopic(value string) (v Topic, err error) {
 	for _, t := range e.Topics {
 		if value == t.Value {
@@ -230,7 +230,7 @@ func (e *Environment) GetTopic(value string) (v Topic, err error) {
 }
 
 func (e *Environment) setDefaults() {
-	log.Info("Setting env defaults")
+	slog.Info("Setting env defaults")
 
 	if e.Name == "" {
 		e.Name = "default"
@@ -261,7 +261,7 @@ func (e *Environment) setDefaults() {
 }
 
 func (e *Environment) setup() {
-	log.Info("Setting environment " + e.Name)
+	slog.Info("Setting environment " + e.Name)
 
 	e.Name = os.ExpandEnv(e.Name)
 	e.TopicsFrom = os.ExpandEnv(e.TopicsFrom)
@@ -342,7 +342,10 @@ func (e *Environment) validate() (err error) {
 		}
 		unique[t.Key] = t.Name
 	}
-	log.Infof("Found %v unique topic keys for environment %v", n, e.Name)
+	slog.With(
+		"topic-keys-count", n,
+		"env", e.Name,
+	).Info("Found unique topic keys for environment")
 
 	n = 0
 	for _, g := range e.Groups {
@@ -353,7 +356,10 @@ func (e *Environment) validate() (err error) {
 		}
 		unique[g.ID] = g.Name
 	}
-	log.Infof("Found %v unique group IDs for environment %v", n, e.Name)
+	slog.With(
+		"group-ids-count", n,
+		"env", e.Name,
+	).Info("Found unique group IDs for environment")
 	return
 }
 
@@ -361,7 +367,7 @@ func (g *EnvVars) setDefaults() {
 	*g = EnvVars{"myVar": "some-value"}
 }
 
-// Topic defines a topic structure
+// Topic defines a topic structure.
 type Topic struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description"`
@@ -372,7 +378,7 @@ type Topic struct {
 	Schema      TopicSchema `json:"schema"`
 }
 
-// TopicSchema defines the applicable JSON schema
+// TopicSchema defines the applicable JSON schema.
 type TopicSchema map[string]interface{}
 
 func (t *Topic) expandVars(vars EnvVars) {
@@ -418,7 +424,7 @@ func getValues(topics []Topic) (values []string) {
 	return
 }
 
-// Group defines a group of topics
+// Group defines a group of topics.
 type Group struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -445,7 +451,7 @@ func (g *Group) validate() (err error) {
 	return
 }
 
-// Header defines the Headers type
+// Header defines the Headers type.
 type Header struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`

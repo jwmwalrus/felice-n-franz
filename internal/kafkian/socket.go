@@ -2,17 +2,17 @@ package kafkian
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
-	"github.com/jwmwalrus/onerror"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-// WS web socket connection
+// WS web socket connection.
 var WS *websocket.Conn
 
 var socketGuard chan struct{}
@@ -22,12 +22,12 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-// HandleWS handles web socket messages
+// HandleWS handles web socket messages.
 func HandleWS(w http.ResponseWriter, r *http.Request) {
 	var err error
 	WS, err = upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		slog.Error("Failed to upgrade socket", "error", err)
 		return
 	}
 
@@ -50,14 +50,14 @@ func (c connection) processMessages() {
 		_, msg, err := c.ws.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-				log.Printf("error: %v", err)
+				slog.Error("Unexpected close error", "error", err)
 			}
 			break
 		}
 
 		res := receivedMsg{}
 		json.Unmarshal(msg, &res)
-		log.Infof("Received socked message: %v", res)
+		slog.Info("Received socked message", "received-msg", res)
 
 		switch res.MsgType {
 		case consumeTopicsMsg:
@@ -67,7 +67,7 @@ func (c connection) processMessages() {
 			if env.AssignConsumer {
 				for _, t := range topics {
 					if err := AssignConsumer(env, t); err != nil {
-						log.Error(err)
+						slog.Error("Failed to assign consumer", "error", err)
 						toast := toastMsg{
 							ToastType: toastError,
 							Title:     "Consumer Error",
@@ -79,7 +79,7 @@ func (c connection) processMessages() {
 			} else {
 				for _, t := range topics {
 					if err := SubscribeConsumer(env, t); err != nil {
-						log.Error(err)
+						slog.Error("Failed to subscribe consumer", "error", err)
 						toast := toastMsg{
 							ToastType: toastError,
 							Title:     "Consumer Error",
@@ -103,7 +103,7 @@ func (c connection) processMessages() {
 				msg.Headers = headerB2K(res.Headers)
 			}
 			if err := ProduceMessage(env, &msg); err != nil {
-				log.Error(err)
+				slog.Error("Failed to produce message", "error", err)
 				toast := toastMsg{
 					ToastType: toastError,
 					Title:     "Producer Error",
@@ -115,7 +115,7 @@ func (c connection) processMessages() {
 		case lookupTopicMsg:
 			env := base.Conf.GetEnvConfig(res.Env)
 			if err := LookupTopic(env, res.Topic, res.Payload[0]); err != nil {
-				log.Error(err)
+				slog.Error("Failed to lookup topic", "error", err)
 				toast := toastMsg{
 					ToastType: toastError,
 					Title:     "Lookup Error",
@@ -180,15 +180,14 @@ type toastType string
 
 const (
 	toastError toastType = "error"
-	// toastWarning toastType = "warning"
-	toastInfo toastType = "info"
+	toastInfo  toastType = "info"
 )
 
 func (t toastMsg) send() {
 	t.SentAt = time.Now().Unix()
 	payload, err := json.Marshal(t)
 	if err != nil {
-		log.Error(err)
+		slog.Error("Failed to marshal toast message", "error", err)
 		return
 	}
 
@@ -224,7 +223,7 @@ func sendKafkaMessage(m *kafka.Message, searchID string) {
 	}
 	payload, err := json.Marshal(flat)
 	if err != nil {
-		log.Error(err)
+		slog.Error("Failed to marshal Kafka message", "error", err)
 		return
 	}
 

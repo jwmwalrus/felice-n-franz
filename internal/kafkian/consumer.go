@@ -1,17 +1,17 @@
 package kafkian
 
 import (
-	"errors"
+	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
-	"github.com/jwmwalrus/onerror"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-// SubscribeConsumer creates a consumer for the given environment topics
+// SubscribeConsumer creates a consumer for the given environment topics.
 func SubscribeConsumer(env base.Environment, topic string) (err error) {
 	var c *kafka.Consumer
 
@@ -37,7 +37,7 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 		for {
 			select {
 			case <-reg.quit:
-				log.Info("Consumer is not registered anymore!")
+				slog.Info("Consumer is not registered anymore!")
 				if c != nil {
 					err := c.Unsubscribe()
 					onerror.Warn(err)
@@ -51,13 +51,19 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 					if e.Timestamp.Unix() <= cct.Unix() {
 						continue
 					}
-					log.Infof("%% Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+					slog.With(
+						"topic-partition", e.TopicPartition,
+						"value", string(e.Value),
+					).Info("%% Message")
 					if e.Headers != nil {
-						log.Infof("%% Headers: %v\n", e.Headers)
+						slog.Info("%% Headers", "headers", e.Headers)
 					}
 					sendKafkaMessage(e, "")
 				case kafka.Error:
-					log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
+					slog.With(
+						"code", e.Code(),
+						"error", e,
+					).Error("Kafka error")
 					toast := toastMsg{
 						ToastType:    toastError,
 						Title:        "Consumer Error",
@@ -70,7 +76,7 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 					}
 				case nil:
 				default:
-					log.Infof("Ignored %v\n", e)
+					slog.Warn("Ignoring Kafka event", "event", e)
 				}
 			}
 		}
@@ -78,7 +84,7 @@ func SubscribeConsumer(env base.Environment, topic string) (err error) {
 	return
 }
 
-// AssignConsumer creates a consumer for the given environment topic
+// AssignConsumer creates a consumer for the given environment topic.
 func AssignConsumer(env base.Environment, topic string) (err error) {
 	var c *kafka.Consumer
 
@@ -103,7 +109,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 	}
 
 	if len((*meta).Topics[topic].Partitions) == 0 {
-		err = errors.New("There are no available partitions for topic " + topic)
+		err = fmt.Errorf("there are no available partitions for topic %v ", topic)
 		return
 	}
 
@@ -122,7 +128,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 		for {
 			select {
 			case <-reg.quit:
-				log.Info("Consumer is not registered anymore!")
+				slog.Info("Consumer is not registered anymore!")
 				err := c.Unsubscribe()
 				onerror.Warn(err)
 				break assignLoop
@@ -134,13 +140,19 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 					if e.Timestamp.Unix() <= cct.Unix() {
 						continue
 					}
-					log.Infof("Message on %s:\n%s\n", e.TopicPartition, string(e.Value))
+					slog.With(
+						"topic-partition", e.TopicPartition,
+						"value", string(e.Value),
+					).Info("%% Message")
 					if e.Headers != nil {
-						log.Infof("Headers: %v\n", e.Headers)
+						slog.Info("%% Headers", "headers", e.Headers)
 					}
 					sendKafkaMessage(e, "")
 				case kafka.Error:
-					log.WithFields(log.Fields{"code": e.Code()}).Error(e.String())
+					slog.With(
+						"code", e.Code(),
+						"error", e,
+					).Error("Kafka error")
 					toast := toastMsg{
 						ToastType:    toastError,
 						Title:        "Consumer Error",
@@ -153,7 +165,7 @@ func AssignConsumer(env base.Environment, topic string) (err error) {
 					}
 				case nil:
 				default:
-					log.Infof("Ignored %v\n", e)
+					slog.Warn("Ignoring Kafka event", "event", e)
 				}
 			}
 		}

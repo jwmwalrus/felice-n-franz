@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jwmwalrus/bnp/onerror"
 	"github.com/jwmwalrus/felice-n-franz/internal/base"
 	"github.com/jwmwalrus/felice-n-franz/internal/kafkian"
-	"github.com/jwmwalrus/onerror"
 	rtc "github.com/jwmwalrus/rtcycler"
 	"github.com/jwmwalrus/walkie"
 )
@@ -22,7 +22,6 @@ var indexHTML string
 var staticContent embed.FS
 
 func main() {
-
 	rtc.Load(rtc.RTCycler{
 		AppDirName: base.AppDirName,
 		AppName:    base.AppName,
@@ -30,9 +29,11 @@ func main() {
 	})
 	cfg := base.Validate()
 
-	gin.DefaultWriter = walkie.NewDefaultWriter()
+	gl := walkie.New()
+
+	gin.DefaultWriter = gl.Writer()
 	r := gin.Default()
-	r.Use(walkie.ToFile())
+	r.Use(gl.ToFile())
 	r.Use(gin.Recovery())
 
 	route(r)

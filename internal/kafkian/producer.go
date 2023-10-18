@@ -5,7 +5,7 @@ import (
 	"gopkg.in/confluentinc/confluent-kafka-go.v1/kafka"
 )
 
-// ProduceMessage produces the given message, using the given environment configuration
+// ProduceMessage produces the given message, using the given environment configuration.
 func ProduceMessage(env base.Environment, msg *kafka.Message) (err error) {
 	var p *kafka.Producer
 	ec := kafka.ConfigMap{}
